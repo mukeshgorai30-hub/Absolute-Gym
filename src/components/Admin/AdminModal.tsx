@@ -17,6 +17,7 @@ import { ReceiptModal, ReceiptData } from '../Modals/ReceiptModal';
 import { CafeManagerTab } from './CafeManagerTab';
 import { FaqManagerTab } from './FaqManagerTab';
 import { SpaManagerTab } from './SpaManagerTab';
+import { SupabaseManagerTab } from './SupabaseManagerTab';
 import { ImageUploadField } from './ImageUploadField';
 import { defaultSpaServices } from '../../data/defaultGymData';
 import {
@@ -78,6 +79,7 @@ import {
   User,
   Smartphone,
   ShieldCheck,
+  Database,
 } from 'lucide-react';
 
 export const AdminModal: React.FC = () => {
@@ -117,6 +119,7 @@ export const AdminModal: React.FC = () => {
     isCloudSynced,
     cloudSyncStatus,
     syncToCloudNow,
+    isSupabaseActive,
   } = useGym();
 
   const [isManualSyncing, setIsManualSyncing] = useState(false);
@@ -262,10 +265,12 @@ export const AdminModal: React.FC = () => {
             <button
               onClick={async () => {
                 setIsManualSyncing(true);
-                const success = await syncToCloudNow();
+                const res = await syncToCloudNow();
                 setIsManualSyncing(false);
-                if (success) {
-                  triggerSaveNotification('Live Cloud Synced! Mobile & Web updated instantly.');
+                if (res.success) {
+                  triggerSaveNotification(res.message);
+                } else {
+                  triggerSaveNotification(res.message);
                 }
               }}
               disabled={isManualSyncing}
@@ -346,6 +351,7 @@ export const AdminModal: React.FC = () => {
             { id: 'faqs', label: 'Frequently Asked Questions', icon: <HelpCircle className="w-4 h-4 text-emerald-400" />, badge: `${config.faqs?.length || 0} FAQs` },
             { id: 'testimonials', label: 'Reviews & Testimonials', icon: <MessageSquare className="w-4 h-4" /> },
             { id: 'gallery', label: 'Photo Gallery', icon: <Image className="w-4 h-4" /> },
+            { id: 'supabase', label: 'Supabase & Cloud Sync', icon: <Database className="w-4 h-4 text-emerald-400" />, badge: isSupabaseActive ? 'Live' : 'Connect', badgeColor: isSupabaseActive ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300' },
             { id: 'backup', label: 'Data & Factory Reset', icon: <Settings className="w-4 h-4" /> },
           ].map((tab) => (
             <button
@@ -380,6 +386,7 @@ export const AdminModal: React.FC = () => {
         <div className="md:hidden bg-neutral-950 border-b border-neutral-800 p-2 flex overflow-x-auto gap-1 shrink-0">
           {[
             { id: 'overview', label: 'Overview' },
+            { id: 'supabase', label: '⚡ Supabase Sync' },
             { id: 'logo', label: 'Brand Logo' },
             { id: 'visuals', label: 'Themes & Colors' },
             { id: 'backgrounds', label: 'Background Images' },
@@ -3923,6 +3930,11 @@ export const AdminModal: React.FC = () => {
           {/* TAB: FREQUENTLY ASKED QUESTIONS (FAQ) */}
           {adminTab === 'faqs' && (
             <FaqManagerTab onNotify={triggerSaveNotification} />
+          )}
+
+          {/* TAB: SUPABASE & CLOUD REALTIME SYNC */}
+          {adminTab === 'supabase' && (
+            <SupabaseManagerTab onNotify={triggerSaveNotification} />
           )}
 
           {/* TAB 10: BACKUP & FACTORY RESET */}

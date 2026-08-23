@@ -16,6 +16,17 @@ import {
 } from '../types';
 import { defaultGymConfig, sampleInitialLeads, defaultSpaServices } from '../data/defaultGymData';
 import { db, doc, onSnapshot, setDoc, getDoc, collection, getDocs, updateDoc, deleteDoc } from '../firebase';
+import {
+  getSupabaseClient,
+  fetchSupabaseConfig,
+  saveSupabaseConfig,
+  fetchSupabaseLeads,
+  saveSupabaseLead,
+  getStoredSupabaseCredentials,
+  saveStoredSupabaseCredentials,
+  testSupabaseConnection,
+  SupabaseConfigSettings,
+} from '../supabase';
 
 interface GymContextType {
   config: GymConfig;
@@ -23,6 +34,12 @@ interface GymContextType {
   themeColor: ThemeColor;
   isCloudSynced: boolean;
   cloudSyncStatus: 'synced' | 'saving' | 'offline';
+  
+  // Supabase Backend Management
+  supabaseConfig: SupabaseConfigSettings;
+  updateSupabaseCredentials: (creds: Partial<SupabaseConfigSettings>) => void;
+  testSupabase: () => Promise<{ success: boolean; message: string; tableExists: boolean }>;
+  isSupabaseActive: boolean;
   
   // UI Modals & Navigation
   isAdminOpen: boolean;
@@ -110,7 +127,13 @@ interface GymContextType {
   resetToDefaults: () => void;
   exportConfigJson: () => string;
   importConfigJson: (jsonString: string) => { success: boolean; message?: string };
-  syncToCloudNow: () => Promise<boolean>;
+  syncToCloudNow: () => Promise<{
+    success: boolean;
+    message: string;
+    supabaseSynced?: boolean;
+    firestoreSynced?: boolean;
+    errorDetail?: string;
+  }>;
 }
 
 const GymContext = createContext<GymContextType | undefined>(undefined);
@@ -165,6 +188,8 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [isCloudSynced, setIsCloudSynced] = useState<boolean>(false);
   const [cloudSyncStatus, setCloudSyncStatus] = useState<'synced' | 'saving' | 'offline'>('synced');
+  const [supabaseConfig, setSupabaseConfig] = useState<SupabaseConfigSettings>(() => getStoredSupabaseCredentials());
+  const [isSupabaseActive, setIsSupabaseActive] = useState<boolean>(() => Boolean(getStoredSupabaseCredentials().isEnabled && getStoredSupabaseCredentials().url));
   const isInitialCloudLoadDone = useRef<boolean>(false);
   const isLocalUpdate = useRef<boolean>(false);
   const lastLocalEditTimestamp = useRef<number>(0);
@@ -181,7 +206,107 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
   const [isReceiptPortalOpen, setIsReceiptPortalOpen] = useState(false);
 
-  // 1. Subscribe to Firestore Real-Time Updates (Cross-device Cloud Sync)
+  // 1. Supabase Realtime Synchronization Engine
+  useEffect(() => {
+    const client = getSupabaseClient();
+    if (!client) {
+      setIsSupabaseActive(false);
+      return;
+    }
+
+    setIsSupabaseActive(true);
+
+    // Initial fetch from Supabase
+    fetchSupabaseConfig().then((cloudCfg) => {
+      if (cloudCfg) {
+        const cloudJson = JSON.stringify(cloudCfg);
+        if (cloudJson !== lastSavedConfigJson.current) {
+          lastSavedConfigJson.current = cloudJson;
+          setConfigState((prev) => ({
+            ...prev,
+            ...cloudCfg,
+            spaServices: cloudCfg.spaServices && cloudCfg.spaServices.length > 0 ? cloudCfg.spaServices : (prev.spaServices || defaultSpaServices),
+            cafe: {
+              ...prev.cafe,
+              ...(cloudCfg.cafe || {}),
+              items: cloudCfg.cafe?.items && cloudCfg.cafe.items.length > 0 ? cloudCfg.cafe.items : prev.cafe?.items || defaultGymConfig.cafe.items,
+            },
+          }));
+          setIsCloudSynced(true);
+          setCloudSyncStatus('synced');
+        }
+      } else {
+        // First time bootstrap in Supabase: push current config
+        saveSupabaseConfig(config).catch((err) => console.warn('Supabase initial bootstrap notice:', err));
+      }
+    });
+
+    // Initial leads fetch from Supabase
+    fetchSupabaseLeads().then((cloudLeads) => {
+      if (cloudLeads && cloudLeads.length > 0) {
+        setLeads(cloudLeads);
+      }
+    });
+
+    // Setup Supabase Realtime Channels for instant cross-device updates
+    let configChannel: any = null;
+    let leadsChannel: any = null;
+
+    try {
+      configChannel = client
+        .channel('public:gym_config_changes')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'gym_config' },
+          (payload: any) => {
+            if (Date.now() - lastLocalEditTimestamp.current < 1500) return;
+            if (payload?.new && payload.new.data) {
+              const remoteData = payload.new.data as Partial<GymConfig>;
+              const remoteJson = JSON.stringify(remoteData);
+              if (remoteJson !== lastSavedConfigJson.current) {
+                lastSavedConfigJson.current = remoteJson;
+                setConfigState((prev) => ({
+                  ...prev,
+                  ...remoteData,
+                  spaServices: remoteData.spaServices && remoteData.spaServices.length > 0 ? remoteData.spaServices : (prev.spaServices || defaultSpaServices),
+                  cafe: {
+                    ...prev.cafe,
+                    ...(remoteData.cafe || {}),
+                    items: remoteData.cafe?.items && remoteData.cafe.items.length > 0 ? remoteData.cafe.items : prev.cafe?.items || defaultGymConfig.cafe.items,
+                  },
+                }));
+                setIsCloudSynced(true);
+                setCloudSyncStatus('synced');
+              }
+            }
+          }
+        )
+        .subscribe();
+
+      leadsChannel = client
+        .channel('public:gym_leads_changes')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'gym_leads' },
+          () => {
+            fetchSupabaseLeads().then((latestLeads) => {
+              if (latestLeads) setLeads(latestLeads);
+            });
+          }
+        )
+        .subscribe();
+    } catch (e) {
+      console.warn('Supabase realtime subscription note:', e);
+    }
+
+    return () => {
+      if (configChannel && client) client.removeChannel(configChannel);
+      if (leadsChannel && client) client.removeChannel(leadsChannel);
+    };
+  }, [supabaseConfig]);
+
+  // 2. Subscribe to Firestore Real-Time Updates (Dual Cloud Fallback)
+
   useEffect(() => {
     let unsubscribeConfig: (() => void) | null = null;
     let unsubscribeLeads: (() => void) | null = null;
@@ -356,27 +481,46 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.error('Error saving config to localStorage:', err);
     }
 
-    // Debounced write to Firestore
+    // Debounced write to Firestore & Supabase
     if (isInitialCloudLoadDone.current) {
       isLocalUpdate.current = true;
       setCloudSyncStatus('saving');
       const timer = setTimeout(async () => {
+        let supabaseSuccess = false;
+        let firestoreSuccess = false;
+
+        // Save to Supabase if enabled
+        if (isSupabaseActive) {
+          try {
+            const res = await saveSupabaseConfig(config);
+            if (res.success) supabaseSuccess = true;
+          } catch (e) {
+            console.warn('Supabase auto-save warning:', e);
+          }
+        }
+
+        // Save to Firestore
         try {
           const configDocRef = doc(db, 'gym_config', FIRESTORE_CONFIG_DOC);
           await setDoc(configDocRef, { ...config, updatedAt: new Date().toISOString() }, { merge: true });
+          firestoreSuccess = true;
+        } catch (error) {
+          console.warn('Firestore auto-save warning:', error);
+        }
+
+        if (supabaseSuccess || firestoreSuccess || !isSupabaseActive) {
           setIsCloudSynced(true);
           setCloudSyncStatus('synced');
-        } catch (error) {
-          console.warn('Could not sync config to Firestore cloud:', error);
+        } else {
           setCloudSyncStatus('offline');
-        } finally {
-          isLocalUpdate.current = false;
         }
+
+        isLocalUpdate.current = false;
       }, 500);
 
       return () => clearTimeout(timer);
     }
-  }, [config]);
+  }, [config, isSupabaseActive]);
 
   // 4. Save leads to local storage
   useEffect(() => {
@@ -392,20 +536,110 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [leads]);
 
-  const syncToCloudNow = async (): Promise<boolean> => {
-    try {
-      setCloudSyncStatus('saving');
-      const configDocRef = doc(db, 'gym_config', FIRESTORE_CONFIG_DOC);
-      await setDoc(configDocRef, { ...config, updatedAt: new Date().toISOString() }, { merge: true });
-      setIsCloudSynced(true);
-      setCloudSyncStatus('synced');
-      return true;
-    } catch (e) {
-      console.error('Manual cloud sync failed:', e);
-      setCloudSyncStatus('offline');
-      return false;
+  const updateSupabaseCredentials = (creds: Partial<SupabaseConfigSettings>) => {
+    const updated = saveStoredSupabaseCredentials(creds);
+    if (updated) {
+      setSupabaseConfig(updated);
+      setIsSupabaseActive(Boolean(updated.isEnabled && updated.url && updated.anonKey));
     }
   };
+
+  const testSupabase = async () => {
+    return await testSupabaseConnection();
+  };
+
+  const syncToCloudNow = async (): Promise<{
+    success: boolean;
+    message: string;
+    supabaseSynced?: boolean;
+    firestoreSynced?: boolean;
+    errorDetail?: string;
+  }> => {
+    setCloudSyncStatus('saving');
+    let supabaseSuccess = false;
+    let supabaseErrorMsg: string | undefined = undefined;
+    let firestoreSuccess = false;
+    let firestoreErrorMsg: string | undefined = undefined;
+
+    // 1. Attempt Supabase
+    if (isSupabaseActive) {
+      try {
+        const res = await saveSupabaseConfig(config);
+        if (res.success) {
+          supabaseSuccess = true;
+          // Sync leads to Supabase as well
+          for (const lead of leads) {
+            await saveSupabaseLead(lead);
+          }
+        } else {
+          supabaseErrorMsg = res.error;
+        }
+      } catch (e: any) {
+        supabaseErrorMsg = e?.message || 'Supabase write error';
+      }
+    }
+
+    // 2. Attempt Firestore
+    try {
+      const configDocRef = doc(db, 'gym_config', FIRESTORE_CONFIG_DOC);
+      await setDoc(configDocRef, { ...config, updatedAt: new Date().toISOString() }, { merge: true });
+      firestoreSuccess = true;
+    } catch (e: any) {
+      firestoreErrorMsg = e?.message || 'Firestore write error';
+    }
+
+    if (supabaseSuccess && firestoreSuccess) {
+      setIsCloudSynced(true);
+      setCloudSyncStatus('synced');
+      return {
+        success: true,
+        message: 'Live Cloud Synced to Supabase & Firestore successfully!',
+        supabaseSynced: true,
+        firestoreSynced: true,
+      };
+    }
+
+    if (supabaseSuccess) {
+      setIsCloudSynced(true);
+      setCloudSyncStatus('synced');
+      return {
+        success: true,
+        message: 'Synced to Supabase successfully! All devices & Netlify visitors will see updates in real-time.',
+        supabaseSynced: true,
+        firestoreSynced: false,
+      };
+    }
+
+    if (firestoreSuccess) {
+      setIsCloudSynced(true);
+      setCloudSyncStatus('synced');
+      if (isSupabaseActive && supabaseErrorMsg) {
+        return {
+          success: true,
+          message: `Synced to Firestore! (Supabase notice: ${supabaseErrorMsg})`,
+          supabaseSynced: false,
+          firestoreSynced: true,
+          errorDetail: supabaseErrorMsg,
+        };
+      }
+      return {
+        success: true,
+        message: 'Live Cloud Synced to Firestore successfully!',
+        supabaseSynced: false,
+        firestoreSynced: true,
+      };
+    }
+
+    // Both failed
+    setCloudSyncStatus('offline');
+    const failureReason = supabaseErrorMsg || firestoreErrorMsg || 'Connection error. Please verify your internet or Supabase credentials.';
+    return {
+      success: false,
+      message: `Cloud sync notice: ${failureReason}`,
+      errorDetail: failureReason,
+    };
+  };
+
 
   const updateConfig = (updater: Partial<GymConfig> | ((prev: GymConfig) => GymConfig)) => {
     lastLocalEditTimestamp.current = Date.now();
@@ -678,7 +912,10 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setLeads((prev) => [newLead, ...prev]);
 
-    // Persist to Firestore
+    // Persist to Supabase & Firestore
+    if (isSupabaseActive) {
+      saveSupabaseLead(newLead).catch((err) => console.warn('Supabase lead write notice:', err));
+    }
     try {
       const leadDocRef = doc(db, 'leads', newId);
       setDoc(leadDocRef, newLead).catch((err) => console.warn('Could not write lead to Firestore:', err));
@@ -691,6 +928,10 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const updateLeadStatus = (id: string, status: MemberLead['status']) => {
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status } : l)));
+    const targetLead = leads.find((l) => l.id === id);
+    if (targetLead && isSupabaseActive) {
+      saveSupabaseLead({ ...targetLead, status }).catch((err) => console.warn('Supabase updateLead notice:', err));
+    }
     try {
       const leadDocRef = doc(db, 'leads', id);
       updateDoc(leadDocRef, { status }).catch((err) => console.warn('Could not update lead in Firestore:', err));
@@ -701,6 +942,10 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const deleteLead = (id: string) => {
     setLeads((prev) => prev.filter((l) => l.id !== id));
+    const client = getSupabaseClient();
+    if (client && isSupabaseActive) {
+      Promise.resolve(client.from('gym_leads').delete().eq('id', id)).catch((err) => console.warn('Supabase delete lead note:', err));
+    }
     try {
       const leadDocRef = doc(db, 'leads', id);
       deleteDoc(leadDocRef).catch((err) => console.warn('Could not delete lead from Firestore:', err));
@@ -804,11 +1049,16 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isCloudSynced,
         cloudSyncStatus,
         syncToCloudNow,
+        supabaseConfig,
+        updateSupabaseCredentials,
+        testSupabase,
+        isSupabaseActive,
       }}
     >
       {children}
     </GymContext.Provider>
   );
+
 };
 
 export const useGym = () => {
