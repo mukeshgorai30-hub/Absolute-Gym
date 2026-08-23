@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useGym } from '../../context/GymContext';
 import { themeStyles } from '../../utils/theme';
-import { X, Calendar, Clock, CheckCircle, UserCheck } from 'lucide-react';
+import { X, Calendar, CheckCircle, ArrowLeft } from 'lucide-react';
 
 export const TrainerBookingModal: React.FC = () => {
   const { selectedTrainerForModal, setSelectedTrainerForModal, themeColor, config, addLead } = useGym();
@@ -56,13 +56,28 @@ export const TrainerBookingModal: React.FC = () => {
         className="relative max-w-xl w-full bg-neutral-900 rounded-3xl border border-neutral-800 p-6 sm:p-8 shadow-2xl my-8 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          id="close-trainer-modal-btn"
-          onClick={handleClose}
-          className="absolute top-4 right-4 p-2 rounded-full bg-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-700 transition"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        {/* Back / Close Header */}
+        <div className="flex items-center justify-between mb-4">
+          <button
+            type="button"
+            id="back-to-coaches-btn"
+            onClick={handleClose}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white text-xs font-bold transition active:scale-95 touch-manipulation"
+            title="Go back"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back</span>
+          </button>
+
+          <button
+            id="close-trainer-modal-btn"
+            onClick={handleClose}
+            className="p-2 rounded-full bg-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-700 transition"
+            title="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
         {submitted ? (
           <div className="text-center py-8 space-y-4">
@@ -75,7 +90,15 @@ export const TrainerBookingModal: React.FC = () => {
             <p className="text-xs sm:text-sm text-neutral-300 max-w-md mx-auto">
               We've notified <span className="font-bold text-amber-400">{trainer.name}</span>. Our training coordinator will call or email you within 2 hours to confirm your time slot and pre-assessment form.
             </p>
-            <div className="pt-4">
+            <div className="pt-4 flex items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={handleClose}
+                className="px-6 py-3 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5 transition"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back</span>
+              </button>
               <button
                 onClick={handleClose}
                 className={`px-6 py-3 rounded-xl text-xs font-extrabold uppercase tracking-wider ${theme.accentBg}`}
@@ -179,11 +202,20 @@ export const TrainerBookingModal: React.FC = () => {
                 />
               </div>
 
-              <div className="pt-2">
+              <div className="pt-2 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="px-5 py-3 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white text-xs font-extrabold uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-1.5"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back</span>
+                </button>
+
                 <button
                   type="submit"
                   id="submit-trainer-booking-btn"
-                  className={`w-full py-4 px-6 rounded-xl text-sm font-extrabold uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${theme.accentBg}`}
+                  className={`flex-1 py-3 px-6 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${theme.accentBg}`}
                 >
                   <Calendar className="w-4 h-4" />
                   <span>Request Assessment Session</span>

@@ -23,6 +23,7 @@ import {
   FileText,
   Printer,
   FileDown,
+  ArrowLeft,
 } from 'lucide-react';
 import { downloadReceiptAsPDF, downloadReceiptAsText, FormattedReceipt } from '../../utils/receiptGenerator';
 
@@ -89,6 +90,21 @@ export const PlanBookingModal: React.FC = () => {
     }, 1000);
     return () => clearInterval(interval);
   }, [selectedPlanForModal, submitted]);
+
+  // Handle escape key and browser back button
+  useEffect(() => {
+    if (!selectedPlanForModal) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedPlanForModal]);
 
   if (!selectedPlanForModal) return null;
 
@@ -224,13 +240,28 @@ export const PlanBookingModal: React.FC = () => {
         className="relative max-w-2xl w-full bg-neutral-900 rounded-3xl border border-neutral-800 p-6 sm:p-8 shadow-2xl my-8 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          id="close-plan-modal-btn"
-          onClick={handleClose}
-          className="absolute top-4 right-4 p-2 rounded-full bg-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-700 transition z-10"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        {/* Top Control Bar with Back & Close Buttons */}
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-neutral-800/80">
+          <button
+            type="button"
+            id="back-to-plans-btn"
+            onClick={handleClose}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white text-xs font-bold transition active:scale-95 touch-manipulation"
+            title="Go back to membership plans"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back</span>
+          </button>
+
+          <button
+            id="close-plan-modal-btn"
+            onClick={handleClose}
+            className="p-2 rounded-full bg-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-700 transition"
+            title="Close"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
 
         {/* PROCESSING OVERLAY */}
         {isProcessing && (
@@ -940,12 +971,22 @@ export const PlanBookingModal: React.FC = () => {
                 )}
               </div>
 
-              {/* Submit CTA Button - ZERO DOLLAR SIGN */}
-              <div className="pt-3">
+              {/* Submit CTA Button Row with Back button */}
+              <div className="pt-3 flex items-center gap-3">
+                <button
+                  type="button"
+                  id="bottom-back-to-plans-btn"
+                  onClick={handleClose}
+                  className="px-5 py-4 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white text-xs font-black uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-1.5 shrink-0"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back</span>
+                </button>
+
                 <button
                   type="submit"
                   id="confirm-plan-enrollment-btn"
-                  className={`w-full py-4 px-6 rounded-xl text-sm font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xl hover:brightness-110 ${theme.accentBg}`}
+                  className={`flex-1 py-4 px-6 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xl hover:brightness-110 ${theme.accentBg}`}
                 >
                   <Zap className="w-4 h-4 fill-current" />
                   <span>
