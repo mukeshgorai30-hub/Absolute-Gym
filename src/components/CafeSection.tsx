@@ -293,7 +293,7 @@ export const CafeSection: React.FC = () => {
                     <div>
                       <span className="text-[10px] uppercase font-bold text-neutral-500 block">Price</span>
                       <div className="text-xl font-black font-mono text-white">
-                        {currency}{item.price.toLocaleString('en-IN')}
+                        {currency}{(item.price ?? 0).toLocaleString('en-IN')}
                       </div>
                     </div>
 

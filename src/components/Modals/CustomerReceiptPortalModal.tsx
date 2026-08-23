@@ -274,12 +274,13 @@ export const CustomerReceiptPortalModal: React.FC = () => {
 
   const handleShareWhatsApp = () => {
     if (!activeReceipt) return;
+    const total = activeReceipt.totalAmount ?? 0;
     const text = `*${config.name} - Official Membership Tax Receipt*\n\n` +
       `🧾 *Receipt No:* ${activeReceipt.receiptNumber}\n` +
       `👤 *Member Name:* ${activeReceipt.memberName}\n` +
       `🆔 *Member ID:* ${activeReceipt.memberId}\n` +
       `🏋️ *Plan:* ${activeReceipt.planName}\n` +
-      `💰 *Total Paid:* ${currency}${activeReceipt.totalAmount.toLocaleString('en-IN')}\n` +
+      `💰 *Total Paid:* ${currency}${total.toLocaleString('en-IN')}\n` +
       `💳 *Payment Method:* ${activeReceipt.paymentMethod}\n` +
       `📅 *Valid Until:* ${activeReceipt.expiryDate}\n` +
       `✅ *Status:* ACTIVE (PAID)\n\n` +
@@ -296,7 +297,8 @@ export const CustomerReceiptPortalModal: React.FC = () => {
 
   const handleCopySummary = () => {
     if (!activeReceipt) return;
-    const text = `*${config.name} Membership Receipt*\nReceipt: ${activeReceipt.receiptNumber}\nMember: ${activeReceipt.memberName} (${activeReceipt.memberId})\nPlan: ${activeReceipt.planName}\nAmount Paid: ${currency}${activeReceipt.totalAmount.toLocaleString('en-IN')}\nStatus: Paid & Active`;
+    const total = activeReceipt.totalAmount ?? 0;
+    const text = `*${config.name} Membership Receipt*\nReceipt: ${activeReceipt.receiptNumber}\nMember: ${activeReceipt.memberName} (${activeReceipt.memberId})\nPlan: ${activeReceipt.planName}\nAmount Paid: ${currency}${total.toLocaleString('en-IN')}\nStatus: Paid & Active`;
     navigator.clipboard?.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
@@ -584,10 +586,10 @@ export const CustomerReceiptPortalModal: React.FC = () => {
                           {activeReceipt.duration}
                         </td>
                         <td className="py-4 text-right font-mono text-neutral-600">
-                          {currency}{activeReceipt.taxAmount.toLocaleString('en-IN')}
+                          {currency}{(activeReceipt.taxAmount ?? 0).toLocaleString('en-IN')}
                         </td>
                         <td className="py-4 text-right font-mono font-bold text-neutral-950 text-sm">
-                          {currency}{activeReceipt.totalAmount.toLocaleString('en-IN')}
+                          {currency}{(activeReceipt.totalAmount ?? 0).toLocaleString('en-IN')}
                         </td>
                       </tr>
                     </tbody>
@@ -628,19 +630,19 @@ export const CustomerReceiptPortalModal: React.FC = () => {
                     <div className="flex justify-between text-neutral-600">
                       <span>Subtotal (Base):</span>
                       <span className="font-mono font-bold text-neutral-900">
-                        {currency}{activeReceipt.baseAmount.toLocaleString('en-IN')}
+                        {currency}{(activeReceipt.baseAmount ?? 0).toLocaleString('en-IN')}
                       </span>
                     </div>
                     <div className="flex justify-between text-neutral-600">
                       <span>GST (18%):</span>
                       <span className="font-mono font-bold text-neutral-900">
-                        {currency}{activeReceipt.taxAmount.toLocaleString('en-IN')}
+                        {currency}{(activeReceipt.taxAmount ?? 0).toLocaleString('en-IN')}
                       </span>
                     </div>
                     <div className="pt-2 border-t border-neutral-300 flex justify-between items-baseline">
                       <span className="text-sm font-black uppercase text-neutral-950">Total Paid:</span>
                       <span className="text-xl font-black font-mono text-neutral-950">
-                        {currency}{activeReceipt.totalAmount.toLocaleString('en-IN')}
+                        {currency}{(activeReceipt.totalAmount ?? 0).toLocaleString('en-IN')}
                       </span>
                     </div>
                   </div>

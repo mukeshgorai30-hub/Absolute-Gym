@@ -380,7 +380,7 @@ export const SpaManagerTab: React.FC<SpaManagerTabProps> = ({ onNotify }) => {
                   <td className="py-3.5 px-4 align-top bg-emerald-950/10">
                     <div className="font-mono text-base font-black text-emerald-400">
                       {currency}
-                      {service.memberPrice.toLocaleString('en-IN')}
+                      {(service.memberPrice ?? 0).toLocaleString('en-IN')}
                     </div>
                     <span className="text-[10px] text-emerald-500/80 font-bold block">
                       Save {currency}
@@ -392,7 +392,7 @@ export const SpaManagerTab: React.FC<SpaManagerTabProps> = ({ onNotify }) => {
                   <td className="py-3.5 px-4 align-top">
                     <div className="font-mono text-base font-black text-neutral-200">
                       {currency}
-                      {service.nonMemberPrice.toLocaleString('en-IN')}
+                      {(service.nonMemberPrice ?? 0).toLocaleString('en-IN')}
                     </div>
                     <span className="text-[10px] text-neutral-500 block">Standard Rate</span>
                   </td>

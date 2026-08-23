@@ -118,7 +118,7 @@ export const TrainersSection: React.FC = () => {
 
                   {/* Hourly Rate Chip */}
                   <div className="absolute top-3 right-3 bg-neutral-950/90 backdrop-blur-md px-3 py-1 rounded-full border border-neutral-800 text-[11px] font-black text-white">
-                    {config.currencySymbol || '₹'}{trainer.ratePerSession.toLocaleString('en-IN')}/session
+                    {config.currencySymbol || '₹'}{(trainer.ratePerSession ?? 0).toLocaleString('en-IN')}/session
                   </div>
                 </div>
 

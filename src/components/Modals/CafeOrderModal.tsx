@@ -109,7 +109,7 @@ export const CafeOrderModal: React.FC<CafeOrderModalProps> = ({ item, isOpen, on
               </span>
               <h4 className="text-sm font-bold text-white truncate">{item.name}</h4>
               <div className="text-xs font-mono font-bold text-amber-400 mt-0.5">
-                {currency}{item.price.toLocaleString('en-IN')}
+                {currency}{(item.price ?? 0).toLocaleString('en-IN')}
                 {item.proteinGrams && (
                   <span className="ml-2 text-neutral-400 font-sans font-normal text-[11px]">
                     ({item.proteinGrams}g Protein)

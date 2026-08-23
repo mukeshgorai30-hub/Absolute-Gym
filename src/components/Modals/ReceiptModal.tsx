@@ -178,7 +178,8 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
   };
 
   const handleShare = () => {
-    const summary = `*${config.name} Membership Receipt*\nReceipt No: ${formData.receiptNumber}\nMember: ${formData.memberName}\nPlan: ${formData.planName}\nTotal Paid: ${currency}${formData.totalAmount.toLocaleString('en-IN')}\nPayment: ${formData.paymentMethod}\nStatus: Active (Paid)`;
+    const total = formData.totalAmount ?? 0;
+    const summary = `*${config.name} Membership Receipt*\nReceipt No: ${formData.receiptNumber}\nMember: ${formData.memberName}\nPlan: ${formData.planName}\nTotal Paid: ${currency}${total.toLocaleString('en-IN')}\nPayment: ${formData.paymentMethod}\nStatus: Active (Paid)`;
     navigator.clipboard?.writeText(summary);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
@@ -551,10 +552,10 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                       {formData.duration}
                     </td>
                     <td className="py-4 text-right font-mono text-neutral-600">
-                      {currency}{formData.taxAmount.toLocaleString('en-IN')}
+                      {currency}{(formData.taxAmount ?? 0).toLocaleString('en-IN')}
                     </td>
                     <td className="py-4 text-right font-mono font-bold text-neutral-950 text-sm">
-                      {currency}{formData.totalAmount.toLocaleString('en-IN')}
+                      {currency}{(formData.totalAmount ?? 0).toLocaleString('en-IN')}
                     </td>
                   </tr>
                 </tbody>
@@ -595,27 +596,27 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                 <div className="flex justify-between text-neutral-600">
                   <span>Subtotal (Base Plan):</span>
                   <span className="font-mono font-bold text-neutral-900">
-                    {currency}{formData.baseAmount.toLocaleString('en-IN')}
+                    {currency}{(formData.baseAmount ?? 0).toLocaleString('en-IN')}
                   </span>
                 </div>
                 <div className="flex justify-between text-neutral-600">
                   <span>GST / Taxes (18%):</span>
                   <span className="font-mono font-bold text-neutral-900">
-                    {currency}{formData.taxAmount.toLocaleString('en-IN')}
+                    {currency}{(formData.taxAmount ?? 0).toLocaleString('en-IN')}
                   </span>
                 </div>
-                {formData.discountAmount > 0 && (
+                {formData.discountAmount && formData.discountAmount > 0 ? (
                   <div className="flex justify-between text-emerald-700 font-bold">
                     <span>Discount Applied:</span>
                     <span className="font-mono">
-                      -{currency}{formData.discountAmount.toLocaleString('en-IN')}
+                      -{currency}{(formData.discountAmount ?? 0).toLocaleString('en-IN')}
                     </span>
                   </div>
-                )}
+                ) : null}
                 <div className="pt-2 border-t border-neutral-300 flex justify-between items-baseline">
                   <span className="text-sm font-black uppercase text-neutral-950">Grand Total Paid:</span>
                   <span className="text-xl font-black font-mono text-neutral-950">
-                    {currency}{formData.totalAmount.toLocaleString('en-IN')}
+                    {currency}{(formData.totalAmount ?? 0).toLocaleString('en-IN')}
                   </span>
                 </div>
               </div>

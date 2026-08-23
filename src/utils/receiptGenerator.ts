@@ -185,8 +185,8 @@ export const downloadReceiptAsPDF = (
   doc.setFontSize(8.5);
   doc.setTextColor(50, 50, 50);
   doc.text(receipt.duration || '1 Month', 115, rowY + 8, { align: 'center' });
-  doc.text(`${currency}${receipt.taxAmount.toLocaleString('en-IN')}`, 150, rowY + 8, { align: 'right' });
-  doc.text(`${currency}${receipt.totalAmount.toLocaleString('en-IN')}`, 192, rowY + 8, { align: 'right' });
+  doc.text(`${currency}${(receipt.taxAmount ?? 0).toLocaleString('en-IN')}`, 150, rowY + 8, { align: 'right' });
+  doc.text(`${currency}${(receipt.totalAmount ?? 0).toLocaleString('en-IN')}`, 192, rowY + 8, { align: 'right' });
 
   // --- PAYMENT VERIFICATION & TOTALS ---
   const paymentSectionY = rowY + 24;
@@ -244,21 +244,21 @@ export const downloadReceiptAsPDF = (
   doc.text('Base Membership Fee:', 119, paymentSectionY + 8);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(20, 20, 20);
-  doc.text(`${currency}${receipt.baseAmount.toLocaleString('en-IN')}`, 192, paymentSectionY + 8, { align: 'right' });
+  doc.text(`${currency}${(receipt.baseAmount ?? 0).toLocaleString('en-IN')}`, 192, paymentSectionY + 8, { align: 'right' });
 
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(70, 70, 70);
   doc.text('Goods & Services Tax (18%):', 119, paymentSectionY + 16);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(20, 20, 20);
-  doc.text(`${currency}${receipt.taxAmount.toLocaleString('en-IN')}`, 192, paymentSectionY + 16, { align: 'right' });
+  doc.text(`${currency}${(receipt.taxAmount ?? 0).toLocaleString('en-IN')}`, 192, paymentSectionY + 16, { align: 'right' });
 
   if (receipt.discountAmount && receipt.discountAmount > 0) {
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(16, 140, 70);
     doc.text('Special Promo Discount:', 119, paymentSectionY + 23);
     doc.setFont('helvetica', 'bold');
-    doc.text(`-${currency}${receipt.discountAmount.toLocaleString('en-IN')}`, 192, paymentSectionY + 23, { align: 'right' });
+    doc.text(`-${currency}${(receipt.discountAmount ?? 0).toLocaleString('en-IN')}`, 192, paymentSectionY + 23, { align: 'right' });
   }
 
   // Divider
@@ -273,7 +273,7 @@ export const downloadReceiptAsPDF = (
 
   doc.setFontSize(13);
   doc.setTextColor(20, 20, 20);
-  doc.text(`${currency}${receipt.totalAmount.toLocaleString('en-IN')}`, 192, paymentSectionY + 36, { align: 'right' });
+  doc.text(`${currency}${(receipt.totalAmount ?? 0).toLocaleString('en-IN')}`, 192, paymentSectionY + 36, { align: 'right' });
 
   // --- FACILITY TERMS & CODE OF CONDUCT ---
   const termsY = paymentSectionY + 48;
@@ -364,10 +364,10 @@ Txn Ref ID     : ${receipt.transactionId}
 Security Audit : RBI Tokenized / 256-Bit Bank Encrypted
 ${thinDivider}
 FINANCIAL BREAKDOWN:
-Base Membership Fee : ${currency}${receipt.baseAmount.toLocaleString('en-IN')}
-GST / Taxes (18%)   : ${currency}${receipt.taxAmount.toLocaleString('en-IN')}
-${receipt.discountAmount && receipt.discountAmount > 0 ? `Discount Applied    : -${currency}${receipt.discountAmount.toLocaleString('en-IN')}\n` : ''}${divider}
-TOTAL AMOUNT PAID   : ${currency}${receipt.totalAmount.toLocaleString('en-IN')}
+Base Membership Fee : ${currency}${(receipt.baseAmount ?? 0).toLocaleString('en-IN')}
+GST / Taxes (18%)   : ${currency}${(receipt.taxAmount ?? 0).toLocaleString('en-IN')}
+${receipt.discountAmount && receipt.discountAmount > 0 ? `Discount Applied    : -${currency}${(receipt.discountAmount ?? 0).toLocaleString('en-IN')}\n` : ''}${divider}
+TOTAL AMOUNT PAID   : ${currency}${(receipt.totalAmount ?? 0).toLocaleString('en-IN')}
 ${divider}
 FACILITY GUIDELINES:
 1. Present this digital/printed receipt or your Member ID (${receipt.memberId})

@@ -275,7 +275,7 @@ export const PlansSection: React.FC = () => {
                             <div className="flex items-baseline gap-1.5">
                               <span className="text-4xl sm:text-5xl font-black text-white tracking-tight font-sans">
                                 {currency}
-                                {price.toLocaleString('en-IN')}
+                                {(price ?? 0).toLocaleString('en-IN')}
                               </span>
                               <span className="text-xs font-bold text-neutral-400 uppercase tracking-wide">
                                 / {planDuration}
@@ -530,7 +530,7 @@ export const PlansSection: React.FC = () => {
                         >
                           <div className="text-2xl font-black text-emerald-400 font-sans tracking-tight">
                             {currency}
-                            {service.memberPrice.toLocaleString('en-IN')}
+                            {(service.memberPrice ?? 0).toLocaleString('en-IN')}
                           </div>
                         </td>
 
@@ -545,7 +545,7 @@ export const PlansSection: React.FC = () => {
                           <div>
                             <div className="text-2xl font-black text-neutral-200 font-sans tracking-tight">
                               {currency}
-                              {service.nonMemberPrice.toLocaleString('en-IN')}
+                              {(service.nonMemberPrice ?? 0).toLocaleString('en-IN')}
                             </div>
                             <button
                               onClick={() => setIsTrialModalOpen(true)}
@@ -600,7 +600,7 @@ export const PlansSection: React.FC = () => {
                         </span>
                         <span className="text-xl font-black text-emerald-300 font-sans">
                           {currency}
-                          {service.memberPrice.toLocaleString('en-IN')}
+                          {(service.memberPrice ?? 0).toLocaleString('en-IN')}
                         </span>
                       </div>
 
@@ -611,7 +611,7 @@ export const PlansSection: React.FC = () => {
                         </span>
                         <span className="text-xl font-black text-neutral-200 font-sans">
                           {currency}
-                          {service.nonMemberPrice.toLocaleString('en-IN')}
+                          {(service.nonMemberPrice ?? 0).toLocaleString('en-IN')}
                         </span>
                       </div>
                     </div>

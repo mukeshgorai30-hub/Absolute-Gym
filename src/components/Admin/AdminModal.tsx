@@ -182,7 +182,7 @@ export const AdminModal: React.FC = () => {
     const headers = ['ID', 'Date', 'Type', 'Name', 'Email', 'Phone', 'Plan/Trainer', 'Message', 'Status'];
     const rows = leads.map((l) => [
       l.id,
-      new Date(l.createdAt).toLocaleString(),
+      l.createdAt ? new Date(l.createdAt).toLocaleString() : '',
       l.type,
       `"${l.name}"`,
       l.email,
@@ -2399,7 +2399,7 @@ export const AdminModal: React.FC = () => {
                       </div>
 
                       <div className="text-2xl font-black text-amber-400 mt-2 font-mono">
-                        {config.currencySymbol || '₹'}{plan.priceMonthly.toLocaleString('en-IN')}
+                        {config.currencySymbol || '₹'}{(plan.priceMonthly ?? 0).toLocaleString('en-IN')}
                         <span className="text-xs text-neutral-400 font-sans font-normal ml-1">
                           / {plan.duration || '1 Month'}
                         </span>
@@ -2670,7 +2670,7 @@ export const AdminModal: React.FC = () => {
                           referrerPolicy="no-referrer"
                         />
                         <div className="absolute top-2 right-2 bg-neutral-950/90 text-white font-mono text-xs px-2 py-0.5 rounded-full">
-                          {config.currencySymbol || '₹'}{trainer.ratePerSession.toLocaleString('en-IN')}/session
+                          {config.currencySymbol || '₹'}{(trainer.ratePerSession ?? 0).toLocaleString('en-IN')}/session
                         </div>
                       </div>
                       <div className="p-4">
@@ -3342,7 +3342,7 @@ export const AdminModal: React.FC = () => {
                         .map((lead) => (
                           <tr key={lead.id} className="hover:bg-neutral-800/40 transition">
                             <td className="p-4 font-mono text-[11px] text-neutral-400 whitespace-nowrap">
-                              {new Date(lead.createdAt).toLocaleString()}
+                              {lead.createdAt ? new Date(lead.createdAt).toLocaleString() : 'N/A'}
                             </td>
                             <td className="p-4">
                               <div className="font-extrabold text-white">{lead.name}</div>

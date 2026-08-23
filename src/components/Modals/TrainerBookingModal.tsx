@@ -124,7 +124,7 @@ export const TrainerBookingModal: React.FC = () => {
                   Coach {trainer.name}
                 </h3>
                 <p className="text-xs text-neutral-400">
-                  {trainer.role} • {currency}{trainer.ratePerSession.toLocaleString('en-IN')}/session
+                  {trainer.role} • {currency}{(trainer.ratePerSession ?? 0).toLocaleString('en-IN')}/session
                 </p>
               </div>
             </div>

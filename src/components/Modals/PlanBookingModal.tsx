@@ -91,6 +91,15 @@ export const PlanBookingModal: React.FC = () => {
     return () => clearInterval(interval);
   }, [selectedPlanForModal, submitted]);
 
+  // Reset billing cycle if selected plan doesn't have yearly pricing
+  useEffect(() => {
+    if (selectedPlanForModal) {
+      if (!selectedPlanForModal.priceYearly || selectedPlanForModal.priceYearly <= 0) {
+        setBillingCycle('monthly');
+      }
+    }
+  }, [selectedPlanForModal]);
+
   // Handle escape key and browser back button
   useEffect(() => {
     if (!selectedPlanForModal) return;
@@ -109,7 +118,10 @@ export const PlanBookingModal: React.FC = () => {
   if (!selectedPlanForModal) return null;
 
   const plan = selectedPlanForModal;
-  const price = billingCycle === 'yearly' ? plan.priceYearly : plan.priceMonthly;
+  const hasYearlyOption = typeof plan.priceYearly === 'number' && plan.priceYearly > 0;
+  const price = (billingCycle === 'yearly' && hasYearlyOption)
+    ? (plan.priceYearly ?? 0)
+    : (plan.priceMonthly ?? 0);
 
   // Format Card Number (adds space every 4 digits)
   const handleCardNumberChange = (val: string) => {
@@ -188,13 +200,13 @@ export const PlanBookingModal: React.FC = () => {
         phone,
         type: 'membership_inquiry',
         planName: `${plan.name} (${billingCycle})`,
-        message: `Enrolled via online portal. Paid ${currency}${price.toLocaleString('en-IN')} using ${paymentLabel}. Member ID: ${generatedMemberId}. Txn: ${generatedTxnId}`,
+        message: `Enrolled via online portal. Paid ${currency}${(price ?? 0).toLocaleString('en-IN')} using ${paymentLabel}. Member ID: ${generatedMemberId}. Txn: ${generatedTxnId}`,
       });
 
       setReceiptData({
         memberId: generatedMemberId,
         txnId: generatedTxnId,
-        paidAmount: price,
+        paidAmount: price ?? 0,
         paymentType: paymentLabel,
         date: new Date().toLocaleDateString('en-IN', {
           day: 'numeric',
@@ -346,7 +358,7 @@ export const PlanBookingModal: React.FC = () => {
                 <div>
                   <span className="text-[10px] font-bold text-neutral-500 uppercase block">Amount Paid</span>
                   <span className="font-mono font-extrabold text-emerald-400 text-sm">
-                    {currency}{receiptData.paidAmount.toLocaleString('en-IN')}
+                    {currency}{(receiptData?.paidAmount ?? 0).toLocaleString('en-IN')}
                   </span>
                 </div>
                 <div>
@@ -524,20 +536,20 @@ export const PlanBookingModal: React.FC = () => {
                 </div>
                 <div className="flex items-baseline gap-1.5 mt-0.5">
                   <span className={`text-3xl sm:text-4xl font-black font-sans ${theme.accentText}`}>
-                    {currency}{price.toLocaleString('en-IN')}
+                    {currency}{(price ?? 0).toLocaleString('en-IN')}
                   </span>
                   <span className="text-xs text-neutral-400">
-                    {plan.id === 'plan_daypass' ? 'for 1-Day All-Access Pass' : billingCycle === 'yearly' ? '/ month (billed annually)' : '/ month'}
+                    {plan.duration ? `for ${plan.duration}` : billingCycle === 'yearly' ? '/ month (billed annually)' : '/ month'}
                   </span>
                 </div>
-                {billingCycle === 'yearly' && plan.id !== 'plan_daypass' && (
+                {billingCycle === 'yearly' && hasYearlyOption && (
                   <div className="text-[11px] text-emerald-400 font-bold mt-0.5">
-                    ✓ Annual Savings of {currency}{((plan.priceMonthly - plan.priceYearly) * 12).toLocaleString('en-IN')} included!
+                    ✓ Annual Savings of {currency}{Math.max(0, (((plan.priceMonthly ?? 0) - (plan.priceYearly ?? 0)) * 12)).toLocaleString('en-IN')} included!
                   </div>
                 )}
               </div>
 
-              {plan.id !== 'plan_daypass' && (
+              {hasYearlyOption && (
                 <div className="flex rounded-xl bg-neutral-900 p-1 border border-neutral-800 shrink-0 w-full sm:w-auto">
                   <button
                     type="button"
@@ -721,7 +733,7 @@ export const PlanBookingModal: React.FC = () => {
                         </div>
 
                         <div className="text-[10px] font-black uppercase text-black mt-1">
-                          Scan to Pay {currency}{price.toLocaleString('en-IN')}
+                          Scan to Pay {currency}{(price ?? 0).toLocaleString('en-IN')}
                         </div>
                       </div>
 
@@ -990,7 +1002,7 @@ export const PlanBookingModal: React.FC = () => {
                 >
                   <Zap className="w-4 h-4 fill-current" />
                   <span>
-                    Pay {currency}{price.toLocaleString('en-IN')} & Activate Membership
+                    Pay {currency}{(price ?? 0).toLocaleString('en-IN')} & Activate Membership
                   </span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
