@@ -277,9 +277,6 @@ export const PlansSection: React.FC = () => {
                                 {currency}
                                 {(price ?? 0).toLocaleString('en-IN')}
                               </span>
-                              <span className="text-xs font-bold text-neutral-400 uppercase tracking-wide">
-                                / {planDuration}
-                              </span>
                             </div>
                           </div>
 
