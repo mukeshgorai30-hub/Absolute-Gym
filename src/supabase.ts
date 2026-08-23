@@ -10,6 +10,9 @@ export interface SupabaseConfigSettings {
   isEnabled: boolean;
 }
 
+const DEFAULT_SUPABASE_URL = 'https://vocfczstmmsvywagmvjz.supabase.co';
+const DEFAULT_SUPABASE_KEY = 'sb_publishable_Ph_wTk5pgVTbOUH7HXC9wg_52eyEkmi';
+
 export function getStoredSupabaseCredentials(): SupabaseConfigSettings {
   const envUrl = typeof import.meta !== 'undefined' ? (import.meta as any).env?.VITE_SUPABASE_URL || '' : '';
   const envKey = typeof import.meta !== 'undefined' ? (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || '' : '';
@@ -18,20 +21,24 @@ export function getStoredSupabaseCredentials(): SupabaseConfigSettings {
     const saved = localStorage.getItem(STORAGE_KEY_SUPABASE);
     if (saved) {
       const parsed = JSON.parse(saved);
+      const url = sanitizeSupabaseUrl(parsed.url || envUrl || DEFAULT_SUPABASE_URL);
+      const anonKey = (parsed.anonKey || envKey || DEFAULT_SUPABASE_KEY).trim();
       return {
-        url: (parsed.url || envUrl || '').trim(),
-        anonKey: (parsed.anonKey || envKey || '').trim(),
-        isEnabled: parsed.isEnabled !== undefined ? parsed.isEnabled : Boolean(parsed.url || envUrl),
+        url,
+        anonKey,
+        isEnabled: parsed.isEnabled !== undefined ? parsed.isEnabled : Boolean(url && anonKey),
       };
     }
   } catch (e) {
     console.warn('Failed to read Supabase stored config:', e);
   }
 
+  const defaultUrl = sanitizeSupabaseUrl(envUrl || DEFAULT_SUPABASE_URL);
+  const defaultKey = (envKey || DEFAULT_SUPABASE_KEY).trim();
   return {
-    url: envUrl.trim(),
-    anonKey: envKey.trim(),
-    isEnabled: Boolean(envUrl && envKey),
+    url: defaultUrl,
+    anonKey: defaultKey,
+    isEnabled: Boolean(defaultUrl && defaultKey),
   };
 }
 
@@ -39,7 +46,7 @@ export function saveStoredSupabaseCredentials(creds: Partial<SupabaseConfigSetti
   try {
     const current = getStoredSupabaseCredentials();
     const updated: SupabaseConfigSettings = {
-      url: creds.url !== undefined ? creds.url.trim() : current.url,
+      url: creds.url !== undefined ? sanitizeSupabaseUrl(creds.url) : current.url,
       anonKey: creds.anonKey !== undefined ? creds.anonKey.trim() : current.anonKey,
       isEnabled: creds.isEnabled !== undefined ? creds.isEnabled : current.isEnabled,
     };
@@ -58,8 +65,12 @@ let cachedClient: SupabaseClient | null = null;
 let lastClientKey = '';
 
 export function sanitizeSupabaseUrl(rawUrl: string): string {
-  let url = rawUrl.trim();
+  let url = (rawUrl || '').trim().replace(/^["']|["']$/g, '');
   if (!url) return '';
+  // If user passed a bare project ID (e.g. vocfczstmmsvywagmvjz)
+  if (/^[a-z0-9_-]{10,40}$/i.test(url) && !url.includes('.')) {
+    return `https://${url}.supabase.co`;
+  }
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
     url = `https://${url}`;
   }

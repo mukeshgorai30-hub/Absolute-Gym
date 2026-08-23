@@ -192,6 +192,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isSupabaseActive, setIsSupabaseActive] = useState<boolean>(() => Boolean(getStoredSupabaseCredentials().isEnabled && getStoredSupabaseCredentials().url));
   const isInitialCloudLoadDone = useRef<boolean>(false);
   const isLocalUpdate = useRef<boolean>(false);
+  const isRemoteApplying = useRef<boolean>(false);
   const lastLocalEditTimestamp = useRef<number>(0);
   const lastSavedConfigJson = useRef<string>(JSON.stringify(config));
   const tabInstanceId = useRef<string>(Math.random().toString(36).substring(2, 9));
@@ -219,10 +220,8 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // Initial fetch from Supabase
     fetchSupabaseConfig().then((cloudCfg) => {
       if (cloudCfg) {
-        const cloudJson = JSON.stringify(cloudCfg);
-        if (cloudJson !== lastSavedConfigJson.current) {
-          lastSavedConfigJson.current = cloudJson;
-          setConfigState((prev) => ({
+        setConfigState((prev) => {
+          const merged: GymConfig = {
             ...prev,
             ...cloudCfg,
             spaServices: cloudCfg.spaServices && cloudCfg.spaServices.length > 0 ? cloudCfg.spaServices : (prev.spaServices || defaultSpaServices),
@@ -231,13 +230,17 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               ...(cloudCfg.cafe || {}),
               items: cloudCfg.cafe?.items && cloudCfg.cafe.items.length > 0 ? cloudCfg.cafe.items : prev.cafe?.items || defaultGymConfig.cafe.items,
             },
-          }));
-          setIsCloudSynced(true);
-          setCloudSyncStatus('synced');
-        }
-      } else {
-        // First time bootstrap in Supabase: push current config
-        saveSupabaseConfig(config).catch((err) => console.warn('Supabase initial bootstrap notice:', err));
+          };
+          const mergedJson = JSON.stringify(merged);
+          if (mergedJson === lastSavedConfigJson.current) {
+            return prev;
+          }
+          isRemoteApplying.current = true;
+          lastSavedConfigJson.current = mergedJson;
+          return merged;
+        });
+        setIsCloudSynced(true);
+        setCloudSyncStatus('synced');
       }
     });
 
@@ -259,13 +262,11 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           'postgres_changes',
           { event: '*', schema: 'public', table: 'gym_config' },
           (payload: any) => {
-            if (Date.now() - lastLocalEditTimestamp.current < 1500) return;
+            if (Date.now() - lastLocalEditTimestamp.current < 2000) return;
             if (payload?.new && payload.new.data) {
               const remoteData = payload.new.data as Partial<GymConfig>;
-              const remoteJson = JSON.stringify(remoteData);
-              if (remoteJson !== lastSavedConfigJson.current) {
-                lastSavedConfigJson.current = remoteJson;
-                setConfigState((prev) => ({
+              setConfigState((prev) => {
+                const merged: GymConfig = {
                   ...prev,
                   ...remoteData,
                   spaServices: remoteData.spaServices && remoteData.spaServices.length > 0 ? remoteData.spaServices : (prev.spaServices || defaultSpaServices),
@@ -274,10 +275,17 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                     ...(remoteData.cafe || {}),
                     items: remoteData.cafe?.items && remoteData.cafe.items.length > 0 ? remoteData.cafe.items : prev.cafe?.items || defaultGymConfig.cafe.items,
                   },
-                }));
-                setIsCloudSynced(true);
-                setCloudSyncStatus('synced');
-              }
+                };
+                const mergedJson = JSON.stringify(merged);
+                if (mergedJson === lastSavedConfigJson.current) {
+                  return prev;
+                }
+                isRemoteApplying.current = true;
+                lastSavedConfigJson.current = mergedJson;
+                return merged;
+              });
+              setIsCloudSynced(true);
+              setCloudSyncStatus('synced');
             }
           }
         )
@@ -303,7 +311,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (configChannel && client) client.removeChannel(configChannel);
       if (leadsChannel && client) client.removeChannel(leadsChannel);
     };
-  }, [supabaseConfig]);
+  }, [supabaseConfig.url, supabaseConfig.anonKey, supabaseConfig.isEnabled]);
 
   // 2. Subscribe to Firestore Real-Time Updates (Dual Cloud Fallback)
 
@@ -322,8 +330,8 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             return;
           }
 
-          // If the user has recently typed or edited locally within 1.5s, don't overwrite local state with cloud echo
-          if (Date.now() - lastLocalEditTimestamp.current < 1500) {
+          // If the user has recently typed or edited locally within 2s, don't overwrite local state with cloud echo
+          if (Date.now() - lastLocalEditTimestamp.current < 2000) {
             setIsCloudSynced(true);
             setCloudSyncStatus('synced');
             return;
@@ -332,15 +340,6 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           if (snapshot.exists()) {
             const cloudData = snapshot.data() as Partial<GymConfig>;
             if (cloudData && !isLocalUpdate.current) {
-              const cloudJson = JSON.stringify(cloudData);
-              if (cloudJson === lastSavedConfigJson.current) {
-                // Exact same data, do not trigger re-render
-                setIsCloudSynced(true);
-                setCloudSyncStatus('synced');
-                return;
-              }
-
-              lastSavedConfigJson.current = cloudJson;
               setConfigState((prev) => {
                 const gymName = cloudData.name && !cloudData.name.includes('Apex') ? cloudData.name : (prev.name && !prev.name.includes('Apex') ? prev.name : defaultGymConfig.name);
                 const gymEmail = cloudData.email && !cloudData.email.includes('apex') ? cloudData.email : (prev.email && !prev.email.includes('apex') ? prev.email : defaultGymConfig.email);
@@ -363,19 +362,17 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                       : prev.cafe?.items || defaultGymConfig.cafe.items,
                   },
                 };
+                const mergedJson = JSON.stringify(merged);
+                if (mergedJson === lastSavedConfigJson.current) {
+                  return prev;
+                }
+                isRemoteApplying.current = true;
+                lastSavedConfigJson.current = mergedJson;
                 return merged;
               });
               setIsCloudSynced(true);
               setCloudSyncStatus('synced');
             }
-          } else {
-            // First time bootstrap: Push initial config to cloud
-            setDoc(configDocRef, { ...config, updatedAt: new Date().toISOString() }, { merge: true })
-              .then(() => {
-                setIsCloudSynced(true);
-                setCloudSyncStatus('synced');
-              })
-              .catch((err) => console.warn('Bootstrap Firestore config notice:', err));
           }
           isInitialCloudLoadDone.current = true;
           isLocalUpdate.current = false;
@@ -423,10 +420,15 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         broadcastChannel = new BroadcastChannel('apex_gym_sync_channel');
         broadcastChannel.onmessage = (event) => {
           if (event.data?.sender === tabInstanceId.current) return;
-          if (Date.now() - lastLocalEditTimestamp.current < 1500) return;
+          if (Date.now() - lastLocalEditTimestamp.current < 2000) return;
 
           if (event.data?.type === 'SYNC_CONFIG' && event.data.payload) {
-            setConfigState(event.data.payload);
+            const incomingJson = JSON.stringify(event.data.payload);
+            if (incomingJson !== lastSavedConfigJson.current) {
+              isRemoteApplying.current = true;
+              lastSavedConfigJson.current = incomingJson;
+              setConfigState(event.data.payload);
+            }
           } else if (event.data?.type === 'SYNC_LEADS' && event.data.payload) {
             setLeads(event.data.payload);
           }
@@ -437,12 +439,16 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     const handleStorageChange = (e: StorageEvent) => {
-      if (Date.now() - lastLocalEditTimestamp.current < 1500) return;
+      if (Date.now() - lastLocalEditTimestamp.current < 2000) return;
 
       if (e.key === STORAGE_KEY_CONFIG && e.newValue) {
         try {
-          const parsed = JSON.parse(e.newValue);
-          setConfigState(parsed);
+          if (e.newValue !== lastSavedConfigJson.current) {
+            const parsed = JSON.parse(e.newValue);
+            isRemoteApplying.current = true;
+            lastSavedConfigJson.current = e.newValue;
+            setConfigState(parsed);
+          }
         } catch (err) {
           console.error('Error parsing synced config from storage event:', err);
         }
@@ -469,6 +475,16 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // 3. Save config to local storage AND write to Firestore whenever config changes
   useEffect(() => {
     const configStr = JSON.stringify(config);
+
+    // If change was ingested from remote cloud, do NOT echo-write back to cloud
+    if (isRemoteApplying.current) {
+      isRemoteApplying.current = false;
+      try {
+        localStorage.setItem(STORAGE_KEY_CONFIG, configStr);
+      } catch (e) {}
+      return;
+    }
+
     lastSavedConfigJson.current = configStr;
     try {
       localStorage.setItem(STORAGE_KEY_CONFIG, configStr);
@@ -481,7 +497,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.error('Error saving config to localStorage:', err);
     }
 
-    // Debounced write to Firestore & Supabase
+    // Debounced write to Firestore & Supabase only for real local edits
     if (isInitialCloudLoadDone.current) {
       isLocalUpdate.current = true;
       setCloudSyncStatus('saving');
