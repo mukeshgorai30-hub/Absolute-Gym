@@ -1,0 +1,36 @@
+{
+  "entities": {
+    "GymConfig": {
+      "collection": "gym_config",
+      "fields": {
+        "id": { "type": "string", "description": "Document ID" },
+        "name": { "type": "string", "description": "Gym Name" },
+        "tagline": { "type": "string", "description": "Gym Tagline" },
+        "phone": { "type": "string", "description": "Phone number" },
+        "email": { "type": "string", "description": "Email address" },
+        "address": { "type": "string", "description": "Address" },
+        "themeColor": { "type": "string", "description": "Theme Color" },
+        "plans": { "type": "array", "description": "Plans list" },
+        "trainers": { "type": "array", "description": "Trainers list" },
+        "gallery": { "type": "array", "description": "Gallery images" },
+        "testimonials": { "type": "array", "description": "Testimonials" },
+        "cafeItems": { "type": "array", "description": "Cafe items" },
+        "faqs": { "type": "array", "description": "FAQs" },
+        "facilities": { "type": "array", "description": "Facilities" },
+        "updatedAt": { "type": "string", "description": "Last updated ISO date string" }
+      }
+    },
+    "Lead": {
+      "collection": "leads",
+      "fields": {
+        "id": { "type": "string", "description": "Lead ID" },
+        "name": { "type": "string", "description": "Member Name" },
+        "phone": { "type": "string", "description": "Phone number" },
+        "planId": { "type": "string", "description": "Selected plan ID" },
+        "source": { "type": "string", "description": "Lead source" },
+        "status": { "type": "string", "description": "Status" },
+        "createdAt": { "type": "string", "description": "Created at ISO string" }
+      }
+    }
+  }
+}

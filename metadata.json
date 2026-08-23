@@ -1,0 +1,8 @@
+{
+  "name": "ABSOLUTE GYM",
+  "description": "A high-performance, professional gym website featuring customizable subscription plans, trainer profiles, class schedules, interactive BMI tools, lead booking, and a comprehensive CMS admin panel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
