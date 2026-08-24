@@ -65,7 +65,7 @@ export const CoachesPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider mb-5 ${theme.accentBadge}`}>
             <Award className="w-4 h-4" />
-            <span>Master Coaches & Certified Physiologists</span>
+            <span>Master Coaches & Certified Trainers</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tight text-white">
@@ -168,11 +168,6 @@ export const CoachesPage: React.FC = () => {
                     <div className="absolute top-3 left-3 bg-neutral-950/90 backdrop-blur-md px-3 py-1 rounded-full border border-neutral-800 text-xs font-bold text-neutral-200 flex items-center gap-1.5">
                       <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                       <span>{trainer.experience} Experience</span>
-                    </div>
-
-                    {/* Hourly Rate */}
-                    <div className="absolute top-3 right-3 bg-neutral-950/90 backdrop-blur-md px-3 py-1 rounded-full border border-neutral-800 text-xs font-black text-white">
-                      {config.currencySymbol || '₹'}{(trainer.ratePerSession ?? 0).toLocaleString('en-IN')}/session
                     </div>
                   </div>
 

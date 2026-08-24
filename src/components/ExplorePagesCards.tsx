@@ -30,7 +30,7 @@ export const ExplorePagesCards: React.FC = () => {
   }[] = [
     {
       page: 'gallery',
-      title: 'Inside Facility',
+      title: 'Inside Gym',
       tagline: 'Virtual Facility Tour & Showcase',
       description:
         'Explore 15,000+ sq ft of competition power racks, dedicated cardio zones, and Eucalyptus Steam Spa recovery.',
@@ -40,11 +40,11 @@ export const ExplorePagesCards: React.FC = () => {
         config.galleryBgImage ||
         'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
       stat: `${config.gallery?.length || 0} Facility Photos`,
-      btnText: 'View Facility Gallery',
+      btnText: 'View Gallery',
     },
     {
       page: 'coaches',
-      title: 'Performance Coaches',
+      title: 'Trainer / Coaches',
       tagline: 'Elite Strength & Nutrition Mentors',
       description:
         'Certified personal trainers and master coaches dedicated to your personalized progression and form mastery.',
@@ -53,7 +53,7 @@ export const ExplorePagesCards: React.FC = () => {
         config.trainers?.[0]?.image ||
         'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=800&q=80',
       stat: `${config.trainers?.length || 0} Certified Trainers`,
-      btnText: 'View Coaches & Bios',
+      btnText: 'View Coaches',
     },
     {
       page: 'plans',
@@ -71,7 +71,7 @@ export const ExplorePagesCards: React.FC = () => {
     {
       page: 'timings',
       title: 'Class Timings',
-      tagline: 'Weekly Studio & Group Schedule',
+      tagline: 'Yoga and Zumba',
       description:
         'Morning and evening high-energy sessions including Yoga, Zumba, HIIT, Power Spin, and functional mobility.',
       icon: <Calendar className="w-6 h-6 text-amber-400" />,
@@ -83,7 +83,7 @@ export const ExplorePagesCards: React.FC = () => {
     {
       page: 'cafe',
       title: 'Absolute Gym Cafe',
-      tagline: 'Clean Nutrition & Fuel Bar',
+      tagline: 'Clean Nutrition',
       description:
         'Fresh whey isolates, macro-balanced protein bowls, sugar-free cold brews, and pre-workout hydration boosters.',
       icon: <Coffee className="w-6 h-6 text-amber-400" />,
@@ -91,7 +91,7 @@ export const ExplorePagesCards: React.FC = () => {
         config.cafeBgImage ||
         'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80',
       stat: `${config.cafe?.items?.length || 0} Fuel Bar Items`,
-      btnText: 'Browse Fuel Bar Menu',
+      btnText: 'Browse Menu',
     },
     {
       page: 'calculator',
@@ -104,7 +104,7 @@ export const ExplorePagesCards: React.FC = () => {
         config.bmiBgImage ||
         'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
       stat: 'Free Nutrition Matrix',
-      btnText: 'Calculate BMI & Macros',
+      btnText: 'Calculate BMI',
     },
   ];
 
@@ -120,7 +120,7 @@ export const ExplorePagesCards: React.FC = () => {
             <span>Dedicated Experience Hubs</span>
           </div>
           <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight">
-            Explore <span className={theme.accentText}>{config.name}</span> Portals
+            Explore <span className={theme.accentText}>{config.name || 'Absolute Gym'}</span>
           </h2>
           <p className="mt-4 text-base sm:text-lg text-neutral-400">
             Select a dedicated portal below to tour the facility, meet our trainers, review membership rates, check group class timetables, order from the fuel cafe, or calculate your BMI.

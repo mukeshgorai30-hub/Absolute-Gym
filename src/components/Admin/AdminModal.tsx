@@ -18,6 +18,7 @@ import { CafeManagerTab } from './CafeManagerTab';
 import { FaqManagerTab } from './FaqManagerTab';
 import { SpaManagerTab } from './SpaManagerTab';
 import { SupabaseManagerTab } from './SupabaseManagerTab';
+import { FirebaseManagerTab } from './FirebaseManagerTab';
 import { ImageUploadField } from './ImageUploadField';
 import { defaultSpaServices } from '../../data/defaultGymData';
 import { signOutSupabaseAuth } from '../../supabase';
@@ -355,7 +356,8 @@ export const AdminModal: React.FC = () => {
             { id: 'faqs', label: 'Frequently Asked Questions', icon: <HelpCircle className="w-4 h-4 text-emerald-400" />, badge: `${config.faqs?.length || 0} FAQs` },
             { id: 'testimonials', label: 'Reviews & Testimonials', icon: <MessageSquare className="w-4 h-4" /> },
             { id: 'gallery', label: 'Photo Gallery', icon: <Image className="w-4 h-4" /> },
-            { id: 'supabase', label: 'Supabase & Cloud Sync', icon: <Database className="w-4 h-4 text-emerald-400" />, badge: isSupabaseActive ? 'Live' : 'Connect', badgeColor: isSupabaseActive ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300' },
+            { id: 'firebase', label: 'Firebase Cloud Backend', icon: <Database className="w-4 h-4 text-amber-400" />, badge: cloudSyncStatus === 'synced' ? 'Live' : 'Connected', badgeColor: 'bg-emerald-500/20 text-emerald-300' },
+            { id: 'supabase', label: 'Supabase Sync (Optional)', icon: <Globe className="w-4 h-4 text-neutral-400" />, badge: isSupabaseActive ? 'Live' : 'Connect', badgeColor: isSupabaseActive ? 'bg-emerald-500/20 text-emerald-300' : 'bg-neutral-800 text-neutral-400' },
             { id: 'backup', label: 'Data & Factory Reset', icon: <Settings className="w-4 h-4" /> },
           ].map((tab) => (
             <button
@@ -3939,6 +3941,11 @@ export const AdminModal: React.FC = () => {
           {/* TAB: FREQUENTLY ASKED QUESTIONS (FAQ) */}
           {adminTab === 'faqs' && (
             <FaqManagerTab onNotify={triggerSaveNotification} />
+          )}
+
+          {/* TAB: FIREBASE CLOUD BACKEND */}
+          {adminTab === 'firebase' && (
+            <FirebaseManagerTab />
           )}
 
           {/* TAB: SUPABASE & CLOUD REALTIME SYNC */}

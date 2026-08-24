@@ -42,7 +42,7 @@ export const CafeSection: React.FC = () => {
 
   const cafeConfig = config.cafe || {
     enabled: true,
-    name: 'Absolute Fuel Bar & Clean Cafe',
+    name: 'Absolute Gym Cafe',
     tagline: 'Precision Macro Meals, Whey Shakes & Performance Nutrition',
     description:
       'Fuel your workout before and refuel your muscles immediately after with our certified organic smoothies, whey isolate blends, pre-workout shots, and chef-curated macro bowls.',

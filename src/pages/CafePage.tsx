@@ -47,7 +47,7 @@ export const CafePage: React.FC = () => {
 
   const cafeConfig = config.cafe || {
     enabled: true,
-    name: 'Absolute Fuel Bar & Clean Cafe',
+    name: 'Absolute Gym Cafe',
     tagline: 'Precision Macro Meals, Whey Shakes & Performance Nutrition',
     description:
       'Fuel your workout before and refuel your muscles immediately after with our certified organic smoothies, whey isolate blends, pre-workout shots, and chef-curated macro bowls.',
@@ -96,7 +96,7 @@ export const CafePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-900 border border-neutral-800 text-xs font-black uppercase tracking-wider text-amber-400 mb-5 shadow-lg">
             <Coffee className="w-4 h-4" />
-            <span>Absolute Gym Cafe & Performance Fuel Bar</span>
+            <span>Absolute Gym Cafe</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tight text-white">

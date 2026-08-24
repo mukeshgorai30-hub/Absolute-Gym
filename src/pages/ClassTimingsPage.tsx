@@ -15,6 +15,8 @@ import {
   Moon,
   Flame,
   CheckCircle,
+  Layers,
+  ChevronRight,
 } from 'lucide-react';
 
 export const ClassTimingsPage: React.FC = () => {
@@ -31,38 +33,46 @@ export const ClassTimingsPage: React.FC = () => {
     'Sunday',
   ];
 
-  const [activeDay, setActiveDay] = useState<DayOfWeek>('Monday');
-  const [selectedCategory, setSelectedCategory] = useState<string>('All Classes');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  // 1. Class type selection: 'yoga' | 'zumba'
+  const [selectedClassType, setSelectedClassType] = useState<'yoga' | 'zumba'>('yoga');
+  // 2. Timing selection: 'all' | 'morning' | 'evening'
   const [timeFilter, setTimeFilter] = useState<'all' | 'morning' | 'evening'>('all');
+  // 3. Weekday selection: Monday - Sunday
+  const [activeDay, setActiveDay] = useState<DayOfWeek>('Monday');
+  
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
 
-  const categories = [
-    'All Classes',
-    'Yoga & Mobility',
-    'Zumba & Dance',
-    'Strength',
-    'HIIT & Conditioning',
-    'Boxing / MMA',
-    'Spin & Cycle',
-    'CrossFit',
-    'Pilates & Aerobics',
-  ];
-
   const isMorning = (timeStr: string) => {
     return timeStr.toUpperCase().includes('AM');
   };
 
-  const filteredClasses = config.classes.filter((cls: GymClass) => {
-    const matchesDay = cls.dayOfWeek === activeDay;
-    const matchesCategory =
-      selectedCategory === 'All' ||
-      selectedCategory === 'All Classes' ||
-      cls.category === selectedCategory;
+  const isYogaClass = (cls: GymClass) => {
+    const text = `${cls.category} ${cls.title}`.toLowerCase();
+    return text.includes('yoga') || text.includes('pranayama') || text.includes('vinyasa') || text.includes('hatha') || text.includes('yin') || text.includes('ashtanga');
+  };
 
+  const isZumbaClass = (cls: GymClass) => {
+    const text = `${cls.category} ${cls.title}`.toLowerCase();
+    return text.includes('zumba') || text.includes('dance') || text.includes('latin') || text.includes('bollywood');
+  };
+
+  const filteredClasses = config.classes.filter((cls: GymClass) => {
+    // 1. Filter by Weekday
+    const matchesDay = cls.dayOfWeek === activeDay;
+
+    // 2. Filter by Class Type (Yoga / Zumba / All)
+    let matchesType = true;
+    if (selectedClassType === 'yoga') {
+      matchesType = isYogaClass(cls);
+    } else if (selectedClassType === 'zumba') {
+      matchesType = isZumbaClass(cls);
+    }
+
+    // 3. Filter by Time (Morning / Evening / All)
     let matchesTime = true;
     if (timeFilter === 'morning') {
       matchesTime = isMorning(cls.time);
@@ -70,6 +80,7 @@ export const ClassTimingsPage: React.FC = () => {
       matchesTime = !isMorning(cls.time);
     }
 
+    // 4. Search Query
     const q = searchQuery.toLowerCase().trim();
     const matchesSearch =
       !q ||
@@ -79,8 +90,23 @@ export const ClassTimingsPage: React.FC = () => {
       cls.room.toLowerCase().includes(q) ||
       cls.description.toLowerCase().includes(q);
 
-    return matchesDay && matchesCategory && matchesTime && matchesSearch;
+    return matchesDay && matchesType && matchesTime && matchesSearch;
   });
+
+  // Calculate counts for badges
+  const getDayCount = (day: DayOfWeek) => {
+    return config.classes.filter((cls) => {
+      if (cls.dayOfWeek !== day) return false;
+      if (selectedClassType === 'yoga' && !isYogaClass(cls)) return false;
+      if (selectedClassType === 'zumba' && !isZumbaClass(cls)) return false;
+      if (timeFilter === 'morning' && !isMorning(cls.time)) return false;
+      if (timeFilter === 'evening' && isMorning(cls.time)) return false;
+      return true;
+    }).length;
+  };
+
+  const totalYogaCount = config.classes.filter(isYogaClass).length;
+  const totalZumbaCount = config.classes.filter(isZumbaClass).length;
 
   const getIntensityBadge = (intensity: string) => {
     switch (intensity) {
@@ -99,7 +125,7 @@ export const ClassTimingsPage: React.FC = () => {
   return (
     <div className="w-full min-h-screen bg-neutral-950 text-white pt-6 pb-24">
       {/* Page Hero Header */}
-      <div className="relative border-b border-neutral-800/80 bg-gradient-to-b from-neutral-900 via-neutral-950 to-neutral-950 py-16 sm:py-24 overflow-hidden">
+      <div className="relative border-b border-neutral-800/80 bg-gradient-to-b from-neutral-900 via-neutral-950 to-neutral-950 py-14 sm:py-20 overflow-hidden">
         {config.scheduleBgImage && (
           <div className="absolute inset-0 pointer-events-none z-0">
             <img
@@ -122,12 +148,12 @@ export const ClassTimingsPage: React.FC = () => {
             Class Timings
           </h1>
 
-          <p className="mt-4 text-base sm:text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed">
-            High-energy studio workouts including <strong className="text-emerald-400">Power Yoga</strong>, <strong className="text-amber-400">Zumba Dance Cardio</strong>, HIIT conditioning, and Strength bootcamps led by master instructors.
+          <p className="mt-4 text-base sm:text-lg text-neutral-300 max-w-3xl mx-auto leading-relaxed">
+            High-energy studio workouts including <strong className="text-emerald-400">Power Yoga & Pranayama</strong> and <strong className="text-amber-400">Zumba Dance Cardio</strong> led by certified master instructors.
           </p>
 
           {/* Quick Trial Pass Button */}
-          <div className="mt-8 flex justify-center">
+          <div className="mt-6 flex justify-center">
             <button
               onClick={() => setIsTrialModalOpen(true)}
               className={`px-6 py-3.5 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider flex items-center gap-2 shadow-xl ${theme.accentBg}`}
@@ -139,113 +165,211 @@ export const ClassTimingsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Timetable Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Day Selector Tabs */}
-        <div className="flex overflow-x-auto scrollbar-none gap-2 pb-2 mb-8 justify-start md:justify-center w-full max-w-full touch-auto">
-          {days.map((day) => {
-            const countForDay = config.classes.filter((c) => c.dayOfWeek === day).length;
-            const isActive = activeDay === day;
+      {/* Main Timetable Controls & Schedule */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+        
+        {/* CONTROL BAR: Class Discipline, Timing Filters & Search */}
+        <div className="bg-neutral-900/90 backdrop-blur-md border border-neutral-800 rounded-3xl p-5 sm:p-7 shadow-2xl relative overflow-hidden">
+          {/* Subtle top accent gradient line */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 via-amber-500 to-indigo-500 opacity-80" />
 
-            return (
-              <button
-                key={day}
-                id={`class-timings-tab-${day.toLowerCase()}`}
-                onClick={() => setActiveDay(day)}
-                className={`px-5 py-3.5 rounded-2xl text-xs sm:text-sm font-black uppercase tracking-wider whitespace-nowrap transition-all min-h-[48px] touch-manipulation active:scale-95 flex items-center gap-2.5 ${
-                  isActive
-                    ? `${theme.accentBg} shadow-xl scale-105`
-                    : 'bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-neutral-800'
-                }`}
-              >
-                <span>{day}</span>
-                <span
-                  className={`text-[10px] px-2 py-0.5 rounded-full ${
-                    isActive ? 'bg-black/30 text-black font-bold' : 'bg-neutral-800 text-neutral-400'
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            {/* Step 1: Discipline Toggle (Yoga / Zumba) */}
+            <div className="lg:col-span-5 flex flex-col sm:flex-row lg:flex-col xl:flex-row items-start sm:items-center lg:items-start xl:items-center justify-between gap-3">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-neutral-400 block">
+                  Step 1 • Discipline
+                </span>
+                <span className="text-sm sm:text-base font-black uppercase text-white flex items-center gap-1.5 mt-0.5">
+                  <Layers className="w-4 h-4 text-amber-400" />
+                  <span>Choose Class</span>
+                </span>
+              </div>
+
+              <div className="inline-flex p-1.5 rounded-2xl bg-neutral-950 border border-neutral-800 shadow-inner w-full sm:w-auto justify-center gap-1.5">
+                <button
+                  id="timings-filter-yoga"
+                  onClick={() => setSelectedClassType('yoga')}
+                  className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 flex-1 sm:flex-initial touch-manipulation active:scale-95 ${
+                    selectedClassType === 'yoga'
+                      ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/25 scale-[1.02]'
+                      : 'text-neutral-300 hover:text-white hover:bg-neutral-900'
                   }`}
                 >
-                  {countForDay}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Filter & Search Bar */}
-        <div className="bg-neutral-900/80 border border-neutral-800 rounded-2xl p-5 mb-10 space-y-4 shadow-xl">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            {/* Search Input */}
-            <div className="relative w-full sm:w-80">
-              <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search Yoga, Zumba, HIIT, instructor..."
-                className="w-full bg-neutral-950 border border-neutral-800 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-amber-500"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white text-xs"
-                >
-                  ×
+                  <HeartPulse className="w-4 h-4" />
+                  <span>Yoga</span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                    selectedClassType === 'yoga' ? 'bg-black/20 text-black' : 'bg-emerald-950 text-emerald-400 border border-emerald-800/50'
+                  }`}>
+                    {totalYogaCount}
+                  </span>
                 </button>
-              )}
+
+                <button
+                  id="timings-filter-zumba"
+                  onClick={() => setSelectedClassType('zumba')}
+                  className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 flex-1 sm:flex-initial touch-manipulation active:scale-95 ${
+                    selectedClassType === 'zumba'
+                      ? 'bg-amber-400 text-black shadow-lg shadow-amber-400/25 scale-[1.02]'
+                      : 'text-neutral-300 hover:text-white hover:bg-neutral-900'
+                  }`}
+                >
+                  <Music className="w-4 h-4" />
+                  <span>Zumba</span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                    selectedClassType === 'zumba' ? 'bg-black/20 text-black' : 'bg-amber-950 text-amber-400 border border-amber-800/50'
+                  }`}>
+                    {totalZumbaCount}
+                  </span>
+                </button>
+              </div>
             </div>
 
-            {/* Time of Day Filter */}
-            <div className="flex items-center gap-1.5 bg-neutral-950 border border-neutral-800 rounded-xl p-1.5 w-full sm:w-auto justify-center">
-              <button
-                onClick={() => setTimeFilter('all')}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${
-                  timeFilter === 'all' ? `${theme.accentBg}` : 'text-neutral-400 hover:text-white'
-                }`}
-              >
-                All Timings
-              </button>
-              <button
-                onClick={() => setTimeFilter('morning')}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
-                  timeFilter === 'morning' ? `${theme.accentBg}` : 'text-neutral-400 hover:text-white'
-                }`}
-              >
-                <Sun className="w-3.5 h-3.5" />
-                <span>Morning</span>
-              </button>
-              <button
-                onClick={() => setTimeFilter('evening')}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
-                  timeFilter === 'evening' ? `${theme.accentBg}` : 'text-neutral-400 hover:text-white'
-                }`}
-              >
-                <Moon className="w-3.5 h-3.5" />
-                <span>Evening</span>
-              </button>
+            {/* Step 2: Time of Day Filter */}
+            <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col xl:flex-row items-start sm:items-center lg:items-start xl:items-center justify-between gap-3 lg:border-l lg:border-neutral-800 lg:pl-6">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-neutral-400 block">
+                  Step 2 • Timing Slot
+                </span>
+                <span className="text-sm sm:text-base font-black uppercase text-white flex items-center gap-1.5 mt-0.5">
+                  <Clock className="w-4 h-4 text-cyan-400" />
+                  <span>Time of Day</span>
+                </span>
+              </div>
+
+              <div className="inline-flex p-1.5 rounded-2xl bg-neutral-950 border border-neutral-800 shadow-inner w-full sm:w-auto justify-center gap-1">
+                <button
+                  id="timings-slot-all"
+                  onClick={() => setTimeFilter('all')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition touch-manipulation ${
+                    timeFilter === 'all'
+                      ? 'bg-neutral-800 text-white shadow-md'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  All
+                </button>
+                <button
+                  id="timings-slot-morning"
+                  onClick={() => setTimeFilter('morning')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition touch-manipulation ${
+                    timeFilter === 'morning'
+                      ? 'bg-amber-500/25 text-amber-300 border border-amber-500/50 shadow-md'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  <Sun className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Morning</span>
+                </button>
+                <button
+                  id="timings-slot-evening"
+                  onClick={() => setTimeFilter('evening')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition touch-manipulation ${
+                    timeFilter === 'evening'
+                      ? 'bg-indigo-500/25 text-indigo-300 border border-indigo-500/50 shadow-md'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  <Moon className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Evening</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Search */}
+            <div className="lg:col-span-3 lg:border-l lg:border-neutral-800 lg:pl-6">
+              <span className="text-[10px] font-black uppercase tracking-wider text-neutral-400 block mb-1.5">
+                Quick Search
+              </span>
+              <div className="relative w-full">
+                <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search trainer, room, style..."
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl pl-9 pr-8 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-amber-500 transition"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white text-xs p-1"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* CONTROL BAR 3: Weekdays (Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday) */}
+        <div>
+          <div className="flex items-center justify-between mb-3 px-1">
+            <div className="text-[11px] font-black uppercase tracking-wider text-neutral-400">
+              Step 3: Select Day of Week
+            </div>
+            <div className="text-xs text-neutral-400">
+              Showing schedule for <strong className="text-white uppercase">{activeDay}</strong>
             </div>
           </div>
 
-          {/* Category Chips */}
-          <div className="flex overflow-x-auto scrollbar-none gap-2 pt-2 border-t border-neutral-800/80">
-            {categories.map((cat) => {
-              const isSelected = selectedCategory === cat;
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
+            {days.map((day) => {
+              const countForDay = getDayCount(day);
+              const isActive = activeDay === day;
+
               return (
                 <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5 ${
-                    isSelected
-                      ? 'bg-white text-black font-black shadow-md'
-                      : 'bg-neutral-950 text-neutral-400 hover:text-white border border-neutral-800'
+                  key={day}
+                  id={`class-timings-tab-${day.toLowerCase()}`}
+                  onClick={() => setActiveDay(day)}
+                  className={`p-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all flex flex-col items-center justify-center gap-1 border min-h-[58px] touch-manipulation active:scale-95 ${
+                    isActive
+                      ? `${theme.accentBg} border-transparent shadow-xl scale-[1.03]`
+                      : 'bg-neutral-900 hover:bg-neutral-800/90 text-neutral-300 border-neutral-800'
                   }`}
                 >
-                  {cat === 'Yoga & Mobility' && <HeartPulse className="w-3 h-3 text-emerald-500" />}
-                  {cat === 'Zumba & Dance' && <Music className="w-3 h-3 text-amber-500" />}
-                  <span>{cat}</span>
+                  <span className="truncate">{day}</span>
+                  <span
+                    className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                      isActive ? 'bg-black/30 text-black' : 'bg-neutral-950 text-neutral-400 border border-neutral-800'
+                    }`}
+                  >
+                    {countForDay} {countForDay === 1 ? 'class' : 'classes'}
+                  </span>
                 </button>
               );
             })}
           </div>
+        </div>
+
+        {/* Schedule Summary Banner */}
+        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 rounded-2xl bg-neutral-900/60 border border-neutral-800 text-xs">
+          <div className="flex items-center gap-2 text-neutral-300">
+            <Calendar className="w-4 h-4 text-amber-400 shrink-0" />
+            <span>
+              Showing <strong className="text-white">{filteredClasses.length} sessions</strong> for{' '}
+              <strong className="text-amber-400">{activeDay}</strong> •{' '}
+              <span className="text-neutral-400">
+                {selectedClassType === 'yoga' ? 'Yoga Sessions' : selectedClassType === 'zumba' ? 'Zumba Sessions' : 'All Studio Sessions'} •{' '}
+                {timeFilter === 'morning' ? 'Morning Only' : timeFilter === 'evening' ? 'Evening Only' : 'All Day Slots'}
+              </span>
+            </span>
+          </div>
+
+          {(selectedClassType !== 'all' || timeFilter !== 'all' || searchQuery) && (
+            <button
+              onClick={() => {
+                setSelectedClassType('all');
+                setTimeFilter('all');
+                setSearchQuery('');
+              }}
+              className="text-amber-400 hover:text-amber-300 font-bold underline text-[11px]"
+            >
+              Reset All Filters
+            </button>
+          )}
         </div>
 
         {/* Classes Grid */}
@@ -253,14 +377,14 @@ export const ClassTimingsPage: React.FC = () => {
           <div className="text-center py-20 px-4 rounded-3xl bg-neutral-900/40 border border-neutral-800">
             <Calendar className="w-12 h-12 text-neutral-600 mx-auto mb-3" />
             <h4 className="text-lg font-black uppercase text-neutral-300">
-              No classes scheduled for {activeDay} {selectedCategory !== 'All Classes' ? `in ${selectedCategory}` : ''}
+              No classes match your selected criteria on {activeDay}
             </h4>
             <p className="text-xs text-neutral-400 mt-1 max-w-md mx-auto">
-              Try switching to another day or resetting your category and time filters.
+              Try switching between Morning and Evening or select "All Classes" to see everything scheduled for {activeDay}.
             </p>
             <button
               onClick={() => {
-                setSelectedCategory('All Classes');
+                setSelectedClassType('all');
                 setTimeFilter('all');
                 setSearchQuery('');
               }}
@@ -270,94 +394,111 @@ export const ClassTimingsPage: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             {filteredClasses.map((cls: GymClass) => {
-              const isYoga = cls.category === 'Yoga & Mobility';
-              const isZumba = cls.category === 'Zumba & Dance';
+              const isYoga = isYogaClass(cls);
+              const isZumba = isZumbaClass(cls);
+              const morning = isMorning(cls.time);
 
               return (
                 <div
                   key={cls.id}
                   id={`class-timings-card-${cls.id}`}
-                  className={`bg-neutral-900/90 rounded-3xl border p-6 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-xl ${
+                  className={`bg-neutral-900/90 rounded-3xl border p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-xl relative overflow-hidden ${
                     isYoga
-                      ? 'border-emerald-500/40 hover:border-emerald-500/70 bg-gradient-to-b from-neutral-900 via-neutral-900 to-emerald-950/20'
+                      ? 'border-emerald-500/40 hover:border-emerald-500/80 bg-gradient-to-b from-neutral-900 via-neutral-900 to-emerald-950/20'
                       : isZumba
-                      ? 'border-amber-500/40 hover:border-amber-500/70 bg-gradient-to-b from-neutral-900 via-neutral-900 to-amber-950/20'
+                      ? 'border-amber-500/40 hover:border-amber-500/80 bg-gradient-to-b from-neutral-900 via-neutral-900 to-amber-950/20'
                       : 'border-neutral-800 hover:border-neutral-700'
                   }`}
                 >
+                  {/* Top Header Badge */}
                   <div>
-                    {/* Time & Category Header */}
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                      <div className="flex items-center gap-2 text-base font-black text-white">
-                        <Clock className={`w-4 h-4 ${isYoga ? 'text-emerald-400' : isZumba ? 'text-amber-400' : theme.accentText}`} />
-                        <span>{cls.time}</span>
-                        <span className="text-xs font-normal text-neutral-400">
+                    <div className="flex items-center justify-between gap-2 mb-4">
+                      {/* Time Slot Pill */}
+                      <div className="flex items-center gap-2">
+                        <div className={`p-2 rounded-xl flex items-center gap-1.5 font-mono text-sm font-black ${
+                          morning ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
+                        }`}>
+                          {morning ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+                          <span>{cls.time}</span>
+                        </div>
+                        <span className="text-xs text-neutral-400 font-medium">
                           ({cls.durationMinutes} min)
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-1.5">
+                      {/* Discipline & Intensity Badges */}
+                      <div className="flex items-center gap-2">
                         {isYoga && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
-                            <HeartPulse className="w-2.5 h-2.5" />
+                          <span className="px-3 py-1 rounded-full text-xs font-black uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+                            <HeartPulse className="w-3 h-3" />
                             <span>Yoga</span>
                           </span>
                         )}
                         {isZumba && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1">
-                            <Music className="w-2.5 h-2.5" />
+                          <span className="px-3 py-1 rounded-full text-xs font-black uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1.5">
+                            <Music className="w-3 h-3" />
                             <span>Zumba</span>
                           </span>
                         )}
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${getIntensityBadge(cls.intensity)}`}>
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${getIntensityBadge(cls.intensity)}`}>
                           {cls.intensity}
                         </span>
                       </div>
                     </div>
 
                     {/* Class Title & Description */}
-                    <h3 className="text-xl font-black text-white tracking-tight uppercase">
+                    <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight uppercase">
                       {cls.title}
                     </h3>
-                    <p className="text-xs text-neutral-400 mt-2 line-clamp-3 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-neutral-400 mt-2 leading-relaxed">
                       {cls.description}
                     </p>
 
                     {/* Room & Trainer Details */}
-                    <div className="mt-5 pt-4 border-t border-neutral-800 space-y-2.5 text-xs text-neutral-300">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-neutral-400">
-                          <User className="w-3.5 h-3.5 text-neutral-500" />
-                          <span>Lead Instructor:</span>
+                    <div className="mt-6 pt-4 border-t border-neutral-800/80 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                      <div className="flex items-center gap-2 text-neutral-300">
+                        <div className="p-1.5 rounded-lg bg-neutral-800 text-neutral-400">
+                          <User className="w-3.5 h-3.5" />
                         </div>
-                        <span className="font-bold text-white">{cls.trainerName}</span>
+                        <div>
+                          <span className="text-[10px] text-neutral-500 uppercase block font-bold">Instructor</span>
+                          <span className="font-bold text-white">{cls.trainerName}</span>
+                        </div>
                       </div>
 
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-neutral-400">
-                          <MapPin className="w-3.5 h-3.5 text-neutral-500" />
-                          <span>Studio Room:</span>
+                      <div className="flex items-center gap-2 text-neutral-300">
+                        <div className="p-1.5 rounded-lg bg-neutral-800 text-neutral-400">
+                          <MapPin className="w-3.5 h-3.5" />
                         </div>
-                        <span className="font-semibold text-neutral-300">{cls.room}</span>
+                        <div>
+                          <span className="text-[10px] text-neutral-500 uppercase block font-bold">Studio Room</span>
+                          <span className="font-semibold text-neutral-200">{cls.room}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Drop-in / Reserve prompt */}
-                  <div className="mt-6 pt-4 border-t border-neutral-800/80">
+                  <div className="mt-6 pt-4 border-t border-neutral-800/80 flex items-center justify-between gap-3">
+                    <div className="text-[11px] text-neutral-400 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <span>{cls.capacity - cls.reservedCount} spots remaining</span>
+                    </div>
+
                     <button
                       onClick={() => setIsTrialModalOpen(true)}
-                      className={`w-full py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition ${
+                      className={`py-2.5 px-5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md ${
                         isYoga
-                          ? 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-md'
+                          ? 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-emerald-500/20'
                           : isZumba
-                          ? 'bg-amber-500 hover:bg-amber-400 text-black shadow-md'
+                          ? 'bg-amber-400 hover:bg-amber-300 text-black shadow-amber-400/20'
                           : `${theme.accentBg}`
                       }`}
                     >
-                      Reserve Studio Spot
+                      <span>Reserve Studio Spot</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
@@ -369,3 +510,4 @@ export const ClassTimingsPage: React.FC = () => {
     </div>
   );
 };
+

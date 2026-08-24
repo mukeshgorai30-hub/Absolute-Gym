@@ -39,8 +39,8 @@ export const Navbar: React.FC = () => {
 
   const navLinks: { name: string; page?: AppPage; anchor?: string; icon?: React.ReactNode }[] = [
     { name: 'Home', page: 'home', icon: <Home className="w-4 h-4" /> },
-    { name: 'Inside Facility', page: 'gallery', icon: <Image className="w-4 h-4" /> },
-    { name: 'Coaches', page: 'coaches', icon: <Users className="w-4 h-4" /> },
+    { name: 'Inside Gym', page: 'gallery', icon: <Image className="w-4 h-4" /> },
+    { name: 'Trainers / Coaches', page: 'coaches', icon: <Users className="w-4 h-4" /> },
     { name: 'Plans & Pricing', page: 'plans', icon: <CreditCard className="w-4 h-4" /> },
     { name: 'Class Timings', page: 'timings', icon: <Calendar className="w-4 h-4" /> },
     { name: 'Absolute Gym Cafe', page: 'cafe', icon: <Coffee className="w-4 h-4" /> },
