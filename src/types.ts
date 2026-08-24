@@ -255,4 +255,6 @@ export interface GymConfig {
   faqs: FAQ[];
   cafe: CafeConfig;
   adminPin: string;
+  adminEmail?: string;
+  requireSupabaseAuth?: boolean;
 }

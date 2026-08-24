@@ -150,6 +150,8 @@ export const defaultGymConfig: GymConfig = {
   currencySymbol: '₹',
   currencyCode: 'INR',
   adminPin: '1234',
+  adminEmail: 'mukeshgorai30@gmail.com',
+  requireSupabaseAuth: false,
   operatingHours: {
     monFri: '5:00 AM – 11:00 PM',
     saturday: '6:00 AM – 10:00 PM',

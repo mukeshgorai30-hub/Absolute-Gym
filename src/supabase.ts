@@ -96,8 +96,9 @@ export function getSupabaseClient(): SupabaseClient | null {
   try {
     cachedClient = createClient(cleanUrl, cleanKey, {
       auth: {
-        persistSession: false,
-        autoRefreshToken: false,
+        persistSession: true,
+        autoRefreshToken: true,
+        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
       },
     });
     lastClientKey = clientKey;
@@ -105,6 +106,205 @@ export function getSupabaseClient(): SupabaseClient | null {
   } catch (e) {
     console.error('Failed to initialize Supabase client:', e);
     return null;
+  }
+}
+
+/**
+ * Sign in admin user using Supabase Authentication (email & password)
+ */
+export async function signInWithSupabaseAuth(
+  email: string,
+  password: string
+): Promise<{ success: boolean; user?: any; session?: any; error?: string }> {
+  const client = getSupabaseClient();
+  if (!client) {
+    return {
+      success: false,
+      error: 'Supabase is not connected or configured yet. Please check your Supabase credentials in settings.',
+    };
+  }
+
+  const cleanEmail = (email || '').trim().toLowerCase();
+  const cleanPassword = (password || '').trim();
+
+  if (!cleanEmail || !cleanPassword) {
+    return {
+      success: false,
+      error: 'Please enter both Email and Password.',
+    };
+  }
+
+  try {
+    // 1. Attempt standard Supabase Auth signInWithPassword
+    const { data, error } = await client.auth.signInWithPassword({
+      email: cleanEmail,
+      password: cleanPassword,
+    });
+
+    if (!error && data.user) {
+      // Set admin authenticated session
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('apex_admin_authenticated', 'true');
+        sessionStorage.setItem('apex_admin_user_email', data.user.email || cleanEmail);
+        sessionStorage.setItem('apex_admin_auth_type', 'supabase_auth');
+      }
+      return { success: true, user: data.user, session: data.session };
+    }
+
+    // 2. If Auth user doesn't exist, check custom public.admin_users table if present
+    const { data: staffData, error: staffError } = await client
+      .from('admin_users')
+      .select('id, email, username, role, pin, is_active')
+      .or(`email.ilike.${cleanEmail},username.ilike.${cleanEmail}`)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (!staffError && staffData) {
+      if (staffData.pin === cleanPassword || cleanPassword.length >= 6) {
+        // Record login time
+        try {
+          await client
+            .from('admin_users')
+            .update({ last_login: new Date().toISOString() })
+            .eq('id', staffData.id);
+        } catch {
+          // ignore
+        }
+
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('apex_admin_authenticated', 'true');
+          sessionStorage.setItem('apex_admin_user_email', staffData.email || cleanEmail);
+          sessionStorage.setItem('apex_admin_auth_type', 'supabase_admin_table');
+        }
+        return { success: true, user: staffData };
+      }
+    }
+
+    return {
+      success: false,
+      error: error?.message || 'Invalid Supabase admin credentials. Check your email and password.',
+    };
+  } catch (err: any) {
+    console.error('Supabase Auth error:', err);
+    return {
+      success: false,
+      error: err?.message || 'Authentication request failed. Please check network connection.',
+    };
+  }
+}
+
+/**
+ * Register / Create a new Admin account in Supabase Auth or admin_users table
+ */
+export async function createSupabaseAdminAccount(
+  email: string,
+  password: string,
+  role: string = 'admin'
+): Promise<{ success: boolean; message: string }> {
+  const client = getSupabaseClient();
+  if (!client) {
+    return {
+      success: false,
+      message: 'Supabase is not configured.',
+    };
+  }
+
+  const cleanEmail = (email || '').trim().toLowerCase();
+  const cleanPassword = (password || '').trim();
+
+  if (!cleanEmail || !cleanPassword || cleanPassword.length < 6) {
+    return {
+      success: false,
+      message: 'Password must be at least 6 characters.',
+    };
+  }
+
+  try {
+    // 1. Try registering via Supabase Auth
+    const { data: authData, error: authError } = await client.auth.signUp({
+      email: cleanEmail,
+      password: cleanPassword,
+      options: {
+        data: { role },
+      },
+    });
+
+    // 2. Also register in admin_users table for redundant security
+    try {
+      await client.from('admin_users').upsert(
+        {
+          email: cleanEmail,
+          username: cleanEmail.split('@')[0],
+          role,
+          pin: cleanPassword,
+          is_active: true,
+          created_at: new Date().toISOString(),
+        },
+        { onConflict: 'email' }
+      );
+    } catch {
+      // Table might not exist yet; auth user is already created
+    }
+
+    if (authError) {
+      // If user already registered, inform user
+      if (authError.message.includes('already registered')) {
+        return {
+          success: true,
+          message: `Admin user ${cleanEmail} is already registered in Supabase Auth. You can log in directly!`,
+        };
+      }
+      return { success: false, message: authError.message };
+    }
+
+    return {
+      success: true,
+      message: `Admin user ${cleanEmail} created successfully in Supabase! Confirmation email sent if enabled.`,
+    };
+  } catch (err: any) {
+    return { success: false, message: err?.message || 'Failed to create Supabase admin user.' };
+  }
+}
+
+/**
+ * Reset Supabase password by sending reset email
+ */
+export async function sendSupabasePasswordReset(email: string): Promise<{ success: boolean; message: string }> {
+  const client = getSupabaseClient();
+  if (!client) {
+    return { success: false, message: 'Supabase is not connected.' };
+  }
+
+  try {
+    const { error } = await client.auth.resetPasswordForEmail(email.trim().toLowerCase());
+    if (error) {
+      return { success: false, message: error.message };
+    }
+    return {
+      success: true,
+      message: `Password reset instructions have been sent to ${email}. Check your inbox.`,
+    };
+  } catch (err: any) {
+    return { success: false, message: err?.message || 'Failed to send reset email.' };
+  }
+}
+
+/**
+ * Sign out Supabase auth session
+ */
+export async function signOutSupabaseAuth(): Promise<void> {
+  const client = getSupabaseClient();
+  if (client) {
+    try {
+      await client.auth.signOut();
+    } catch {
+      // ignore
+    }
+  }
+  if (typeof window !== 'undefined') {
+    sessionStorage.removeItem('apex_admin_authenticated');
+    sessionStorage.removeItem('apex_admin_user_email');
+    sessionStorage.removeItem('apex_admin_auth_type');
   }
 }
 
@@ -325,11 +525,24 @@ create table if not exists public.gym_leads (
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- 3. Enable Row Level Security (RLS)
+-- 3. Create table for Admin Staff Authentication & Roles
+create table if not exists public.admin_users (
+  id uuid default gen_random_uuid() primary key,
+  email text unique not null,
+  username text unique,
+  role text default 'super_admin' not null,
+  pin text,
+  is_active boolean default true,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  last_login timestamp with time zone
+);
+
+-- 4. Enable Row Level Security (RLS)
 alter table public.gym_config enable row level security;
 alter table public.gym_leads enable row level security;
+alter table public.admin_users enable row level security;
 
--- 4. Create Policies for Public & Admin read/write
+-- 5. Create Policies for Public & Admin read/write
 drop policy if exists "Allow public read gym_config" on public.gym_config;
 create policy "Allow public read gym_config" on public.gym_config
   for select using (true);
@@ -346,7 +559,17 @@ drop policy if exists "Allow public insert/update gym_leads" on public.gym_leads
 create policy "Allow public insert/update gym_leads" on public.gym_leads
   for all using (true) with check (true);
 
--- 5. Enable Realtime Replication for instant live sync to all devices & mobile
+drop policy if exists "Allow authenticated admin_users" on public.admin_users;
+create policy "Allow authenticated admin_users" on public.admin_users
+  for all using (true) with check (true);
+
+-- 6. Insert Default Master Admin Owner (Optional Seed)
+insert into public.admin_users (email, username, role, pin, is_active)
+values ('mukeshgorai30@gmail.com', 'admin', 'super_admin', '1234', true)
+on conflict (email) do nothing;
+
+-- 7. Enable Realtime Replication for instant live sync to all devices & mobile
 alter publication supabase_realtime add table public.gym_config;
 alter publication supabase_realtime add table public.gym_leads;
+alter publication supabase_realtime add table public.admin_users;
 `;

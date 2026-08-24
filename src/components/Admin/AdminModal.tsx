@@ -20,6 +20,7 @@ import { SpaManagerTab } from './SpaManagerTab';
 import { SupabaseManagerTab } from './SupabaseManagerTab';
 import { ImageUploadField } from './ImageUploadField';
 import { defaultSpaServices } from '../../data/defaultGymData';
+import { signOutSupabaseAuth } from '../../supabase';
 import {
   X,
   ShieldAlert,
@@ -292,8 +293,11 @@ export const AdminModal: React.FC = () => {
 
           <button
             id="logout-admin-btn"
-            onClick={() => {
+            onClick={async () => {
+              await signOutSupabaseAuth();
               sessionStorage.removeItem('apex_admin_authenticated');
+              sessionStorage.removeItem('apex_admin_user_email');
+              sessionStorage.removeItem('apex_admin_auth_type');
               setIsAdminOpen(false);
               window.location.hash = '';
             }}
@@ -2033,39 +2037,44 @@ export const AdminModal: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-black uppercase text-amber-400 flex items-center gap-2">
                       <Lock className="w-4 h-4" />
-                      <span>Staff Portal & Master Security PIN</span>
+                      <span>Admin Security & Supabase Authentication</span>
                     </h4>
-                    <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">
-                      2FA OTP Layer Active
-                    </span>
+                    <button
+                      onClick={() => setAdminTab('supabase')}
+                      className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30 transition flex items-center gap-1"
+                    >
+                      <span>Manage Supabase Users</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </button>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold uppercase tracking-wider text-neutral-400 mb-1">
-                        Master Admin Password / PIN:
+                        Master Admin Owner Email:
+                      </label>
+                      <input
+                        type="email"
+                        value={config.adminEmail || 'mukeshgorai30@gmail.com'}
+                        onChange={(e) => updateConfig({ adminEmail: e.target.value })}
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-2 text-sm text-white"
+                        placeholder="e.g. mukeshgorai30@gmail.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-neutral-400 mb-1">
+                        Master Admin Security PIN:
                       </label>
                       <input
                         type="text"
                         value={config.adminPin || '1234'}
                         onChange={(e) => updateConfig({ adminPin: e.target.value })}
                         className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-2 text-sm text-white font-mono"
-                        placeholder="e.g. 1234 or apex2025"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-neutral-400 mb-1">
-                        Authorized Staff Role:
-                      </label>
-                      <input
-                        type="text"
-                        disabled
-                        value="Super Administrator / Gym Manager"
-                        className="w-full bg-neutral-950/60 border border-neutral-800/80 rounded-xl px-4 py-2 text-sm text-neutral-400 font-mono"
+                        placeholder="e.g. 8492"
                       />
                     </div>
                   </div>
                   <p className="text-xs text-neutral-400">
-                    Changing this PIN updates the authentication key required for the Staff Login page, OTP validation, and password recovery.
+                    Your admin login is protected with Supabase Cloud Authentication, brute-force rate-limiting, and owner identity verification.
                   </p>
                 </div>
               </div>

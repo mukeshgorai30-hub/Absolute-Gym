@@ -14,9 +14,17 @@ import {
   Key,
   Layers,
   ArrowRight,
+  UserCheck,
+  Lock,
+  Mail,
+  KeyRound,
+  ShieldAlert,
 } from 'lucide-react';
 import { useGym } from '../../context/GymContext';
-import { SUPABASE_SQL_SETUP_SCRIPT } from '../../supabase';
+import {
+  SUPABASE_SQL_SETUP_SCRIPT,
+  signInWithSupabaseAuth,
+} from '../../supabase';
 
 interface SupabaseManagerTabProps {
   onNotify: (msg: string) => void;
@@ -25,6 +33,7 @@ interface SupabaseManagerTabProps {
 export const SupabaseManagerTab: React.FC<SupabaseManagerTabProps> = ({ onNotify }) => {
   const {
     config,
+    updateConfig,
     supabaseConfig,
     updateSupabaseCredentials,
     testSupabase,
@@ -45,6 +54,16 @@ export const SupabaseManagerTab: React.FC<SupabaseManagerTabProps> = ({ onNotify
 
   const [isPushingData, setIsPushingData] = useState(false);
   const [copiedSql, setCopiedSql] = useState(false);
+
+  // Admin Auth Management states
+  const [adminEmailInput, setAdminEmailInput] = useState(config.adminEmail || 'mukeshgorai30@gmail.com');
+  const [adminPinInput, setAdminPinInput] = useState(config.adminPin || '1234');
+
+  // Auth Test state
+  const [testAuthEmail, setTestAuthEmail] = useState(config.adminEmail || 'mukeshgorai30@gmail.com');
+  const [testAuthPassword, setTestAuthPassword] = useState('');
+  const [isTestingAuth, setIsTestingAuth] = useState(false);
+  const [authTestResult, setAuthTestResult] = useState<{ success: boolean; message: string } | null>(null);
 
   const handleSaveAndTest = async () => {
     updateSupabaseCredentials({
@@ -101,6 +120,44 @@ export const SupabaseManagerTab: React.FC<SupabaseManagerTabProps> = ({ onNotify
     setTimeout(() => setCopiedSql(false), 3000);
   };
 
+  const handleSaveAdminCredentials = () => {
+    updateConfig({
+      adminEmail: adminEmailInput.trim(),
+      adminPin: adminPinInput.trim(),
+    });
+    onNotify('Admin credentials updated! Remember your new Master PIN and Owner Email.');
+  };
+
+  const handleTestSupabaseAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!testAuthEmail || !testAuthPassword) return;
+
+    setIsTestingAuth(true);
+    setAuthTestResult(null);
+    try {
+      const res = await signInWithSupabaseAuth(testAuthEmail, testAuthPassword);
+      if (res.success) {
+        setAuthTestResult({
+          success: true,
+          message: `Authentication Successful! Verified account: ${res.user?.email || testAuthEmail}`,
+        });
+        onNotify('Supabase credentials verified successfully!');
+      } else {
+        setAuthTestResult({
+          success: false,
+          message: res.error || 'Authentication failed. Please verify email and password.',
+        });
+      }
+    } catch (err: any) {
+      setAuthTestResult({
+        success: false,
+        message: err?.message || 'Failed to authenticate with Supabase.',
+      });
+    } finally {
+      setIsTestingAuth(false);
+    }
+  };
+
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
       {/* Header */}
@@ -111,7 +168,7 @@ export const SupabaseManagerTab: React.FC<SupabaseManagerTabProps> = ({ onNotify
           </div>
           <div>
             <h3 className="text-2xl font-black uppercase tracking-tight text-white flex items-center gap-2">
-              <span>Supabase Backend & Global Real-time Sync</span>
+              <span>Supabase Backend & Authentication</span>
               <span
                 className={`text-[10px] px-2.5 py-0.5 rounded-full font-black uppercase border ${
                   isSupabaseActive
@@ -123,7 +180,7 @@ export const SupabaseManagerTab: React.FC<SupabaseManagerTabProps> = ({ onNotify
               </span>
             </h3>
             <p className="text-xs text-neutral-400 mt-1">
-              Connect your Supabase project so changes in this Admin CMS sync instantly across all devices, mobile phones, and Netlify visitors in real-time.
+              Connect your Supabase project to enforce cloud authentication for Admin Login and sync changes in real time across all devices.
             </p>
           </div>
         </div>
@@ -140,7 +197,7 @@ export const SupabaseManagerTab: React.FC<SupabaseManagerTabProps> = ({ onNotify
             />
             <div>
               <h4 className="text-sm font-black uppercase text-white flex items-center gap-2">
-                <span>Real-Time Replication Engine</span>
+                <span>Real-Time Cloud Engine & Auth Service</span>
                 {isSupabaseActive && (
                   <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-400">
                     <Radio className="w-3.5 h-3.5 animate-pulse" /> Live Broadcasting
@@ -149,8 +206,8 @@ export const SupabaseManagerTab: React.FC<SupabaseManagerTabProps> = ({ onNotify
               </h4>
               <p className="text-xs text-neutral-400 mt-0.5">
                 {isSupabaseActive
-                  ? 'All changes made in this admin panel will automatically update the mobile website and all visitors worldwide without refreshing the page.'
-                  : 'Supabase allows you to host the live database for free, giving you 100% instant updates on Netlify, Vercel, and mobile devices.'}
+                  ? 'All changes made in this admin panel sync live, and Admin Login is protected with Supabase Auth.'
+                  : 'Configure Supabase below to activate Cloud Admin Authentication and live data sync.'}
               </p>
             </div>
           </div>
@@ -254,7 +311,7 @@ export const SupabaseManagerTab: React.FC<SupabaseManagerTabProps> = ({ onNotify
               className="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-500 bg-neutral-950 border-neutral-800"
             />
             <span className="text-xs font-bold text-neutral-300">
-              Enable Supabase Real-Time Backend
+              Enable Supabase Real-Time Backend & Auth
             </span>
           </label>
 
@@ -269,6 +326,161 @@ export const SupabaseManagerTab: React.FC<SupabaseManagerTabProps> = ({ onNotify
         </div>
       </div>
 
+      {/* 🔐 Admin Security & Supabase Auth User Provisioning */}
+      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-6">
+        <div>
+          <h4 className="text-base font-black uppercase text-white flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-emerald-400" />
+            <span>Admin Authentication & Access Control (Supabase Protected)</span>
+          </h4>
+          <p className="text-xs text-neutral-400 mt-1">
+            Configure your Master Admin Credentials and manage authorized Supabase user logins to prevent unauthorized access.
+          </p>
+        </div>
+
+        {/* Master Credentials Box */}
+        <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-4 space-y-4">
+          <div className="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-2">
+            <KeyRound className="w-4 h-4" />
+            <span>Master Owner Credentials</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-neutral-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5 text-neutral-400" />
+                <span>Master Admin Owner Email</span>
+              </label>
+              <input
+                type="email"
+                value={adminEmailInput}
+                onChange={(e) => setAdminEmailInput(e.target.value)}
+                placeholder="mukeshgorai30@gmail.com"
+                className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-neutral-600 focus:outline-none focus:border-amber-400"
+              />
+              <p className="text-[10px] text-neutral-500">
+                Used for identity verification and password recovery.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-neutral-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-neutral-400" />
+                <span>Master Admin Security PIN</span>
+              </label>
+              <input
+                type="text"
+                value={adminPinInput}
+                onChange={(e) => setAdminPinInput(e.target.value)}
+                placeholder="e.g. 8492"
+                className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-neutral-600 focus:outline-none focus:border-amber-400 font-mono font-bold"
+              />
+              <p className="text-[10px] text-neutral-500">
+                Required for direct PIN authentication. Keep this private!
+              </p>
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-1">
+            <button
+              onClick={handleSaveAdminCredentials}
+              className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-black text-xs font-black uppercase tracking-wider transition"
+            >
+              Update Master Credentials
+            </button>
+          </div>
+        </div>
+
+        {/* Supabase Auth Verification & Security Policy */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
+          {/* Box 1: Security Architecture Guidelines */}
+          <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-4 space-y-3 flex flex-col justify-between">
+            <div className="space-y-2">
+              <div className="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                <ShieldAlert className="w-4 h-4" />
+                <span>Admin Access Control Policy</span>
+              </div>
+              <p className="text-[11px] text-neutral-400 leading-relaxed">
+                Public self-registration for new administrator accounts has been removed to prevent unauthorized access.
+              </p>
+              <div className="p-3 bg-neutral-900/80 border border-neutral-800 rounded-lg text-[11px] text-neutral-300 space-y-2">
+                <div className="font-semibold text-white flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Authorized Admin Credentials:</span>
+                </div>
+                <ul className="list-disc list-inside space-y-1 text-neutral-400 pl-1">
+                  <li>Owner Email: <code className="text-emerald-400">{config.adminEmail || 'mukeshgorai30@gmail.com'}</code></li>
+                  <li>Master PIN fallback authentication is active</li>
+                  <li>Additional users can only be invited directly via your private Supabase Console</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="pt-2 text-[10px] text-neutral-500 flex items-center gap-1.5">
+              <KeyRound className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span>Only authorized facility operators can authenticate into this portal.</span>
+            </div>
+          </div>
+
+          {/* Box 2: Test Supabase Login */}
+          <form onSubmit={handleTestSupabaseAuth} className="bg-neutral-950 border border-neutral-800 rounded-xl p-4 space-y-3">
+            <div className="text-xs font-black uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4" />
+              <span>Test Supabase Admin Login</span>
+            </div>
+            <p className="text-[11px] text-neutral-400">
+              Verify that an admin email & password can authenticate properly against Supabase.
+            </p>
+
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold text-neutral-300 uppercase">Admin Email</label>
+              <input
+                type="email"
+                required
+                value={testAuthEmail}
+                onChange={(e) => setTestAuthEmail(e.target.value)}
+                placeholder="mukeshgorai30@gmail.com"
+                className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-neutral-600 focus:outline-none focus:border-emerald-400"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold text-neutral-300 uppercase">Password</label>
+              <input
+                type="password"
+                required
+                value={testAuthPassword}
+                onChange={(e) => setTestAuthPassword(e.target.value)}
+                placeholder="Enter password to test"
+                className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-neutral-600 focus:outline-none focus:border-emerald-400"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isTestingAuth}
+              className="w-full py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition disabled:opacity-50"
+            >
+              {isTestingAuth ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Lock className="w-3.5 h-3.5" />}
+              <span>{isTestingAuth ? 'Authenticating...' : 'Test Login'}</span>
+            </button>
+
+            {authTestResult && (
+              <div
+                className={`p-2.5 rounded-lg text-[11px] font-bold flex items-center gap-2 ${
+                  authTestResult.success
+                    ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
+                    : 'bg-red-500/10 text-red-300 border border-red-500/30'
+                }`}
+              >
+                {authTestResult.success ? <CheckCircle2 className="w-3.5 h-3.5 shrink-0" /> : <AlertCircle className="w-3.5 h-3.5 shrink-0" />}
+                <span>{authTestResult.message}</span>
+              </div>
+            )}
+          </form>
+        </div>
+      </div>
+
       {/* Step 2: SQL Table Creation Script */}
       <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-4">
         <div className="flex items-center justify-between">
@@ -278,7 +490,7 @@ export const SupabaseManagerTab: React.FC<SupabaseManagerTabProps> = ({ onNotify
               <span>Step 2: Initialize Database Tables (1-Click SQL)</span>
             </h4>
             <p className="text-xs text-neutral-400 mt-1">
-              Run this script once in your Supabase SQL editor to create the <code className="text-emerald-400">gym_config</code> and <code className="text-emerald-400">gym_leads</code> tables with Realtime sync enabled.
+              Run this script in your Supabase SQL editor to create the <code className="text-emerald-400">gym_config</code>, <code className="text-emerald-400">gym_leads</code>, and <code className="text-emerald-400">admin_users</code> tables with RLS security policies.
             </p>
           </div>
 
