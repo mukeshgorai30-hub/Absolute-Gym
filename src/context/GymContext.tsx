@@ -14,6 +14,7 @@ import {
   CafeConfig,
   SpaServiceItem,
 } from '../types';
+import { AppPage } from '../types/navigation';
 import { defaultGymConfig, sampleInitialLeads, defaultSpaServices } from '../data/defaultGymData';
 import { db, doc, onSnapshot, setDoc, getDoc, collection, getDocs, updateDoc, deleteDoc } from '../firebase';
 import {
@@ -40,6 +41,10 @@ interface GymContextType {
   updateSupabaseCredentials: (creds: Partial<SupabaseConfigSettings>) => void;
   testSupabase: () => Promise<{ success: boolean; message: string; tableExists: boolean }>;
   isSupabaseActive: boolean;
+  
+  // Page Navigation
+  currentPage: AppPage;
+  setCurrentPage: (page: AppPage) => void;
   
   // UI Modals & Navigation
   isAdminOpen: boolean;
@@ -197,7 +202,57 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const lastSavedConfigJson = useRef<string>(JSON.stringify(config));
   const tabInstanceId = useRef<string>(Math.random().toString(36).substring(2, 9));
 
-  // Modal States
+  // Modal & Navigation States
+  const [currentPage, setCurrentPageState] = useState<AppPage>(() => {
+    const hash = window.location.hash.toLowerCase();
+    if (hash === '#gallery' || hash === '#facility') return 'gallery';
+    if (hash === '#coaches' || hash === '#trainers') return 'coaches';
+    if (hash === '#plans' || hash === '#pricing') return 'plans';
+    if (hash === '#timings' || hash === '#schedule' || hash === '#classes') return 'timings';
+    if (hash === '#cafe' || hash === '#fuelbar') return 'cafe';
+    if (hash === '#calculator' || hash === '#bmi' || hash === '#calc') return 'calculator';
+    return 'home';
+  });
+
+  const setCurrentPage = (page: AppPage) => {
+    setCurrentPageState(page);
+    if (page === 'home') {
+      if (window.location.hash && window.location.hash !== '#hero' && !window.location.hash.startsWith('#admin')) {
+        history.pushState(null, '', window.location.pathname + window.location.search);
+      }
+    } else {
+      window.location.hash = page;
+    }
+  };
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.toLowerCase();
+      if (hash === '#gallery' || hash === '#facility') {
+        setCurrentPageState('gallery');
+      } else if (hash === '#coaches' || hash === '#trainers') {
+        setCurrentPageState('coaches');
+      } else if (hash === '#plans' || hash === '#pricing') {
+        setCurrentPageState('plans');
+      } else if (hash === '#timings' || hash === '#schedule' || hash === '#classes') {
+        setCurrentPageState('timings');
+      } else if (hash === '#cafe' || hash === '#fuelbar') {
+        setCurrentPageState('cafe');
+      } else if (hash === '#calculator' || hash === '#bmi' || hash === '#calc') {
+        setCurrentPageState('calculator');
+      } else if (!hash || hash === '#hero' || hash === '#home' || hash === '#contact') {
+        setCurrentPageState('home');
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handleHashChange);
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', handleHashChange);
+    };
+  }, []);
+
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [adminTab, setAdminTab] = useState('overview');
   const [selectedPlanForModal, setSelectedPlanForModal] = useState<SubscriptionPlan | null>(null);
@@ -1069,6 +1124,8 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateSupabaseCredentials,
         testSupabase,
         isSupabaseActive,
+        currentPage,
+        setCurrentPage,
       }}
     >
       {children}

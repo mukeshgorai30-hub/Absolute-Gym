@@ -19,6 +19,8 @@ export const Footer: React.FC = () => {
   const {
     config,
     themeColor,
+    currentPage,
+    setCurrentPage,
     setIsAdminOpen,
     setIsTrialModalOpen,
   } = useGym();
@@ -54,43 +56,92 @@ export const Footer: React.FC = () => {
           {/* Col 2: Quick Links */}
           <div>
             <h4 className="text-xs font-black uppercase tracking-wider text-neutral-300 mb-4">
-              Explore Facility
+              Explore Pages & Facility
             </h4>
             <ul className="space-y-2.5 text-xs text-neutral-400">
               <li>
-                <a href="#gallery" className="hover:text-white transition">
-                  Inside Facility Showcase
-                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentPage('home');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="hover:text-white transition text-left"
+                >
+                  Home Overview
+                </button>
               </li>
               <li>
-                <a href="#trainers" className="hover:text-white transition">
-                  Coaches/trainer info
-                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentPage('coaches');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="hover:text-white transition text-left"
+                >
+                  Coaches & Trainers
+                </button>
               </li>
               <li>
-                <a href="#plans" className="hover:text-white transition">
-                  Membership Packages
-                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentPage('plans');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="hover:text-white transition text-left"
+                >
+                  Plans & Pricing
+                </button>
               </li>
               <li>
-                <a href="#schedule" className="hover:text-white transition">
-                  Class Timetable
-                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentPage('timings');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="hover:text-white transition text-left"
+                >
+                  Class Timings Schedule
+                </button>
               </li>
               <li>
-                <a href="#cafe" className="hover:text-white transition">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentPage('cafe');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="hover:text-white transition text-left"
+                >
                   Absolute Gym Cafe
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#calculator" className="hover:text-white transition">
-                  BMI & Calorie Tool
-                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentPage('gallery');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="hover:text-white transition text-left"
+                >
+                  Inside Facility Showcase
+                </button>
               </li>
               <li>
-                <a href="#ai-advisor" className="hover:text-white transition">
-                  AI Workout Matcher
-                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentPage('calculator');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="hover:text-white transition text-left"
+                >
+                  BMI & Calorie Target Calculator
+                </button>
               </li>
             </ul>
           </div>

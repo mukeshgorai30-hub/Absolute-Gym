@@ -44,6 +44,7 @@ export const PlansSection: React.FC = () => {
     setSelectedPlanForModal,
     setIsTrialModalOpen,
     setIsReceiptPortalOpen,
+    setCurrentPage,
   } = useGym();
   const theme = themeStyles[themeColor];
 
@@ -644,13 +645,25 @@ export const PlansSection: React.FC = () => {
               </p>
             </div>
           </div>
-          <button
-            id="plans-claim-free-pass-btn"
-            onClick={() => setIsTrialModalOpen(true)}
-            className={`shrink-0 px-6 py-3 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap ${theme.accentBg}`}
-          >
-            Claim 1-Day VIP Pass
-          </button>
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <button
+              onClick={() => {
+                setCurrentPage('plans');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="px-5 py-3 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-xs sm:text-sm font-bold uppercase tracking-wider text-white transition flex items-center gap-1.5"
+            >
+              <span>View Full Pricing Page</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <button
+              id="plans-claim-free-pass-btn"
+              onClick={() => setIsTrialModalOpen(true)}
+              className={`px-6 py-3 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap ${theme.accentBg}`}
+            >
+              Claim 1-Day VIP Pass
+            </button>
+          </div>
         </div>
       </div>
     </section>

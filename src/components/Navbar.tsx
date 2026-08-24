@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useGym } from '../context/GymContext';
 import { themeStyles } from '../utils/theme';
 import { GymLogo } from './GymLogo';
+import { AppPage } from '../types/navigation';
 import {
   Clock,
   Phone,
@@ -13,12 +14,21 @@ import {
   Flame,
   ChevronRight,
   UserCheck,
+  Home,
+  Users,
+  CreditCard,
+  Calendar,
+  Coffee,
+  Image,
+  Calculator,
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const {
     config,
     themeColor,
+    currentPage,
+    setCurrentPage,
     setIsAdminOpen,
     setIsTrialModalOpen,
     setIsAIModalOpen,
@@ -27,21 +37,32 @@ export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [announcementDismissed, setAnnouncementDismissed] = useState(false);
 
-  const navLinks = [
-    { name: 'Inside Facility', href: '#gallery' },
-    { name: 'Coaches', href: '#trainers' },
-    { name: 'Plans & Pricing', href: '#plans' },
-    { name: 'Class Timings', href: '#schedule' },
-    { name: 'Absolute Gym Cafe', href: '#cafe' },
-    { name: 'BMI Calculator', href: '#calculator' },
-    { name: 'Contact', href: '#contact' },
+  const navLinks: { name: string; page?: AppPage; anchor?: string; icon?: React.ReactNode }[] = [
+    { name: 'Home', page: 'home', icon: <Home className="w-4 h-4" /> },
+    { name: 'Inside Facility', page: 'gallery', icon: <Image className="w-4 h-4" /> },
+    { name: 'Coaches', page: 'coaches', icon: <Users className="w-4 h-4" /> },
+    { name: 'Plans & Pricing', page: 'plans', icon: <CreditCard className="w-4 h-4" /> },
+    { name: 'Class Timings', page: 'timings', icon: <Calendar className="w-4 h-4" /> },
+    { name: 'Absolute Gym Cafe', page: 'cafe', icon: <Coffee className="w-4 h-4" /> },
+    { name: 'BMI Calculator', page: 'calculator', icon: <Calculator className="w-4 h-4" /> },
   ];
 
-  const handleNavClick = (href: string) => {
+  const handleNavClick = (link: { name: string; page?: AppPage; anchor?: string }) => {
     setMobileMenuOpen(false);
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+    if (link.page) {
+      setCurrentPage(link.page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (link.anchor) {
+      if (currentPage !== 'home') {
+        setCurrentPage('home');
+        setTimeout(() => {
+          const el = document.querySelector(link.anchor!);
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 150);
+      } else {
+        const el = document.querySelector(link.anchor);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   };
 
@@ -84,7 +105,10 @@ export const Navbar: React.FC = () => {
           {/* Brand Logo */}
           <div className="min-w-0 shrink">
             <GymLogo
-              onClick={() => handleNavClick('#hero')}
+              onClick={() => {
+                setCurrentPage('home');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               size="md"
               className="cursor-pointer select-none"
             />
@@ -92,19 +116,23 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop Nav Links */}
           <nav className="hidden xl:flex items-center space-x-1 shrink-0">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleNavClick(link.href);
-                }}
-                className="px-3 py-2 rounded-lg text-sm font-medium text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition"
-              >
-                {link.name}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = link.page ? currentPage === link.page : false;
+              return (
+                <button
+                  key={link.name}
+                  type="button"
+                  onClick={() => handleNavClick(link)}
+                  className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider transition flex items-center gap-1.5 ${
+                    isActive
+                      ? `${theme.accentBg} shadow-md`
+                      : 'text-neutral-300 hover:text-white hover:bg-neutral-900'
+                  }`}
+                >
+                  <span>{link.name}</span>
+                </button>
+              );
+            })}
           </nav>
 
           {/* Action CTAs & 3-Line Menu Toggle */}
@@ -168,20 +196,25 @@ export const Navbar: React.FC = () => {
 
           {/* Nav Links */}
           <div className="divide-y divide-neutral-900 rounded-xl bg-neutral-900/50 border border-neutral-800/80 px-3">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleNavClick(link.href);
-                }}
-                className="flex items-center justify-between py-3.5 text-sm font-semibold text-neutral-200 hover:text-white transition touch-manipulation"
-              >
-                <span>{link.name}</span>
-                <ChevronRight className="w-4 h-4 text-neutral-500" />
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = link.page ? currentPage === link.page : false;
+              return (
+                <button
+                  key={link.name}
+                  type="button"
+                  onClick={() => handleNavClick(link)}
+                  className={`w-full flex items-center justify-between py-3.5 text-sm font-semibold transition touch-manipulation text-left ${
+                    isActive ? `${theme.accentText} font-bold` : 'text-neutral-200 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    {link.icon}
+                    <span>{link.name}</span>
+                  </div>
+                  <ChevronRight className={`w-4 h-4 ${isActive ? 'text-amber-400' : 'text-neutral-500'}`} />
+                </button>
+              );
+            })}
           </div>
 
           {/* Contact Details */}
@@ -200,3 +233,4 @@ export const Navbar: React.FC = () => {
     </header>
   );
 };
+

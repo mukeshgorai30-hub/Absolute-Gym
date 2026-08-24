@@ -79,113 +79,7 @@ export const ContactSection: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Gym Information & Hours Card */}
-          <div className="lg:col-span-5 bg-neutral-900 rounded-2xl border border-neutral-800 p-6 sm:p-8 shadow-xl space-y-6">
-            <div>
-              <h3 className="text-xl font-black uppercase tracking-tight text-white mb-2">
-                ABOUT OUR GYM
-              </h3>
-              <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
-                {config.description}
-              </p>
-            </div>
-
-            {/* Address & Quick Contacts */}
-            <div className="space-y-4 pt-4 border-t border-neutral-800">
-              <div className="flex items-start gap-3">
-                <div className={`p-2 rounded-lg bg-neutral-950 border border-neutral-800 shrink-0 ${theme.accentText}`}>
-                  <MapPin className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold uppercase tracking-wider text-neutral-400">Location</div>
-                  <div className="text-sm font-semibold text-white mt-0.5">{config.address}</div>
-                  {(config.googleMapsEmbedUrl || config.address) && (
-                    <a
-                      href={
-                        config.googleMapsEmbedUrl?.trim() ||
-                        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(config.address)}`
-                      }
-                      target="_blank"
-                      rel="noreferrer"
-                      className={`text-xs font-bold mt-1.5 inline-flex items-center gap-1.5 hover:underline ${theme.accentText}`}
-                    >
-                      <Navigation className="w-3 h-3" />
-                      <span>Open in Google Maps</span>
-                      <ExternalLink className="w-3 h-3 opacity-70" />
-                    </a>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className={`p-2 rounded-lg bg-neutral-950 border border-neutral-800 shrink-0 ${theme.accentText}`}>
-                  <Phone className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold uppercase tracking-wider text-neutral-400">Phone & Desk</div>
-                  <a href={`tel:${config.phone}`} className="text-sm font-semibold text-white hover:underline block mt-0.5">
-                    {config.phone}
-                  </a>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className={`p-2 rounded-lg bg-neutral-950 border border-neutral-800 shrink-0 ${theme.accentText}`}>
-                  <Mail className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold uppercase tracking-wider text-neutral-400">Email Inquiries</div>
-                  <a href={`mailto:${config.email}`} className="text-sm font-semibold text-white hover:underline block mt-0.5">
-                    {config.email}
-                  </a>
-                </div>
-              </div>
-
-              {config.whatsapp && (
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-emerald-950/60 border border-emerald-800/80 text-emerald-400 shrink-0">
-                    <MessageSquare className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold uppercase tracking-wider text-neutral-400">WhatsApp Chat</div>
-                    <a
-                      href={`https://wa.me/${config.whatsapp.replace(/[^0-9]/g, '')}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-sm font-semibold text-emerald-400 hover:underline block mt-0.5"
-                    >
-                      Chat with Membership Team →
-                    </a>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Operating Hours Table */}
-            <div className="pt-4 border-t border-neutral-800">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-400 mb-3">
-                <Clock className="w-4 h-4 text-amber-400" />
-                <span>Operating & Staffed Hours</span>
-              </div>
-
-              <div className="space-y-2 text-xs font-medium">
-                <div className="flex justify-between py-1.5 border-b border-neutral-800/60">
-                  <span className="text-neutral-400">Monday – Friday</span>
-                  <span className="text-white font-bold">{config.operatingHours.monFri}</span>
-                </div>
-                <div className="flex justify-between py-1.5 border-b border-neutral-800/60">
-                  <span className="text-neutral-400">Saturday</span>
-                  <span className="text-white font-bold">{config.operatingHours.saturday}</span>
-                </div>
-                <div className="flex justify-between py-1.5">
-                  <span className="text-neutral-400">Sunday</span>
-                  <span className="text-white font-bold">{config.operatingHours.sunday}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Contact & Free Pass Capture Form */}
+          {/* Contact & Free Pass Capture Form (Left on Desktop) */}
           <div className="lg:col-span-7 bg-neutral-900 rounded-2xl border border-neutral-800 p-6 sm:p-8 shadow-xl">
             <h3 className="text-xl font-black uppercase text-white mb-2 flex items-center gap-2">
               <Flame className={`w-5 h-5 ${theme.accentText}`} />
@@ -323,6 +217,112 @@ export const ContactSection: React.FC = () => {
                 </p>
               </form>
             )}
+          </div>
+
+          {/* Gym Information & Hours Card (Right on Desktop) */}
+          <div className="lg:col-span-5 bg-neutral-900 rounded-2xl border border-neutral-800 p-6 sm:p-8 shadow-xl space-y-6">
+            <div>
+              <h3 className="text-xl font-black uppercase tracking-tight text-white mb-2">
+                ABOUT OUR GYM
+              </h3>
+              <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
+                {config.description}
+              </p>
+            </div>
+
+            {/* Address & Quick Contacts */}
+            <div className="space-y-4 pt-4 border-t border-neutral-800">
+              <div className="flex items-start gap-3">
+                <div className={`p-2 rounded-lg bg-neutral-950 border border-neutral-800 shrink-0 ${theme.accentText}`}>
+                  <MapPin className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-neutral-400">Location</div>
+                  <div className="text-sm font-semibold text-white mt-0.5">{config.address}</div>
+                  {(config.googleMapsEmbedUrl || config.address) && (
+                    <a
+                      href={
+                        config.googleMapsEmbedUrl?.trim() ||
+                        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(config.address)}`
+                      }
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`text-xs font-bold mt-1.5 inline-flex items-center gap-1.5 hover:underline ${theme.accentText}`}
+                    >
+                      <Navigation className="w-3 h-3" />
+                      <span>Open in Google Maps</span>
+                      <ExternalLink className="w-3 h-3 opacity-70" />
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className={`p-2 rounded-lg bg-neutral-950 border border-neutral-800 shrink-0 ${theme.accentText}`}>
+                  <Phone className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-neutral-400">Phone & Desk</div>
+                  <a href={`tel:${config.phone}`} className="text-sm font-semibold text-white hover:underline block mt-0.5">
+                    {config.phone}
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className={`p-2 rounded-lg bg-neutral-950 border border-neutral-800 shrink-0 ${theme.accentText}`}>
+                  <Mail className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-neutral-400">Email Inquiries</div>
+                  <a href={`mailto:${config.email}`} className="text-sm font-semibold text-white hover:underline block mt-0.5">
+                    {config.email}
+                  </a>
+                </div>
+              </div>
+
+              {config.whatsapp && (
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-emerald-950/60 border border-emerald-800/80 text-emerald-400 shrink-0">
+                    <MessageSquare className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold uppercase tracking-wider text-neutral-400">WhatsApp Chat</div>
+                    <a
+                      href={`https://wa.me/${config.whatsapp.replace(/[^0-9]/g, '')}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm font-semibold text-emerald-400 hover:underline block mt-0.5"
+                    >
+                      Chat with Membership Team →
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Operating Hours Table */}
+            <div className="pt-4 border-t border-neutral-800">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-400 mb-3">
+                <Clock className="w-4 h-4 text-amber-400" />
+                <span>Operating & Staffed Hours</span>
+              </div>
+
+              <div className="space-y-2 text-xs font-medium">
+                <div className="flex justify-between py-1.5 border-b border-neutral-800/60">
+                  <span className="text-neutral-400">Monday – Friday</span>
+                  <span className="text-white font-bold">{config.operatingHours.monFri}</span>
+                </div>
+                <div className="flex justify-between py-1.5 border-b border-neutral-800/60">
+                  <span className="text-neutral-400">Saturday</span>
+                  <span className="text-white font-bold">{config.operatingHours.saturday}</span>
+                </div>
+                <div className="flex justify-between py-1.5">
+                  <span className="text-neutral-400">Sunday</span>
+                  <span className="text-white font-bold">{config.operatingHours.sunday}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

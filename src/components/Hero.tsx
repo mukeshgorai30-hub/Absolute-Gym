@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 
 export const Hero: React.FC = () => {
-  const { config, themeColor, setIsTrialModalOpen, setIsAIModalOpen } = useGym();
+  const { config, themeColor, setIsTrialModalOpen, setIsAIModalOpen, setCurrentPage } = useGym();
   const theme = themeStyles[themeColor];
 
   const scrollToSection = (id: string) => {
@@ -77,7 +77,10 @@ export const Hero: React.FC = () => {
 
           <button
             id="hero-view-plans-btn"
-            onClick={() => scrollToSection('plans')}
+            onClick={() => {
+              setCurrentPage('plans');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-neutral-900/90 hover:bg-neutral-800 border border-neutral-700 text-white font-bold text-base tracking-wide transition transform hover:-translate-y-0.5"
           >
             <Trophy className="w-5 h-5 text-amber-400" />

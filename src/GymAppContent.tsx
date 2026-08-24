@@ -4,15 +4,19 @@ import { themeStyles } from './utils/theme';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { GallerySection } from './components/GallerySection';
-import { TrainersSection } from './components/TrainersSection';
-import { PlansSection } from './components/PlansSection';
-import { ClassScheduleSection } from './components/ClassScheduleSection';
-import { CafeSection } from './components/CafeSection';
-import { BmiCalculatorSection } from './components/BmiCalculatorSection';
+import { ExplorePagesCards } from './components/ExplorePagesCards';
 import { TestimonialsSection } from './components/TestimonialsSection';
 import { ContactSection } from './components/ContactSection';
 import { FaqSection } from './components/FaqSection';
 import { Footer } from './components/Footer';
+
+// Dedicated Standalone Pages
+import { GalleryPage } from './pages/GalleryPage';
+import { CoachesPage } from './pages/CoachesPage';
+import { PlansPricingPage } from './pages/PlansPricingPage';
+import { ClassTimingsPage } from './pages/ClassTimingsPage';
+import { CafePage } from './pages/CafePage';
+import { BmiCalculatorPage } from './pages/BmiCalculatorPage';
 
 // Modals & Admin
 import { PlanBookingModal } from './components/Modals/PlanBookingModal';
@@ -27,7 +31,16 @@ import { CustomerReceiptPortalModal } from './components/Modals/CustomerReceiptP
 import { Flame, Sparkles } from 'lucide-react';
 
 export const GymAppContent: React.FC = () => {
-  const { config, themeColor, isAdminOpen, setIsAdminOpen, setIsTrialModalOpen, setIsAIModalOpen } = useGym();
+  const {
+    config,
+    themeColor,
+    currentPage,
+    setCurrentPage,
+    isAdminOpen,
+    setIsAdminOpen,
+    setIsTrialModalOpen,
+    setIsAIModalOpen,
+  } = useGym();
   const theme = themeStyles[themeColor];
 
   // Route state: check hash (#admin, #login, ?view=admin) or manual toggle
@@ -44,7 +57,6 @@ export const GymAppContent: React.FC = () => {
   // Global Keyboard Shortcut: Ctrl + Shift + A or Cmd + Shift + A to open Admin Login
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl + Shift + A or Cmd + Shift + A
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
         e.preventDefault();
         setIsAdminRoute(true);
@@ -105,7 +117,6 @@ export const GymAppContent: React.FC = () => {
   // Synchronize when admin is opened or closed
   useEffect(() => {
     if (!isAdminOpen && isAdminRoute && isAdminAuthenticated) {
-      // User closed the CMS modal from the CMS screen
       window.location.hash = '';
       setIsAdminRoute(false);
     }
@@ -136,41 +147,40 @@ export const GymAppContent: React.FC = () => {
     );
   }
 
-  // Public Member Website (Clean, zero public admin buttons/clutter)
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-neutral-950 text-neutral-100 selection:bg-amber-400 selection:text-black font-sans antialiased">
-      {/* Main Navigation Bar */}
-      <Navbar />
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-neutral-950 text-neutral-100 selection:bg-amber-400 selection:text-black font-sans antialiased flex flex-col justify-between">
+      <div>
+        {/* Main Sticky Header */}
+        <Navbar />
 
-      {/* Hero Header */}
-      <Hero />
+        {/* Dynamic Page Router */}
+        {currentPage === 'gallery' && <GalleryPage />}
+        {currentPage === 'coaches' && <CoachesPage />}
+        {currentPage === 'plans' && <PlansPricingPage />}
+        {currentPage === 'timings' && <ClassTimingsPage />}
+        {currentPage === 'cafe' && <CafePage />}
+        {currentPage === 'calculator' && <BmiCalculatorPage />}
 
-      {/* 1st: Inside Absolute Gym (Facility Photography Gallery) */}
-      <GallerySection />
+        {/* Default Home Page View */}
+        {currentPage === 'home' && (
+          <main>
+            {/* Hero Header */}
+            <Hero />
 
-      {/* 2nd: Meet Our Performance Coaches (Certified Trainers Roster) */}
-      <TrainersSection />
+            {/* Dedicated Page Portals (Inside Facility, Coaches, Plans, Timings, Cafe, BMI) */}
+            <ExplorePagesCards />
 
-      {/* 3rd: Choose Your Membership Package (Subscription Plans & Pricing) */}
-      <PlansSection />
+            {/* Verified Member Testimonials */}
+            <TestimonialsSection />
 
-      {/* 4th: Class Timings & Studio Schedule (Yoga, Zumba, HIIT & More) */}
-      <ClassScheduleSection />
+            {/* Facility Details, Hours & Pass Capture */}
+            <ContactSection />
 
-      {/* 5th: Performance Fuel & Clean Nutrition (Fuel Bar & Gym Cafe) */}
-      <CafeSection />
-
-      {/* Interactive BMI & Nutrition Calculator */}
-      <BmiCalculatorSection />
-
-      {/* Verified Member Testimonials */}
-      <TestimonialsSection />
-
-      {/* Facility Details, Hours & Pass Capture */}
-      <ContactSection />
-
-      {/* FAQ */}
-      <FaqSection />
+            {/* FAQ */}
+            <FaqSection />
+          </main>
+        )}
+      </div>
 
       {/* Footer */}
       <Footer />
@@ -212,3 +222,4 @@ export const GymAppContent: React.FC = () => {
     </div>
   );
 };
+

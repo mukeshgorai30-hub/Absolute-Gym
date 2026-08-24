@@ -8,12 +8,12 @@ export const GallerySection: React.FC = () => {
   const { config, themeColor } = useGym();
   const theme = themeStyles[themeColor];
 
-  const categories = ['All', 'Gym Floor', 'Recovery & Spa', 'Classes & Studio', 'Equipment'];
-  const [selectedCat, setSelectedCat] = useState<string>('All');
+  const categories = ['Gallery', 'Gym Floor', 'Recovery & Spa', 'Classes & Studio', 'Equipment'];
+  const [selectedCat, setSelectedCat] = useState<string>('Gallery');
   const [selectedPhoto, setSelectedPhoto] = useState<GalleryItem | null>(null);
 
   const filteredGallery = config.gallery.filter((item) => {
-    if (selectedCat === 'All') return true;
+    if (selectedCat === 'Gallery' || selectedCat === 'All') return true;
     return item.category === selectedCat;
   });
 

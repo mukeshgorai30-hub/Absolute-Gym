@@ -13,10 +13,11 @@ import {
   HeartPulse,
   Sun,
   Moon,
+  ArrowRight,
 } from 'lucide-react';
 
 export const ClassScheduleSection: React.FC = () => {
-  const { config, themeColor } = useGym();
+  const { config, themeColor, setCurrentPage } = useGym();
   const theme = themeStyles[themeColor];
 
   const days: DayOfWeek[] = [
@@ -435,6 +436,20 @@ export const ClassScheduleSection: React.FC = () => {
             })}
           </div>
         )}
+
+        {/* Dedicated Page Button */}
+        <div className="mt-12 text-center">
+          <button
+            onClick={() => {
+              setCurrentPage('timings');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-xs sm:text-sm font-black uppercase tracking-wider text-white hover:text-amber-400 transition-all shadow-lg"
+          >
+            <span>Open Dedicated Class Timetable & Filters</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </section>
   );

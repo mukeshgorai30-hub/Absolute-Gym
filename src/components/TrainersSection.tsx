@@ -12,10 +12,11 @@ import {
   Star,
   Users,
   ChevronRight,
+  ArrowRight,
 } from 'lucide-react';
 
 export const TrainersSection: React.FC = () => {
-  const { config, themeColor, setSelectedTrainerForModal } = useGym();
+  const { config, themeColor, setSelectedTrainerForModal, setCurrentPage } = useGym();
   const theme = themeStyles[themeColor];
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>('All');
 
@@ -202,6 +203,20 @@ export const TrainersSection: React.FC = () => {
               </div>
             </div>
           ))}
+          </div>
+
+          {/* View Dedicated Page Link */}
+          <div className="mt-12 text-center">
+            <button
+              onClick={() => {
+                setCurrentPage('coaches');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-xs sm:text-sm font-black uppercase tracking-wider text-white hover:text-amber-400 transition-all shadow-lg"
+            >
+              <span>Explore All Coaches & Biographies</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>

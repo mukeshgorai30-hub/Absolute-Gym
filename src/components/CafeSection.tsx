@@ -31,7 +31,7 @@ const CATEGORIES = [
 const DIETARY_TAGS = ['All', 'High Protein', 'Bestseller', 'Sugar-Free', 'Keto', 'Vegan'];
 
 export const CafeSection: React.FC = () => {
-  const { config, themeColor, setIsAdminOpen, setAdminTab } = useGym();
+  const { config, themeColor, setIsAdminOpen, setAdminTab, setCurrentPage } = useGym();
   const theme = themeStyles[themeColor];
   const currency = config.currencySymbol || '₹';
 
@@ -331,6 +331,20 @@ export const CafeSection: React.FC = () => {
             </button>
           </div>
         )}
+
+        {/* Dedicated Cafe Page Button */}
+        <div className="mt-12 text-center">
+          <button
+            onClick={() => {
+              setCurrentPage('cafe');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-xs sm:text-sm font-black uppercase tracking-wider text-white hover:text-amber-400 transition-all shadow-lg"
+          >
+            <span>Explore Absolute Gym Cafe Full Menu & Online Ordering</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
 
         {/* Cafe Quality & Fresh Guarantee Strip */}
         <div className="mt-14 p-6 sm:p-8 rounded-3xl bg-neutral-900 border border-neutral-800 grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
