@@ -82,6 +82,8 @@ import {
   Smartphone,
   ShieldCheck,
   Database,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 export const AdminModal: React.FC = () => {
@@ -144,6 +146,7 @@ export const AdminModal: React.FC = () => {
   const [isAddingClass, setIsAddingClass] = useState(false);
   const [adminClassDayFilter, setAdminClassDayFilter] = useState<string>('All');
   const [adminClassCategoryFilter, setAdminClassCategoryFilter] = useState<string>('All');
+  const [adminClassTimeFilter, setAdminClassTimeFilter] = useState<'All' | 'Morning' | 'Evening'>('All');
   const [adminClassSearch, setAdminClassSearch] = useState<string>('');
 
   const [editingAmenity, setEditingAmenity] = useState<GymAmenity | null>(null);
@@ -2730,7 +2733,7 @@ export const AdminModal: React.FC = () => {
           {/* TAB 5: CLASSES & SCHEDULE CMS */}
           {adminTab === 'classes' && (
             <div className="space-y-6 max-w-5xl mx-auto">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-2xl font-black uppercase text-white flex items-center gap-2">
                     <span>Class Timings & Studio Schedule</span>
@@ -2739,15 +2742,99 @@ export const AdminModal: React.FC = () => {
                     </span>
                   </h3>
                   <p className="text-xs text-neutral-400 mt-1">
-                    Add, edit, or adjust class timings (Yoga, Zumba, HIIT, Strength) with live real-time sync across mobile & web.
+                    Add, edit, or adjust Morning and Evening class timings (Yoga, Zumba, HIIT, Strength) with live real-time sync.
                   </p>
                 </div>
 
-                {/* Quick Add Action Buttons */}
+                {/* Quick Add Action Buttons with Morning & Evening options */}
                 <div className="flex flex-wrap items-center gap-2">
+                  {/* Evening Yoga */}
                   <button
                     onClick={() => {
-                      const newId = `class_yoga_${Date.now()}`;
+                      const newId = `class_yoga_pm_${Date.now()}`;
+                      const yogaTrainer = config.trainers.find(t => t.name.toLowerCase().includes('sofia') || t.specialties?.some(s => s.toLowerCase().includes('yoga')))?.name || config.trainers[0]?.name || 'Sofia Chen';
+                      setEditingClass({
+                        id: newId,
+                        title: 'Candlelight Yin & Evening Restorative Yoga',
+                        category: 'Yoga & Mobility',
+                        trainerName: yogaTrainer,
+                        dayOfWeek: (adminClassDayFilter !== 'All' ? adminClassDayFilter : 'Monday') as any,
+                        time: '06:30 PM',
+                        durationMinutes: 60,
+                        intensity: 'All Levels',
+                        capacity: 25,
+                        reservedCount: 0,
+                        room: 'Zen Mind & Body Studio',
+                        description: 'Decompress from the workday with gentle spinal mobility, soothing stretches, and evening restorative breathwork.',
+                      });
+                      setIsAddingClass(true);
+                    }}
+                    className="px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 bg-emerald-700 hover:bg-emerald-600 text-white shadow-lg transition border border-emerald-500/30"
+                    title="Add an evening Yoga session"
+                  >
+                    <Moon className="w-3.5 h-3.5 text-emerald-300" />
+                    <span>+ Evening Yoga (6:30 PM)</span>
+                  </button>
+
+                  {/* Evening Zumba */}
+                  <button
+                    onClick={() => {
+                      const newId = `class_zumba_pm_${Date.now()}`;
+                      const zumbaTrainer = config.trainers.find(t => t.name.toLowerCase().includes('ananya') || t.specialties?.some(s => s.toLowerCase().includes('zumba')))?.name || config.trainers[0]?.name || 'Ananya Sharma';
+                      setEditingClass({
+                        id: newId,
+                        title: 'High-Energy Evening Zumba Dance Party',
+                        category: 'Zumba & Dance',
+                        trainerName: zumbaTrainer,
+                        dayOfWeek: (adminClassDayFilter !== 'All' ? adminClassDayFilter : 'Monday') as any,
+                        time: '06:30 PM',
+                        durationMinutes: 50,
+                        intensity: 'High Intensity',
+                        capacity: 35,
+                        reservedCount: 0,
+                        room: 'Aerobic & Dance Studio',
+                        description: 'Calorie-burning Latin, pop and Bollywood dance cardio with party lights and infectious energy.',
+                      });
+                      setIsAddingClass(true);
+                    }}
+                    className="px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-black shadow-lg transition"
+                    title="Add an evening Zumba dance session"
+                  >
+                    <Moon className="w-3.5 h-3.5 text-black" />
+                    <span>+ Evening Zumba (6:30 PM)</span>
+                  </button>
+
+                  {/* Evening HIIT / Strength */}
+                  <button
+                    onClick={() => {
+                      const newId = `class_hiit_pm_${Date.now()}`;
+                      setEditingClass({
+                        id: newId,
+                        title: 'After-Work Iron & HIIT Conditioning',
+                        category: 'HIIT & Conditioning',
+                        trainerName: config.trainers[0]?.name || 'Marcus Vance',
+                        dayOfWeek: (adminClassDayFilter !== 'All' ? adminClassDayFilter : 'Monday') as any,
+                        time: '07:30 PM',
+                        durationMinutes: 45,
+                        intensity: 'High Intensity',
+                        capacity: 20,
+                        reservedCount: 0,
+                        room: 'Main Turf Arena',
+                        description: 'High energy circuit training targeting athletic power, explosive fat burning, and functional strength.',
+                      });
+                      setIsAddingClass(true);
+                    }}
+                    className="px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg transition"
+                    title="Add an evening HIIT or Turf Conditioning session"
+                  >
+                    <Moon className="w-3.5 h-3.5 text-indigo-300" />
+                    <span>+ Evening HIIT (7:30 PM)</span>
+                  </button>
+
+                  {/* Morning Yoga */}
+                  <button
+                    onClick={() => {
+                      const newId = `class_yoga_am_${Date.now()}`;
                       const yogaTrainer = config.trainers.find(t => t.name.toLowerCase().includes('sofia') || t.specialties?.some(s => s.toLowerCase().includes('yoga')))?.name || config.trainers[0]?.name || 'Sofia Chen';
                       setEditingClass({
                         id: newId,
@@ -2765,58 +2852,34 @@ export const AdminModal: React.FC = () => {
                       });
                       setIsAddingClass(true);
                     }}
-                    className="px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg transition"
+                    className="px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 bg-neutral-900 hover:bg-neutral-800 text-emerald-400 border border-neutral-800 transition"
+                    title="Add a morning Yoga session"
                   >
-                    <HeartPulse className="w-3.5 h-3.5" />
-                    <span>+ Add Yoga Class</span>
+                    <Sun className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>+ Morning Yoga</span>
                   </button>
 
-                  <button
-                    onClick={() => {
-                      const newId = `class_zumba_${Date.now()}`;
-                      const zumbaTrainer = config.trainers.find(t => t.name.toLowerCase().includes('ananya') || t.specialties?.some(s => s.toLowerCase().includes('zumba')))?.name || config.trainers[0]?.name || 'Ananya Sharma';
-                      setEditingClass({
-                        id: newId,
-                        title: 'High-Energy Zumba Dance Party',
-                        category: 'Zumba & Dance',
-                        trainerName: zumbaTrainer,
-                        dayOfWeek: (adminClassDayFilter !== 'All' ? adminClassDayFilter : 'Monday') as any,
-                        time: '06:30 PM',
-                        durationMinutes: 50,
-                        intensity: 'High Intensity',
-                        capacity: 35,
-                        reservedCount: 0,
-                        room: 'Aerobic & Dance Studio',
-                        description: 'Calorie-burning Latin, pop and Bollywood dance fitness with infectious energy.',
-                      });
-                      setIsAddingClass(true);
-                    }}
-                    className="px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-black shadow-lg transition"
-                  >
-                    <Music className="w-3.5 h-3.5" />
-                    <span>+ Add Zumba Class</span>
-                  </button>
-
+                  {/* Custom Class */}
                   <button
                     onClick={() => {
                       const newId = `class_${Date.now()}`;
                       setEditingClass({
                         id: newId,
-                        title: 'Functional Turf Conditioning',
-                        category: 'HIIT & Conditioning',
+                        title: 'Evening Performance Training',
+                        category: 'Strength',
                         trainerName: config.trainers[0]?.name || 'Marcus Vance',
                         dayOfWeek: (adminClassDayFilter !== 'All' ? adminClassDayFilter : 'Monday') as any,
-                        time: '07:00 AM',
-                        durationMinutes: 45,
-                        intensity: 'High Intensity',
-                        capacity: 20,
+                        time: '06:00 PM',
+                        durationMinutes: 50,
+                        intensity: 'Intermediate',
+                        capacity: 25,
                         reservedCount: 0,
-                        room: 'Main Turf Arena',
-                        description: 'High energy circuit training targeting speed, agility, and cardiovascular power.',
+                        room: 'Main Studio',
+                        description: 'Comprehensive functional training class designed to optimize muscle tone, posture, and endurance.',
                       });
                       setIsAddingClass(true);
                     }}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${theme.accentBg}`}
+                    className={`px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${theme.accentBg}`}
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>+ Custom Class</span>
@@ -2861,6 +2924,20 @@ export const AdminModal: React.FC = () => {
                   </select>
                 </div>
 
+                {/* Time Filter (Morning / Evening / All) */}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] font-bold text-neutral-400 uppercase whitespace-nowrap">Time:</span>
+                  <select
+                    value={adminClassTimeFilter}
+                    onChange={(e) => setAdminClassTimeFilter(e.target.value as any)}
+                    className="bg-neutral-950 border border-neutral-800 rounded-xl px-2.5 py-2 text-xs text-white"
+                  >
+                    <option value="All">All Timings</option>
+                    <option value="Evening">🌙 Evening (PM)</option>
+                    <option value="Morning">☀️ Morning (AM)</option>
+                  </select>
+                </div>
+
                 {/* Category Filter */}
                 <div className="flex items-center gap-1.5">
                   <span className="text-[11px] font-bold text-neutral-400 uppercase whitespace-nowrap">Category:</span>
@@ -2872,17 +2949,35 @@ export const AdminModal: React.FC = () => {
                     <option value="All">All Categories</option>
                     <option value="Yoga & Mobility">🧘 Yoga & Mobility</option>
                     <option value="Zumba & Dance">💃 Zumba & Dance</option>
+                    <option value="HIIT & Conditioning">⚡ HIIT & Conditioning</option>
+                    <option value="Strength">🏋️ Strength</option>
+                    <option value="Boxing / MMA">🥊 Boxing / MMA</option>
+                    <option value="Spin & Cycle">🚴 Spin & Cycle</option>
+                    <option value="CrossFit">🏆 CrossFit</option>
+                    <option value="Recovery & Spa">💆 Recovery & Spa</option>
+                    <option value="Pilates & Aerobics">🤸 Pilates & Aerobics</option>
                   </select>
                 </div>
               </div>
 
               {/* Class Edit Drawer */}
               {(editingClass || isAddingClass) && (
-                <div className="bg-neutral-950 border-2 border-amber-500/50 rounded-2xl p-6 shadow-2xl space-y-4">
+                <div className="bg-neutral-950 border-2 border-amber-500/50 rounded-2xl p-6 shadow-2xl space-y-5">
                   <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2.5">
                       {editingClass?.category === 'Yoga & Mobility' && <HeartPulse className="w-5 h-5 text-emerald-400" />}
                       {editingClass?.category === 'Zumba & Dance' && <Music className="w-5 h-5 text-amber-400" />}
+                      {editingClass?.time?.toUpperCase().includes('PM') ? (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1">
+                          <Moon className="w-3 h-3 text-indigo-400" />
+                          Evening Session
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                          <Sun className="w-3 h-3 text-amber-400" />
+                          Morning Session
+                        </span>
+                      )}
                       <h4 className="text-lg font-black uppercase text-amber-400">
                         {isAddingClass ? 'Schedule New Class' : `Edit Class: ${editingClass?.title}`}
                       </h4>
@@ -2900,6 +2995,7 @@ export const AdminModal: React.FC = () => {
 
                   {editingClass && (
                     <div className="space-y-4">
+                      {/* Row 1: Title, Category, Day */}
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                           <label className="block text-xs font-bold text-neutral-400 uppercase mb-1">
@@ -2909,7 +3005,7 @@ export const AdminModal: React.FC = () => {
                             type="text"
                             value={editingClass.title}
                             onChange={(e) => setEditingClass({ ...editingClass, title: e.target.value })}
-                            placeholder="e.g. Sunrise Yoga Flow or Zumba Party"
+                            placeholder="e.g. Evening Candlelight Yoga or Zumba Party"
                             className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-sm text-white focus:border-amber-400"
                           />
                         </div>
@@ -2924,6 +3020,13 @@ export const AdminModal: React.FC = () => {
                           >
                             <option value="Yoga & Mobility">🧘 Yoga & Mobility</option>
                             <option value="Zumba & Dance">💃 Zumba & Dance</option>
+                            <option value="HIIT & Conditioning">⚡ HIIT & Conditioning</option>
+                            <option value="Strength">🏋️ Strength</option>
+                            <option value="Boxing / MMA">🥊 Boxing / MMA</option>
+                            <option value="Spin & Cycle">🚴 Spin & Cycle</option>
+                            <option value="CrossFit">🏆 CrossFit</option>
+                            <option value="Recovery & Spa">💆 Recovery & Spa</option>
+                            <option value="Pilates & Aerobics">🤸 Pilates & Aerobics</option>
                           </select>
                         </div>
                         <div>
@@ -2942,19 +3045,122 @@ export const AdminModal: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                        <div>
-                          <label className="block text-xs font-bold text-neutral-400 uppercase mb-1">
-                            Class Timing:
+                      {/* Row 2: Timing Selection with Evening Presets */}
+                      <div className="p-4 rounded-2xl bg-neutral-900/90 border border-neutral-800 space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <label className="text-xs font-black text-white uppercase flex items-center gap-1.5">
+                            <Clock className="w-4 h-4 text-amber-400" />
+                            <span>Class Timing & Session Period</span>
                           </label>
-                          <input
-                            type="text"
-                            value={editingClass.time}
-                            placeholder="e.g. 06:30 AM / 06:00 PM"
-                            onChange={(e) => setEditingClass({ ...editingClass, time: e.target.value })}
-                            className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-sm text-white focus:border-amber-400"
-                          />
+
+                          {/* Quick AM / PM Switcher buttons */}
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const current = editingClass.time || '06:30 PM';
+                                const newTime = current.toUpperCase().includes('AM')
+                                  ? current.replace(/AM/gi, 'PM')
+                                  : current;
+                                setEditingClass({ ...editingClass, time: newTime.trim() });
+                              }}
+                              className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1 transition ${
+                                editingClass.time?.toUpperCase().includes('PM')
+                                  ? 'bg-indigo-600 text-white shadow-md'
+                                  : 'bg-neutral-800 text-neutral-400 hover:text-white'
+                              }`}
+                            >
+                              <Moon className="w-3.5 h-3.5" />
+                              <span>Evening (PM)</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const current = editingClass.time || '06:30 AM';
+                                const newTime = current.toUpperCase().includes('PM')
+                                  ? current.replace(/PM/gi, 'AM')
+                                  : current;
+                                setEditingClass({ ...editingClass, time: newTime.trim() });
+                              }}
+                              className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1 transition ${
+                                !editingClass.time?.toUpperCase().includes('PM')
+                                  ? 'bg-amber-500 text-black shadow-md'
+                                  : 'bg-neutral-800 text-neutral-400 hover:text-white'
+                              }`}
+                            >
+                              <Sun className="w-3.5 h-3.5" />
+                              <span>Morning (AM)</span>
+                            </button>
+                          </div>
                         </div>
+
+                        {/* Timing input and quick slots */}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
+                          <div className="lg:col-span-4">
+                            <div className="relative">
+                              <input
+                                type="text"
+                                value={editingClass.time}
+                                placeholder="e.g. 06:30 PM"
+                                onChange={(e) => setEditingClass({ ...editingClass, time: e.target.value })}
+                                className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-sm text-white font-mono font-bold focus:border-amber-400"
+                              />
+                            </div>
+                            <span className="text-[10px] text-neutral-400 mt-1 block">
+                              Type time or click a slot on the right
+                            </span>
+                          </div>
+
+                          {/* Quick Evening Slots */}
+                          <div className="lg:col-span-8 space-y-1.5">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-[10px] font-bold uppercase text-indigo-400 flex items-center gap-1">
+                                <Moon className="w-3 h-3" />
+                                <span>Evening Slots:</span>
+                              </span>
+                              {['05:00 PM', '05:30 PM', '06:00 PM', '06:30 PM', '07:00 PM', '07:30 PM', '08:00 PM', '08:30 PM'].map((slot) => (
+                                <button
+                                  key={slot}
+                                  type="button"
+                                  onClick={() => setEditingClass({ ...editingClass, time: slot })}
+                                  className={`px-2 py-1 rounded-lg text-[11px] font-bold font-mono transition ${
+                                    editingClass.time === slot
+                                      ? 'bg-indigo-600 text-white border border-indigo-400 shadow'
+                                      : 'bg-neutral-950 hover:bg-neutral-800 text-neutral-300 border border-neutral-800'
+                                  }`}
+                                >
+                                  {slot}
+                                </button>
+                              ))}
+                            </div>
+
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-[10px] font-bold uppercase text-amber-400 flex items-center gap-1">
+                                <Sun className="w-3 h-3" />
+                                <span>Morning Slots:</span>
+                              </span>
+                              {['06:00 AM', '06:30 AM', '07:00 AM', '07:30 AM', '08:00 AM', '08:30 AM', '09:00 AM'].map((slot) => (
+                                <button
+                                  key={slot}
+                                  type="button"
+                                  onClick={() => setEditingClass({ ...editingClass, time: slot })}
+                                  className={`px-2 py-1 rounded-lg text-[11px] font-bold font-mono transition ${
+                                    editingClass.time === slot
+                                      ? 'bg-amber-500 text-black border border-amber-400 shadow'
+                                      : 'bg-neutral-950 hover:bg-neutral-800 text-neutral-400 border border-neutral-800'
+                                  }`}
+                                >
+                                  {slot}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Row 3: Duration, Capacity, Bookings */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                           <label className="block text-xs font-bold text-neutral-400 uppercase mb-1">
                             Duration (Minutes):
@@ -2990,6 +3196,7 @@ export const AdminModal: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* Row 4: Coach, Intensity, Room */}
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                           <label className="block text-xs font-bold text-neutral-400 uppercase mb-1">
@@ -3029,13 +3236,14 @@ export const AdminModal: React.FC = () => {
                           <input
                             type="text"
                             value={editingClass.room}
-                            placeholder="e.g. Zen Mind & Body Studio, Aerobic & Dance Studio"
+                            placeholder="e.g. Zen Mind & Body Studio, Aerobic & Dance Studio, Main Turf Arena"
                             onChange={(e) => setEditingClass({ ...editingClass, room: e.target.value })}
                             className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-sm text-white focus:border-amber-400"
                           />
                         </div>
                       </div>
 
+                      {/* Row 5: Description */}
                       <div>
                         <label className="block text-xs font-bold text-neutral-400 uppercase mb-1">
                           Class Description:
@@ -3121,6 +3329,11 @@ export const AdminModal: React.FC = () => {
                 const filteredAdminClasses = config.classes.filter((cls) => {
                   const matchesDay = adminClassDayFilter === 'All' || cls.dayOfWeek === adminClassDayFilter;
                   const matchesCategory = adminClassCategoryFilter === 'All' || cls.category === adminClassCategoryFilter;
+                  const isEvening = cls.time.toUpperCase().includes('PM');
+                  const matchesTime =
+                    adminClassTimeFilter === 'All' ||
+                    (adminClassTimeFilter === 'Evening' && isEvening) ||
+                    (adminClassTimeFilter === 'Morning' && !isEvening);
                   const q = adminClassSearch.toLowerCase().trim();
                   const matchesSearch =
                     !q ||
@@ -3130,7 +3343,7 @@ export const AdminModal: React.FC = () => {
                     cls.room.toLowerCase().includes(q) ||
                     cls.time.toLowerCase().includes(q) ||
                     cls.dayOfWeek.toLowerCase().includes(q);
-                  return matchesDay && matchesCategory && matchesSearch;
+                  return matchesDay && matchesCategory && matchesTime && matchesSearch;
                 });
 
                 return (
@@ -3152,21 +3365,28 @@ export const AdminModal: React.FC = () => {
                           {filteredAdminClasses.length === 0 ? (
                             <tr>
                               <td colSpan={7} className="p-8 text-center text-neutral-400">
-                                No classes found matching filter criteria. Click "+ Add Yoga Class" or "+ Add Zumba Class" above to schedule.
+                                No classes found matching filter criteria. Click "+ Evening Yoga", "+ Evening Zumba", or "+ Custom Class" above to schedule.
                               </td>
                             </tr>
                           ) : (
                             filteredAdminClasses.map((cls) => {
                               const isYoga = cls.category === 'Yoga & Mobility';
                               const isZumba = cls.category === 'Zumba & Dance';
+                              const isEvening = cls.time.toUpperCase().includes('PM');
 
                               return (
                                 <tr key={cls.id} className="hover:bg-neutral-800/40 transition">
                                   <td className="p-4 font-bold text-white whitespace-nowrap">
                                     <span className="text-amber-400 block">{cls.dayOfWeek}</span>
-                                    <div className="flex items-center gap-1 text-neutral-300 font-normal">
+                                    <div className="flex items-center gap-1.5 text-neutral-300 font-normal mt-0.5">
                                       <Clock className="w-3 h-3 text-neutral-500" />
                                       <span>{cls.time}</span>
+                                      <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
+                                        isEvening ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                      }`}>
+                                        {isEvening ? <Moon className="w-2.5 h-2.5 text-indigo-400" /> : <Sun className="w-2.5 h-2.5 text-amber-400" />}
+                                        {isEvening ? 'PM' : 'AM'}
+                                      </span>
                                       <span className="text-[10px] text-neutral-500">({cls.durationMinutes}m)</span>
                                     </div>
                                   </td>
