@@ -150,6 +150,9 @@ export interface Testimonial {
   rating: number;
   avatar: string;
   achievement: string;
+  isGoogleReview?: boolean;
+  googleReviewUrl?: string;
+  reviewDate?: string;
 }
 
 export interface MemberLead {

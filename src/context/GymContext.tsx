@@ -157,11 +157,15 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const gymEmail = parsed.email && !parsed.email.includes('apex') ? parsed.email : defaultGymConfig.email;
         const cafeName = parsed.cafe?.name && !parsed.cafe.name.includes('Apex') ? parsed.cafe.name : defaultGymConfig.cafe.name;
 
+        const isLegacyTestimonials = !parsed.testimonials || parsed.testimonials.length === 0 || parsed.testimonials.some((t: any) => t.id === 'test_1' || t.name === 'Alexander Hayes' || t.name === 'Jessica Morales' || t.name === 'David Sterling');
+
         return {
           ...defaultGymConfig,
           ...parsed,
           name: gymName,
           email: gymEmail,
+          googleMapsEmbedUrl: parsed.googleMapsEmbedUrl && !parsed.googleMapsEmbedUrl.includes('New+York') ? parsed.googleMapsEmbedUrl : defaultGymConfig.googleMapsEmbedUrl,
+          testimonials: isLegacyTestimonials ? defaultGymConfig.testimonials : parsed.testimonials,
           spaServices: parsed.spaServices && parsed.spaServices.length > 0 ? parsed.spaServices : defaultSpaServices,
           cafe: {
             ...defaultGymConfig.cafe,
@@ -400,11 +404,15 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 const gymEmail = cloudData.email && !cloudData.email.includes('apex') ? cloudData.email : (prev.email && !prev.email.includes('apex') ? prev.email : defaultGymConfig.email);
                 const cafeName = cloudData.cafe?.name && !cloudData.cafe.name.includes('Apex') ? cloudData.cafe.name : (prev.cafe?.name && !prev.cafe.name.includes('Apex') ? prev.cafe.name : defaultGymConfig.cafe.name);
 
+                const isCloudLegacyTestimonials = !cloudData.testimonials || cloudData.testimonials.length === 0 || cloudData.testimonials.some((t: any) => t.id === 'test_1' || t.name === 'Alexander Hayes' || t.name === 'Jessica Morales' || t.name === 'David Sterling');
+
                 const merged: GymConfig = {
                   ...prev,
                   ...cloudData,
                   name: gymName,
                   email: gymEmail,
+                  googleMapsEmbedUrl: cloudData.googleMapsEmbedUrl && !cloudData.googleMapsEmbedUrl.includes('New+York') ? cloudData.googleMapsEmbedUrl : defaultGymConfig.googleMapsEmbedUrl,
+                  testimonials: isCloudLegacyTestimonials ? defaultGymConfig.testimonials : (cloudData.testimonials || defaultGymConfig.testimonials),
                   spaServices: cloudData.spaServices && cloudData.spaServices.length > 0
                     ? cloudData.spaServices
                     : (prev.spaServices || defaultSpaServices),

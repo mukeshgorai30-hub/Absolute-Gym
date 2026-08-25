@@ -20,7 +20,7 @@ import { SpaManagerTab } from './SpaManagerTab';
 import { SupabaseManagerTab } from './SupabaseManagerTab';
 import { FirebaseManagerTab } from './FirebaseManagerTab';
 import { ImageUploadField } from './ImageUploadField';
-import { defaultSpaServices } from '../../data/defaultGymData';
+import { defaultSpaServices, defaultGymConfig } from '../../data/defaultGymData';
 import { signOutSupabaseAuth } from '../../supabase';
 import {
   X,
@@ -3933,33 +3933,66 @@ export const AdminModal: React.FC = () => {
           {/* TAB 9: TESTIMONIALS CMS */}
           {adminTab === 'testimonials' && (
             <div className="space-y-6 max-w-5xl mx-auto">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-2xl font-black uppercase text-white">
-                    Member Reviews & Testimonials
-                  </h3>
-                  <p className="text-xs text-neutral-400">
-                    Add verified member transformations, photos, ratings, and quotes.
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-white text-[11px] font-black text-blue-600">
+                      G
+                    </span>
+                    <h3 className="text-2xl font-black uppercase text-white">
+                      Google Maps Reviews & Testimonials
+                    </h3>
+                  </div>
+                  <p className="text-xs text-neutral-400 mt-1">
+                    Manage verified Google Maps reviews, 5-star member ratings, and testimonials.
                   </p>
                 </div>
-                <button
-                  onClick={() => {
-                    setEditingTestimonial({
-                      id: `test_${Date.now()}`,
-                      name: '',
-                      membership: 'Pro Athlete Member • 6 Months',
-                      quote: '',
-                      rating: 5,
-                      avatar: '',
-                      achievement: '',
-                    });
-                    setIsAddingTestimonial(true);
-                  }}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${theme.accentBg}`}
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Add Testimonial</span>
-                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <a
+                    href="https://maps.app.goo.gl/bpiN5hRb6Dd2VKig6"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 border border-neutral-700/80 text-xs font-bold text-neutral-300 hover:text-white flex items-center gap-1.5"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5 text-rose-500" />
+                    <span>View Google Maps Page</span>
+                  </a>
+                  <button
+                    onClick={() => {
+                      updateConfig((prev) => ({
+                        ...prev,
+                        testimonials: defaultGymConfig.testimonials,
+                        googleMapsEmbedUrl: 'https://maps.app.goo.gl/bpiN5hRb6Dd2VKig6',
+                      }));
+                      triggerSaveNotification('Synced Google Maps reviews from Maps link!');
+                    }}
+                    className="px-3 py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-xs font-bold text-amber-400 flex items-center gap-1.5"
+                    title="Reload authentic Google Maps reviews from link"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Sync Google Reviews</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditingTestimonial({
+                        id: `g_review_${Date.now()}`,
+                        name: '',
+                        membership: 'Google Reviewer • Local Guide',
+                        quote: '',
+                        rating: 5,
+                        avatar: '',
+                        achievement: 'Google Verified Review • 5.0 ★',
+                        isGoogleReview: true,
+                        googleReviewUrl: 'https://maps.app.goo.gl/bpiN5hRb6Dd2VKig6',
+                      });
+                      setIsAddingTestimonial(true);
+                    }}
+                    className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${theme.accentBg}`}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Review</span>
+                  </button>
+                </div>
               </div>
 
               {/* Add / Edit Drawer */}
