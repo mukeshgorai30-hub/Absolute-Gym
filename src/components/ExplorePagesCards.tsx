@@ -109,10 +109,10 @@ export const ExplorePagesCards: React.FC = () => {
   ];
 
   return (
-    <section className="w-full max-w-full py-20 bg-neutral-950 text-white relative border-b border-neutral-800">
+    <section className="w-full max-w-full py-12 sm:py-16 bg-neutral-950 text-white relative border-b border-neutral-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-14">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
           <div
             className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-4 ${theme.accentBadge}`}
           >
@@ -122,9 +122,6 @@ export const ExplorePagesCards: React.FC = () => {
           <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight">
             Explore <span className={theme.accentText}>{config.name || 'Absolute Gym'}</span>
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-neutral-400">
-            Select a dedicated portal below to tour the facility, meet our trainers, review membership rates, check group class timetables, order from the fuel cafe, or calculate your BMI.
-          </p>
         </div>
 
         {/* 6 Portal Cards Responsive 3x2 Grid */}

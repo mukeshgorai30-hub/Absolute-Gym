@@ -1210,7 +1210,9 @@ export const AdminModal: React.FC = () => {
                       { title: 'Dark Dungeon', url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=2000&q=80' },
                       { title: 'Athletic Arena', url: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=2000&q=80' },
                       { title: 'Barbell Box', url: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=2000&q=80' },
+                      { title: 'Power Iron', url: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=2000&q=80' },
                       { title: 'Luxury Spa', url: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=2000&q=80' },
+                      { title: 'Neon Spin', url: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=2000&q=80' },
                     ],
                   },
                   {
@@ -1223,6 +1225,7 @@ export const AdminModal: React.FC = () => {
                     presets: [
                       { title: 'Iron Weight Deck', url: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=1800&q=80' },
                       { title: 'VIP Dumbbell Rack', url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1800&q=80' },
+                      { title: 'Plate Loaded Bay', url: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=1800&q=80' },
                       { title: 'Luxury Wellness', url: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=1800&q=80' },
                     ],
                   },
@@ -1237,6 +1240,7 @@ export const AdminModal: React.FC = () => {
                       { title: 'Coaching Arena', url: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1800&q=80' },
                       { title: 'Olympic Barbell', url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1800&q=80' },
                       { title: 'Sprint Track', url: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=1800&q=80' },
+                      { title: 'Functional Rig', url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1800&q=80' },
                     ],
                   },
                   {
@@ -1250,6 +1254,7 @@ export const AdminModal: React.FC = () => {
                       { title: 'Neon Spin Studio', url: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1800&q=80' },
                       { title: 'Yoga & Zen Studio', url: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=1800&q=80' },
                       { title: 'Combat Bag Ring', url: 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?auto=format&fit=crop&w=1800&q=80' },
+                      { title: 'HIIT Conditioning', url: 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=1800&q=80' },
                     ],
                   },
                   {
@@ -1263,6 +1268,8 @@ export const AdminModal: React.FC = () => {
                       { title: 'Hydro Recovery Spa', url: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=1800&q=80' },
                       { title: 'Iron Sanctuary', url: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=1800&q=80' },
                       { title: 'Fuel Bar Lounge', url: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1800&q=80' },
+                      { title: 'Cold Plunge Pool', url: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=1800&q=80' },
+                      { title: 'VIP Lockers', url: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1800&q=80' },
                     ],
                   },
                   {
@@ -1275,6 +1282,7 @@ export const AdminModal: React.FC = () => {
                     presets: [
                       { title: 'Cyber Iron Lab', url: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1600&q=80' },
                       { title: 'High-Tech Weights', url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1600&q=80' },
+                      { title: 'Olympic Stage', url: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=1600&q=80' },
                     ],
                   },
                   {
@@ -1287,6 +1295,7 @@ export const AdminModal: React.FC = () => {
                     presets: [
                       { title: 'Fitness Metrics Lab', url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1600&q=80' },
                       { title: 'Athletic Conditioning', url: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=1600&q=80' },
+                      { title: 'Treadmill Sprints', url: 'https://images.unsplash.com/photo-1576678927484-cc907957088c?auto=format&fit=crop&w=1600&q=80' },
                     ],
                   },
                   {
@@ -1299,6 +1308,7 @@ export const AdminModal: React.FC = () => {
                     presets: [
                       { title: 'Arena Atmosphere', url: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=1800&q=80' },
                       { title: 'Iron Hall', url: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=1800&q=80' },
+                      { title: 'Power Cages', url: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=1800&q=80' },
                     ],
                   },
                   {
@@ -1311,6 +1321,7 @@ export const AdminModal: React.FC = () => {
                     presets: [
                       { title: 'Victory Podium', url: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1800&q=80' },
                       { title: 'Community Grit', url: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=1800&q=80' },
+                      { title: 'Transformation Arena', url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1800&q=80' },
                     ],
                   },
                   {
@@ -1323,6 +1334,7 @@ export const AdminModal: React.FC = () => {
                     presets: [
                       { title: 'Night Iron Gate', url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1800&q=80' },
                       { title: 'Main Street Gym', url: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1800&q=80' },
+                      { title: 'Cardio Deck Entrance', url: 'https://images.unsplash.com/photo-1576678927484-cc907957088c?auto=format&fit=crop&w=1800&q=80' },
                     ],
                   },
                   {
@@ -1335,6 +1347,7 @@ export const AdminModal: React.FC = () => {
                     presets: [
                       { title: 'Concierge Desk', url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1800&q=80' },
                       { title: 'Modern Clean Hall', url: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=1800&q=80' },
+                      { title: 'Executive Lobby', url: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1800&q=80' },
                     ],
                   },
                 ].map((section) => (
@@ -2039,15 +2052,8 @@ export const AdminModal: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-black uppercase text-amber-400 flex items-center gap-2">
                       <Lock className="w-4 h-4" />
-                      <span>Admin Security & Supabase Authentication</span>
+                      <span>Admin Security & Master Access Credentials</span>
                     </h4>
-                    <button
-                      onClick={() => setAdminTab('supabase')}
-                      className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30 transition flex items-center gap-1"
-                    >
-                      <span>Manage Supabase Users</span>
-                      <ExternalLink className="w-2.5 h-2.5" />
-                    </button>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -2076,7 +2082,7 @@ export const AdminModal: React.FC = () => {
                     </div>
                   </div>
                   <p className="text-xs text-neutral-400">
-                    Your admin login is protected with Supabase Cloud Authentication, brute-force rate-limiting, and owner identity verification.
+                    Your admin login is protected with Firebase Cloud Authentication, Google Sign-In, brute-force rate-limiting, and owner identity verification.
                   </p>
                 </div>
               </div>

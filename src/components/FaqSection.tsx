@@ -9,27 +9,20 @@ export const FaqSection: React.FC = () => {
   const theme = themeStyles[themeColor];
   const faqs = config.faqs || [];
 
-  const [activeCategory, setActiveCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [openId, setOpenId] = useState<string | null>(faqs[0]?.id || null);
 
-  const categories = useMemo(() => {
-    const list = Array.from(new Set(faqs.map((f) => f.category).filter(Boolean)));
-    return ['All', ...list];
-  }, [faqs]);
-
   const filteredFaqs = useMemo(() => {
     return faqs.filter((faq) => {
-      const matchesCat = activeCategory === 'All' || faq.category === activeCategory;
       const q = searchQuery.toLowerCase().trim();
-      const matchesSearch =
+      return (
         !q ||
         faq.question.toLowerCase().includes(q) ||
         faq.answer.toLowerCase().includes(q) ||
-        (faq.category && faq.category.toLowerCase().includes(q));
-      return matchesCat && matchesSearch;
+        (faq.category && faq.category.toLowerCase().includes(q))
+      );
     });
-  }, [faqs, activeCategory, searchQuery]);
+  }, [faqs, searchQuery]);
 
   const toggleFaq = (id: string) => {
     setOpenId((prev) => (prev === id ? null : id));
@@ -38,7 +31,7 @@ export const FaqSection: React.FC = () => {
   return (
     <section
       id="faq"
-      className="w-full max-w-full py-24 bg-neutral-900/40 text-white relative border-b border-neutral-800 overflow-hidden"
+      className="w-full max-w-full py-12 sm:py-16 bg-neutral-900/40 text-white relative border-b border-neutral-800 overflow-hidden"
     >
       {/* Dynamic Atmospheric Background Image */}
       {config.faqBgImage && (
@@ -55,7 +48,7 @@ export const FaqSection: React.FC = () => {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8 sm:mb-10">
           <div
             className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-4 ${theme.accentBadge}`}
           >
@@ -65,42 +58,21 @@ export const FaqSection: React.FC = () => {
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight uppercase">
             Frequently Asked Questions
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-neutral-400">
-            Everything you need to know about our memberships, facilities, personal training, and gym policies.
-          </p>
         </div>
 
-        {/* Category Filter Chips & Quick Search if multiple categories */}
-        {categories.length > 2 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-8">
-            <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 scrollbar-none">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase whitespace-nowrap transition ${
-                    activeCategory === cat
-                      ? `${theme.accentBg} shadow-md`
-                      : 'bg-neutral-900 text-neutral-400 hover:text-white border border-neutral-800 hover:bg-neutral-800'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
+        {/* Quick Search if multiple faqs */}
+        {faqs.length > 5 && (
+          <div className="flex justify-end mb-8">
+            <div className="relative w-full sm:w-72">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search questions..."
+                className="w-full bg-neutral-900 border border-neutral-800 rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-amber-400"
+              />
+              <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-neutral-500" />
             </div>
-
-            {faqs.length > 5 && (
-              <div className="relative w-full sm:w-56">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search questions..."
-                  className="w-full bg-neutral-900 border border-neutral-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-amber-400"
-                />
-                <Search className="absolute left-2.5 top-2 w-3.5 h-3.5 text-neutral-500" />
-              </div>
-            )}
           </div>
         )}
 

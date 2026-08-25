@@ -648,7 +648,7 @@ export const BmiCalculatorPage: React.FC = () => {
               onClick={() => setIsTrialModalOpen(true)}
               className={`px-8 py-3.5 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider shadow-lg ${theme.accentBg}`}
             >
-              Claim Free VIP Workout Pass
+              Submit Inquiry / Consult Coach
             </button>
           </div>
         </div>

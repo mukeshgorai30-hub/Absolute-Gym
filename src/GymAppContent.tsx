@@ -1,34 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useGym } from './context/GymContext';
 import { themeStyles } from './utils/theme';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
-import { GallerySection } from './components/GallerySection';
 import { ExplorePagesCards } from './components/ExplorePagesCards';
 import { TestimonialsSection } from './components/TestimonialsSection';
 import { ContactSection } from './components/ContactSection';
 import { FaqSection } from './components/FaqSection';
 import { Footer } from './components/Footer';
 
-// Dedicated Standalone Pages
-import { GalleryPage } from './pages/GalleryPage';
-import { CoachesPage } from './pages/CoachesPage';
-import { PlansPricingPage } from './pages/PlansPricingPage';
-import { ClassTimingsPage } from './pages/ClassTimingsPage';
-import { CafePage } from './pages/CafePage';
-import { BmiCalculatorPage } from './pages/BmiCalculatorPage';
-
-// Modals & Admin
-import { PlanBookingModal } from './components/Modals/PlanBookingModal';
-import { TrainerBookingModal } from './components/Modals/TrainerBookingModal';
-import { TrialPassModal } from './components/Modals/TrialPassModal';
-import { AiCoachModal } from './components/Modals/AiCoachModal';
-import { AdminModal } from './components/Admin/AdminModal';
-import { AdminAuthPage } from './components/Admin/AdminAuthPage';
-import { CustomerReceiptPortalModal } from './components/Modals/CustomerReceiptPortalModal';
-
 // Icons for floating bar
-import { Flame, Sparkles } from 'lucide-react';
+import { Flame, Sparkles, Loader2, Send } from 'lucide-react';
+
+// Code-split Lazy Loaded Pages for maximum performance
+const GalleryPage = lazy(() => import('./pages/GalleryPage').then(m => ({ default: m.GalleryPage })));
+const CoachesPage = lazy(() => import('./pages/CoachesPage').then(m => ({ default: m.CoachesPage })));
+const PlansPricingPage = lazy(() => import('./pages/PlansPricingPage').then(m => ({ default: m.PlansPricingPage })));
+const ClassTimingsPage = lazy(() => import('./pages/ClassTimingsPage').then(m => ({ default: m.ClassTimingsPage })));
+const CafePage = lazy(() => import('./pages/CafePage').then(m => ({ default: m.CafePage })));
+const BmiCalculatorPage = lazy(() => import('./pages/BmiCalculatorPage').then(m => ({ default: m.BmiCalculatorPage })));
+
+// Code-split Lazy Loaded Modals & Admin
+const PlanBookingModal = lazy(() => import('./components/Modals/PlanBookingModal').then(m => ({ default: m.PlanBookingModal })));
+const TrainerBookingModal = lazy(() => import('./components/Modals/TrainerBookingModal').then(m => ({ default: m.TrainerBookingModal })));
+const TrialPassModal = lazy(() => import('./components/Modals/TrialPassModal').then(m => ({ default: m.TrialPassModal })));
+const AiCoachModal = lazy(() => import('./components/Modals/AiCoachModal').then(m => ({ default: m.AiCoachModal })));
+const AdminModal = lazy(() => import('./components/Admin/AdminModal').then(m => ({ default: m.AdminModal })));
+const AdminAuthPage = lazy(() => import('./components/Admin/AdminAuthPage').then(m => ({ default: m.AdminAuthPage })));
+const CustomerReceiptPortalModal = lazy(() => import('./components/Modals/CustomerReceiptPortalModal').then(m => ({ default: m.CustomerReceiptPortalModal })));
+
+const PageLoadingFallback: React.FC = () => (
+  <div className="min-h-[70vh] flex flex-col items-center justify-center gap-3 py-20">
+    <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
+    <span className="text-xs uppercase font-bold tracking-widest text-neutral-400">Loading Portal...</span>
+  </div>
+);
 
 export const GymAppContent: React.FC = () => {
   const {
@@ -38,8 +44,13 @@ export const GymAppContent: React.FC = () => {
     setCurrentPage,
     isAdminOpen,
     setIsAdminOpen,
+    isTrialModalOpen,
     setIsTrialModalOpen,
+    isAIModalOpen,
     setIsAIModalOpen,
+    isReceiptPortalOpen,
+    selectedPlanForModal,
+    selectedTrainerForModal,
   } = useGym();
   const theme = themeStyles[themeColor];
 
@@ -126,23 +137,27 @@ export const GymAppContent: React.FC = () => {
   if (isAdminRoute) {
     if (!isAdminAuthenticated) {
       return (
-        <AdminAuthPage
-          onBackToWebsite={() => {
-            window.location.hash = '';
-            setIsAdminRoute(false);
-          }}
-          onAuthenticated={() => {
-            setIsAdminAuthenticated(true);
-            setIsAdminOpen(true);
-          }}
-        />
+        <Suspense fallback={<PageLoadingFallback />}>
+          <AdminAuthPage
+            onBackToWebsite={() => {
+              window.location.hash = '';
+              setIsAdminRoute(false);
+            }}
+            onAuthenticated={() => {
+              setIsAdminAuthenticated(true);
+              setIsAdminOpen(true);
+            }}
+          />
+        </Suspense>
       );
     }
 
     // Authenticated admin view
     return (
       <div className="min-h-screen bg-neutral-950 text-neutral-100">
-        <AdminModal />
+        <Suspense fallback={<PageLoadingFallback />}>
+          <AdminModal />
+        </Suspense>
       </div>
     );
   }
@@ -154,12 +169,14 @@ export const GymAppContent: React.FC = () => {
         <Navbar />
 
         {/* Dynamic Page Router */}
-        {currentPage === 'gallery' && <GalleryPage />}
-        {currentPage === 'coaches' && <CoachesPage />}
-        {currentPage === 'plans' && <PlansPricingPage />}
-        {currentPage === 'timings' && <ClassTimingsPage />}
-        {currentPage === 'cafe' && <CafePage />}
-        {currentPage === 'calculator' && <BmiCalculatorPage />}
+        <Suspense fallback={<PageLoadingFallback />}>
+          {currentPage === 'gallery' && <GalleryPage />}
+          {currentPage === 'coaches' && <CoachesPage />}
+          {currentPage === 'plans' && <PlansPricingPage />}
+          {currentPage === 'timings' && <ClassTimingsPage />}
+          {currentPage === 'cafe' && <CafePage />}
+          {currentPage === 'calculator' && <BmiCalculatorPage />}
+        </Suspense>
 
         {/* Default Home Page View */}
         {currentPage === 'home' && (
@@ -200,25 +217,27 @@ export const GymAppContent: React.FC = () => {
         </button>
 
         <button
-          id="floating-free-pass-btn"
+          id="floating-inquiry-btn"
           onClick={() => setIsTrialModalOpen(true)}
           className={`pointer-events-auto p-3.5 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2 ${theme.accentBg} touch-manipulation`}
-          title="Claim Free 1-Day Pass"
+          title="Submit Inquiry"
         >
-          <Flame className="w-5 h-5" />
+          <Send className="w-5 h-5" />
           <span className="hidden sm:inline text-xs font-black uppercase tracking-wider pr-1">
-            Free 1-Day Pass
+            Inquire Now
           </span>
         </button>
       </div>
 
-      {/* Interactive Modals */}
-      <PlanBookingModal />
-      <TrainerBookingModal />
-      <TrialPassModal />
-      <AiCoachModal />
-      {isAdminOpen && <AdminModal />}
-      <CustomerReceiptPortalModal />
+      {/* Interactive Modals (Loaded on demand to preserve bandwidth and initial render speed) */}
+      <Suspense fallback={null}>
+        {selectedPlanForModal && <PlanBookingModal />}
+        {selectedTrainerForModal && <TrainerBookingModal />}
+        {isTrialModalOpen && <TrialPassModal />}
+        {isAIModalOpen && <AiCoachModal />}
+        {isAdminOpen && <AdminModal />}
+        {isReceiptPortalOpen && <CustomerReceiptPortalModal />}
+      </Suspense>
     </div>
   );
 };

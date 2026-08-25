@@ -53,6 +53,7 @@ export const PlansSection: React.FC = () => {
 
   // Sub-section for Packages (Duration filter)
   const [selectedDuration, setSelectedDuration] = useState<string>('all');
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 
   // Sub-section for Massage & Steam ('all' | 'member' | 'non-member')
   const [spaSubSection, setSpaSubSection] = useState<'all' | 'member' | 'non-member'>('all');
@@ -226,28 +227,46 @@ export const PlansSection: React.FC = () => {
                 <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-7 items-stretch overflow-x-auto md:overflow-visible scroll-smooth snap-x snap-mandatory scroll-px-4 sm:scroll-px-6 md:scroll-px-0 pb-6 md:pb-0 px-4 sm:px-6 md:px-0 scrollbar-none touch-auto">
                   {filteredPlans.map((plan: SubscriptionPlan) => {
                     const price = plan.priceMonthly;
-                    const isHighlighted = plan.popular;
+                    const isSelected = selectedPlanId === plan.id;
+                    const isHighlighted = isSelected || (!selectedPlanId && plan.popular);
                     const planDuration = plan.duration || '1 Month';
 
                     return (
                       <div
                         key={plan.id}
                         id={`plan-card-${plan.id}`}
-                        onClick={() => setSelectedPlanForModal(plan)}
+                        onClick={() => {
+                          setSelectedPlanId(plan.id);
+                          setSelectedPlanForModal(plan);
+                        }}
                         className={`relative flex flex-col justify-between rounded-2xl p-6 sm:p-7 transition-all duration-200 cursor-pointer active:scale-[0.99] touch-manipulation select-none w-[84vw] sm:w-[320px] max-w-[340px] shrink-0 snap-center md:snap-align-none md:w-auto md:max-w-none md:shrink ${
-                          isHighlighted
+                          isSelected
+                            ? 'bg-gradient-to-b from-neutral-900 via-neutral-900 to-neutral-950 border border-yellow-400/70 shadow-[0_0_15px_rgba(250,204,21,0.15)] scale-[1.01] z-20'
+                            : isHighlighted
                             ? `bg-gradient-to-b from-neutral-900 via-neutral-900 to-neutral-950 border-2 ${theme.accentBorder} ${theme.glowClass} scale-[1.01] z-20`
                             : 'bg-neutral-900/70 hover:bg-neutral-900 border border-neutral-800 hover:border-neutral-700'
                         }`}
                       >
+                        {/* Selected Indicator Badge */}
+                        {isSelected && (
+                          <div className="absolute -top-3 right-5 bg-yellow-400/90 text-black px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm flex items-center gap-1 z-30">
+                            <Zap className="w-2.5 h-2.5 fill-black" />
+                            <span>Selected</span>
+                          </div>
+                        )}
+
                         {/* Duration & Badge Header */}
                         <div className="flex items-center justify-between gap-2 mb-3">
-                          <span className="px-2.5 py-1 rounded-lg bg-neutral-800 border border-neutral-700 text-neutral-300 text-[11px] font-black uppercase tracking-wider flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-amber-400" />
+                          <span className={`px-2.5 py-1 rounded-lg border text-[11px] font-black uppercase tracking-wider flex items-center gap-1 ${
+                            isSelected
+                              ? 'bg-yellow-400/20 text-yellow-300 border-yellow-400/40'
+                              : 'bg-neutral-800 border-neutral-700 text-neutral-300'
+                          }`}>
+                            <Clock className={`w-3 h-3 ${isSelected ? 'text-yellow-400' : 'text-amber-400'}`} />
                             <span>{planDuration}</span>
                           </span>
 
-                          {plan.badge && (
+                          {plan.badge && !isSelected && (
                             <span
                               className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-sm ${
                                 isHighlighted
@@ -274,7 +293,9 @@ export const PlansSection: React.FC = () => {
                           {/* Price Display */}
                           <div className="mt-5 mb-5 text-left border-y border-neutral-800/80 py-4">
                             <div className="flex items-baseline gap-1.5">
-                              <span className="text-4xl sm:text-5xl font-black text-white tracking-tight font-sans">
+                              <span className={`text-4xl sm:text-5xl font-black tracking-tight font-sans ${
+                                isSelected ? 'text-yellow-400' : 'text-white'
+                              }`}>
                                 {currency}
                                 {(price ?? 0).toLocaleString('en-IN')}
                               </span>
@@ -292,7 +313,9 @@ export const PlansSection: React.FC = () => {
                                 className="flex items-start gap-2.5 text-xs text-neutral-200"
                               >
                                 <div
-                                  className={`mt-0.5 p-0.5 rounded-full ${theme.accentBg} shrink-0`}
+                                  className={`mt-0.5 p-0.5 rounded-full shrink-0 ${
+                                    isSelected ? 'bg-yellow-400 text-black' : theme.accentBg
+                                  }`}
                                 >
                                   <Check className="w-2.5 h-2.5 text-black stroke-[3]" />
                                 </div>
@@ -303,6 +326,9 @@ export const PlansSection: React.FC = () => {
                             {/* Excluded Perks */}
                             {plan.notIncluded && plan.notIncluded.length > 0 && (
                               <div className="pt-2 space-y-1.5">
+                                <div className="text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+                                  Not Included:
+                                </div>
                                 {plan.notIncluded.map((notItem, idx) => (
                                   <div
                                     key={idx}
@@ -323,10 +349,13 @@ export const PlansSection: React.FC = () => {
                             id={`select-plan-${plan.id}-btn`}
                             onClick={(e) => {
                               e.stopPropagation();
+                              setSelectedPlanId(plan.id);
                               setSelectedPlanForModal(plan);
                             }}
                             className={`w-full py-3.5 px-4 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 min-h-[46px] touch-manipulation active:scale-[0.98] ${
-                              isHighlighted
+                              isSelected
+                                ? 'bg-yellow-400 hover:bg-yellow-300 text-black shadow-md'
+                                : isHighlighted
                                 ? `${theme.accentBg} shadow-lg hover:brightness-110`
                                 : 'bg-neutral-800 hover:bg-neutral-700 text-white border border-neutral-700'
                             }`}
@@ -661,7 +690,7 @@ export const PlansSection: React.FC = () => {
               onClick={() => setIsTrialModalOpen(true)}
               className={`px-6 py-3 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap ${theme.accentBg}`}
             >
-              Claim 1-Day VIP Pass
+              Submit Inquiry & Tour
             </button>
           </div>
         </div>

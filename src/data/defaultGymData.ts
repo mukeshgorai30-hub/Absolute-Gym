@@ -120,7 +120,7 @@ export const defaultGymConfig: GymConfig = {
   heroHeadline: 'UNLEASH YOUR HIGHEST POTENTIAL',
   heroSubtitle: 'Step into a world-class training sanctuary designed for real transformation. Elite strength platforms, immersive studio classes, infrared recovery suites, and personalized coach mastery.',
   heroBgImage: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=2000&q=80',
-  heroCtaText: 'Claim Free 1-Day VIP Pass',
+  heroCtaText: 'Inquire & Book Consultation',
   heroSecondaryCtaText: 'Explore Plans & Pricing',
   
   // Section background images

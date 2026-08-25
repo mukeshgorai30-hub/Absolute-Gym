@@ -17,20 +17,13 @@ import {
   Mail,
   RefreshCw,
   ShieldAlert,
-  Globe,
 } from 'lucide-react';
-import {
-  signInWithSupabaseAuth,
-  sendSupabasePasswordReset,
-  getStoredSupabaseCredentials,
-} from '../../supabase';
 import {
   auth,
   googleProvider,
   signInWithEmailAndPassword,
   signInWithPopup,
   sendPasswordResetEmail,
-  firebaseConfig,
 } from '../../firebase';
 
 interface AdminAuthPageProps {
@@ -38,7 +31,7 @@ interface AdminAuthPageProps {
   onAuthenticated: () => void;
 }
 
-type AuthMethod = 'firebase' | 'supabase' | 'pin';
+type AuthMethod = 'firebase' | 'pin';
 type PageView = 'login' | 'forgot_password';
 
 const MAX_FAILED_ATTEMPTS = 5;
@@ -48,10 +41,10 @@ export const AdminAuthPage: React.FC<AdminAuthPageProps> = ({
   onBackToWebsite,
   onAuthenticated,
 }) => {
-  const { config, themeColor, updateConfig, isSupabaseActive } = useGym();
+  const { config, themeColor, updateConfig } = useGym();
   const theme = themeStyles[themeColor];
 
-  // Auth method selection - default to Firebase as primary cloud backend
+  // Auth method selection - default to Firebase
   const [authMethod, setAuthMethod] = useState<AuthMethod>('firebase');
   const [pageView, setPageView] = useState<PageView>('login');
 
@@ -59,11 +52,6 @@ export const AdminAuthPage: React.FC<AdminAuthPageProps> = ({
   const [firebaseEmail, setFirebaseEmail] = useState(config.adminEmail || 'mukeshgorai30@gmail.com');
   const [firebasePassword, setFirebasePassword] = useState('');
   const [showFirebasePassword, setShowFirebasePassword] = useState(false);
-
-  // Supabase Auth Inputs
-  const [supabaseEmail, setSupabaseEmail] = useState(config.adminEmail || 'mukeshgorai30@gmail.com');
-  const [supabasePassword, setSupabasePassword] = useState('');
-  const [showSupabasePassword, setShowSupabasePassword] = useState(false);
 
   // Master PIN Inputs
   const [pinUsername, setPinUsername] = useState('admin');
@@ -96,10 +84,6 @@ export const AdminAuthPage: React.FC<AdminAuthPageProps> = ({
     }
     return 0;
   });
-
-  // Supabase Credentials Check
-  const supabaseCreds = getStoredSupabaseCredentials();
-  const hasSupabaseCreds = Boolean(supabaseCreds.url && supabaseCreds.anonKey);
 
   // Lockout countdown timer
   useEffect(() => {
@@ -200,34 +184,7 @@ export const AdminAuthPage: React.FC<AdminAuthPageProps> = ({
     }
   };
 
-  // 2. Supabase Cloud Auth Login
-  const handleSupabaseLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (lockoutRemaining > 0) return;
-
-    setErrorMessage('');
-    setSuccessMessage('');
-    setIsLoading(true);
-
-    try {
-      const result = await signInWithSupabaseAuth(supabaseEmail, supabasePassword);
-
-      if (result.success) {
-        sessionStorage.setItem('apex_admin_auth_type', 'supabase');
-        handleAuthSuccess();
-      } else {
-        recordFailedAttempt();
-        setErrorMessage(result.error || 'Supabase authentication failed. Please check your credentials.');
-      }
-    } catch (err: any) {
-      recordFailedAttempt();
-      setErrorMessage(err?.message || 'Failed to connect to Supabase Auth service.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // 3. Master Security Passcode / PIN Login
+  // 2. Master Security Passcode / PIN Login
   const handlePinLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (lockoutRemaining > 0) return;
@@ -262,7 +219,7 @@ export const AdminAuthPage: React.FC<AdminAuthPageProps> = ({
     }, 350);
   };
 
-  // 4. Handle Password Recovery Request
+  // 3. Handle Password Recovery Request
   const handleInitiateRecovery = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
@@ -280,22 +237,6 @@ export const AdminAuthPage: React.FC<AdminAuthPageProps> = ({
       } catch (err: any) {
         setIsLoading(false);
         setErrorMessage(err?.message || 'Failed to send Firebase reset link.');
-      }
-      return;
-    }
-
-    if (authMethod === 'supabase' && hasSupabaseCreds) {
-      try {
-        const res = await sendSupabasePasswordReset(cleanRecoveryEmail);
-        setIsLoading(false);
-        if (res.success) {
-          setSuccessMessage(res.message);
-        } else {
-          setErrorMessage(res.message);
-        }
-      } catch (err: any) {
-        setIsLoading(false);
-        setErrorMessage(err?.message || 'Failed to send Supabase password reset.');
       }
       return;
     }
@@ -401,7 +342,7 @@ export const AdminAuthPage: React.FC<AdminAuthPageProps> = ({
 
               <p className="text-xs text-neutral-400 leading-relaxed max-w-xs mx-auto">
                 {pageView === 'login' &&
-                  'Authenticate securely via Firebase Cloud, Google Auth, or Master Security PIN to manage the gym.'}
+                  'Authenticate securely via Firebase Cloud, Google Sign-In, or Master Security PIN to access CMS settings.'}
                 {pageView === 'forgot_password' &&
                   'Verify authorized administrator identity to reset login credentials.'}
               </p>
@@ -449,14 +390,14 @@ export const AdminAuthPage: React.FC<AdminAuthPageProps> = ({
                       setAuthMethod('firebase');
                       setErrorMessage('');
                     }}
-                    className={`flex-1 py-2 px-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 ${
+                    className={`flex-1 py-2 px-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
                       authMethod === 'firebase'
                         ? 'bg-neutral-800 text-amber-400 border border-amber-500/30 shadow-md'
                         : 'text-neutral-400 hover:text-white'
                     }`}
                   >
                     <Database className="w-3.5 h-3.5" />
-                    <span>Firebase</span>
+                    <span>Firebase Auth</span>
                   </button>
 
                   <button
@@ -466,7 +407,7 @@ export const AdminAuthPage: React.FC<AdminAuthPageProps> = ({
                       setAuthMethod('pin');
                       setErrorMessage('');
                     }}
-                    className={`flex-1 py-2 px-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 ${
+                    className={`flex-1 py-2 px-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
                       authMethod === 'pin'
                         ? 'bg-neutral-800 text-amber-400 border border-amber-500/30 shadow-md'
                         : 'text-neutral-400 hover:text-white'
@@ -474,23 +415,6 @@ export const AdminAuthPage: React.FC<AdminAuthPageProps> = ({
                   >
                     <KeyRound className="w-3.5 h-3.5" />
                     <span>Master PIN</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    id="tab-auth-supabase"
-                    onClick={() => {
-                      setAuthMethod('supabase');
-                      setErrorMessage('');
-                    }}
-                    className={`flex-1 py-2 px-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 ${
-                      authMethod === 'supabase'
-                        ? 'bg-neutral-800 text-emerald-400 border border-emerald-500/30 shadow-md'
-                        : 'text-neutral-400 hover:text-white'
-                    }`}
-                  >
-                    <Globe className="w-3.5 h-3.5" />
-                    <span>Supabase</span>
                   </button>
                 </div>
 
@@ -710,95 +634,6 @@ export const AdminAuthPage: React.FC<AdminAuthPageProps> = ({
                         <>
                           <ShieldCheck className="w-4 h-4 text-black" />
                           <span>Unlock Admin Panel</span>
-                        </>
-                      )}
-                    </button>
-                  </form>
-                )}
-
-                {/* METHOD C: SUPABASE CLOUD AUTH LOGIN */}
-                {authMethod === 'supabase' && (
-                  <form onSubmit={handleSupabaseLogin} className="space-y-4">
-                    {/* Supabase Email */}
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-neutral-300 uppercase tracking-wider flex items-center justify-between">
-                        <span className="flex items-center gap-1.5">
-                          <Mail className="w-3.5 h-3.5 text-neutral-400" />
-                          <span>Supabase Admin Email</span>
-                        </span>
-                        <span className="text-[10px] text-emerald-400 font-normal">Cloud Verified</span>
-                      </label>
-                      <input
-                        type="email"
-                        id="supabase-email-input"
-                        required
-                        autoComplete="email"
-                        disabled={lockoutRemaining > 0 || isLoading}
-                        value={supabaseEmail}
-                        onChange={(e) => setSupabaseEmail(e.target.value)}
-                        placeholder="e.g. mukeshgorai30@gmail.com"
-                        className="w-full bg-neutral-950 border border-neutral-800 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-neutral-600 focus:outline-none transition disabled:opacity-50"
-                      />
-                    </div>
-
-                    {/* Supabase Password */}
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs font-bold text-neutral-300 uppercase tracking-wider flex items-center gap-1.5">
-                          <Lock className="w-3.5 h-3.5 text-neutral-400" />
-                          <span>Supabase Password</span>
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setErrorMessage('');
-                            setSuccessMessage('');
-                            setPageView('forgot_password');
-                          }}
-                          className="text-[11px] text-emerald-400 hover:text-emerald-300 font-bold hover:underline transition"
-                        >
-                          Forgot Password?
-                        </button>
-                      </div>
-                      <div className="relative">
-                        <input
-                          type={showSupabasePassword ? 'text' : 'password'}
-                          id="supabase-password-input"
-                          required
-                          autoComplete="current-password"
-                          disabled={lockoutRemaining > 0 || isLoading}
-                          value={supabasePassword}
-                          onChange={(e) => setSupabasePassword(e.target.value)}
-                          placeholder="Enter your Supabase password"
-                          className="w-full bg-neutral-950 border border-neutral-800 focus:border-emerald-500 rounded-xl pl-3.5 pr-10 py-2.5 text-sm text-white placeholder-neutral-600 focus:outline-none transition disabled:opacity-50"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowSupabasePassword(!showSupabasePassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-300"
-                          title={showSupabasePassword ? 'Hide password' : 'Show password'}
-                        >
-                          {showSupabasePassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Submit Button */}
-                    <button
-                      type="submit"
-                      id="supabase-signin-btn"
-                      disabled={isLoading || lockoutRemaining > 0}
-                      className="w-full py-3 px-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2 mt-2 bg-emerald-500 hover:bg-emerald-400 text-black hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isLoading ? (
-                        <>
-                          <RefreshCw className="w-4 h-4 animate-spin text-black" />
-                          <span>Verifying with Supabase...</span>
-                        </>
-                      ) : (
-                        <>
-                          <ShieldCheck className="w-4 h-4 text-black" />
-                          <span>Sign In with Supabase Auth</span>
                         </>
                       )}
                     </button>

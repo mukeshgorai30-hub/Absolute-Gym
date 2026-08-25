@@ -10,6 +10,7 @@ import {
   Trophy,
   Calendar,
   Flame,
+  Send,
 } from 'lucide-react';
 
 export const Hero: React.FC = () => {
@@ -24,7 +25,7 @@ export const Hero: React.FC = () => {
   };
 
   return (
-    <section id="hero" className="relative w-full max-w-full min-h-[90vh] flex items-center justify-center overflow-hidden bg-neutral-950 pt-8 pb-20 border-b border-neutral-800">
+    <section id="hero" className="relative w-full max-w-full min-h-[80vh] flex items-center justify-center overflow-hidden bg-neutral-950 pt-6 pb-12 sm:pb-16 border-b border-neutral-800">
       {/* Background Graphic & Atmospheric Overlay */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <img
@@ -70,8 +71,8 @@ export const Hero: React.FC = () => {
             onClick={() => setIsTrialModalOpen(true)}
             className={`w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-extrabold text-base tracking-wide uppercase transition-all transform hover:-translate-y-0.5 shadow-lg ${theme.accentBg}`}
           >
-            <Flame className="w-5 h-5" />
-            <span>{config.heroCtaText || 'Claim Free 1-Day VIP Pass'}</span>
+            <Send className="w-4 h-4" />
+            <span>{config.heroCtaText || 'Inquire & Book Consultation'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 
@@ -89,7 +90,7 @@ export const Hero: React.FC = () => {
         </div>
 
         {/* Stats Grid Strip */}
-        <div className="mt-16 w-full max-w-5xl grid grid-cols-2 md:grid-cols-4 gap-4 p-6 rounded-2xl bg-neutral-900/70 border border-neutral-800 backdrop-blur-md shadow-2xl">
+        <div className="mt-10 sm:mt-12 w-full max-w-5xl grid grid-cols-2 md:grid-cols-4 gap-4 p-5 sm:p-6 rounded-2xl bg-neutral-900/70 border border-neutral-800 backdrop-blur-md shadow-2xl">
           <div className="text-center p-3 border-r border-neutral-800/60 last:border-r-0">
             <div className={`text-2xl sm:text-3xl lg:text-4xl font-black ${theme.accentText}`}>
               {config.stats.sqFt}

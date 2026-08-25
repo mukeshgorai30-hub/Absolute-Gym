@@ -9,7 +9,7 @@ export const TestimonialsSection: React.FC = () => {
   const theme = themeStyles[themeColor];
 
   return (
-    <section id="testimonials" className="w-full max-w-full py-24 bg-neutral-900/40 text-white relative border-b border-neutral-800 overflow-hidden">
+    <section id="testimonials" className="w-full max-w-full py-12 sm:py-16 bg-neutral-900/40 text-white relative border-b border-neutral-800 overflow-hidden">
       {/* Dynamic Atmospheric Background Image */}
       {config.testimonialsBgImage && (
         <div className="absolute inset-0 pointer-events-none z-0">
@@ -25,7 +25,7 @@ export const TestimonialsSection: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
           <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-4 ${theme.accentBadge}`}>
             <Trophy className="w-3.5 h-3.5" />
             <span>Real Member Transformations</span>
@@ -33,9 +33,6 @@ export const TestimonialsSection: React.FC = () => {
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight uppercase">
             Proven Results & Success Stories
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-neutral-400">
-            Hear directly from athletes, professionals, and lifters who transformed their health and physique at {config.name || 'Absolute Gym'}.
-          </p>
         </div>
 
         {/* Mobile Swipe Indicator Hint */}

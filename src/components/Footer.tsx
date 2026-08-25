@@ -31,7 +31,7 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="w-full max-w-full overflow-hidden bg-neutral-950 text-white border-t border-neutral-800 pt-16 pb-12">
+    <footer className="w-full max-w-full overflow-hidden bg-neutral-950 text-white border-t border-neutral-800 pt-12 pb-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-neutral-800/80">
           {/* Col 1: Brand */}
@@ -48,7 +48,7 @@ export const Footer: React.FC = () => {
                 onClick={() => setIsTrialModalOpen(true)}
                 className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider ${theme.accentBg}`}
               >
-                Claim Free 1-Day Pass
+                Submit An Inquiry
               </button>
             </div>
           </div>

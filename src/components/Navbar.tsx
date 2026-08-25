@@ -147,15 +147,15 @@ export const Navbar: React.FC = () => {
               <span>AI Advisor</span>
             </button>
 
-            {/* Claim Free Pass CTA */}
+            {/* Submit Inquiry CTA */}
             <button
               id="nav-free-pass-btn"
               onClick={() => setIsTrialModalOpen(true)}
               className={`inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold tracking-wide transition uppercase touch-manipulation active:scale-95 shadow-md ${theme.accentBg}`}
             >
               <UserCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-              <span className="hidden xs:inline sm:inline">Free Pass</span>
-              <span className="inline xs:hidden sm:hidden">Pass</span>
+              <span className="hidden xs:inline sm:inline">Inquire</span>
+              <span className="inline xs:hidden sm:hidden">Inquire</span>
             </button>
 
             {/* Mobile 3-Line Menu (Hamburger) Toggle */}
@@ -189,8 +189,8 @@ export const Navbar: React.FC = () => {
               }}
               className={`w-full py-3.5 px-4 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider text-center flex items-center justify-center gap-2 shadow-lg touch-manipulation active:scale-[0.98] ${theme.accentBg}`}
             >
-              <Flame className="w-4 h-4" />
-              <span>Claim Free 1-Day Pass</span>
+              <UserCheck className="w-4 h-4" />
+              <span>Inquire & Consult</span>
             </button>
           </div>
 

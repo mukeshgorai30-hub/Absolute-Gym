@@ -8,7 +8,6 @@ import {
   MapPin,
   User,
   Search,
-  Sparkles,
   Music,
   HeartPulse,
   Sun,
@@ -16,11 +15,10 @@ import {
   Flame,
   CheckCircle,
   Layers,
-  ChevronRight,
 } from 'lucide-react';
 
 export const ClassTimingsPage: React.FC = () => {
-  const { config, themeColor, setIsTrialModalOpen } = useGym();
+  const { config, themeColor } = useGym();
   const theme = themeStyles[themeColor];
 
   const days: DayOfWeek[] = [
@@ -151,17 +149,6 @@ export const ClassTimingsPage: React.FC = () => {
           <p className="mt-4 text-base sm:text-lg text-neutral-300 max-w-3xl mx-auto leading-relaxed">
             High-energy studio workouts including <strong className="text-emerald-400">Power Yoga & Pranayama</strong> and <strong className="text-amber-400">Zumba Dance Cardio</strong> led by certified master instructors.
           </p>
-
-          {/* Quick Trial Pass Button */}
-          <div className="mt-6 flex justify-center">
-            <button
-              onClick={() => setIsTrialModalOpen(true)}
-              className={`px-6 py-3.5 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider flex items-center gap-2 shadow-xl ${theme.accentBg}`}
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>Claim Free 1-Day Studio Class Pass</span>
-            </button>
-          </div>
         </div>
       </div>
 
@@ -478,28 +465,6 @@ export const ClassTimingsPage: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Drop-in / Reserve prompt */}
-                  <div className="mt-6 pt-4 border-t border-neutral-800/80 flex items-center justify-between gap-3">
-                    <div className="text-[11px] text-neutral-400 flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                      <span>{cls.capacity - cls.reservedCount} spots remaining</span>
-                    </div>
-
-                    <button
-                      onClick={() => setIsTrialModalOpen(true)}
-                      className={`py-2.5 px-5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md ${
-                        isYoga
-                          ? 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-emerald-500/20'
-                          : isZumba
-                          ? 'bg-amber-400 hover:bg-amber-300 text-black shadow-amber-400/20'
-                          : `${theme.accentBg}`
-                      }`}
-                    >
-                      <span>Reserve Studio Spot</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
                   </div>
                 </div>
               );

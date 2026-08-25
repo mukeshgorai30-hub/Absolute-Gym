@@ -47,7 +47,7 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="w-full max-w-full py-24 bg-neutral-950 text-white relative border-b border-neutral-800 overflow-hidden">
+    <section id="contact" className="w-full max-w-full py-12 sm:py-16 bg-neutral-950 text-white relative border-b border-neutral-800 overflow-hidden">
       {/* Dynamic Atmospheric Background Image */}
       {config.contactBgImage && (
         <div className="absolute inset-0 pointer-events-none z-0">
@@ -65,7 +65,7 @@ export const ContactSection: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
           <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-4 ${theme.accentBadge}`}>
             <MapPin className="w-3.5 h-3.5" />
             <span>Facility Location & Operating Hours</span>
@@ -73,20 +73,17 @@ export const ContactSection: React.FC = () => {
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight uppercase">
             Visit {config.name || 'Absolute Gym'} Today
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-neutral-400">
-            Stop by for a workout, book a facility tour, or message our membership team directly.
-          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Contact & Free Pass Capture Form (Left on Desktop) */}
           <div className="lg:col-span-7 bg-neutral-900 rounded-2xl border border-neutral-800 p-6 sm:p-8 shadow-xl">
             <h3 className="text-xl font-black uppercase text-white mb-2 flex items-center gap-2">
-              <Flame className={`w-5 h-5 ${theme.accentText}`} />
-              <span>Claim Free VIP Pass or Send Message</span>
+              <MessageSquare className={`w-5 h-5 ${theme.accentText}`} />
+              <span>Send An Inquiry or Message</span>
             </h3>
             <p className="text-xs text-neutral-400 mb-6">
-              Fill out the form below. We will send your digital guest pass barcode and schedule your welcome tour.
+              Fill out the form below with your name, contact information, and requirements. Our team will get back to you promptly.
             </p>
 
             {submitted ? (

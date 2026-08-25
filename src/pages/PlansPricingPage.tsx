@@ -26,6 +26,7 @@ export const PlansPricingPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'packages' | 'spa'>('packages');
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('plan_3months');
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -120,19 +121,31 @@ export const PlansPricingPage: React.FC = () => {
                 billingCycle === 'yearly' && plan.priceYearly
                   ? Math.round(plan.priceYearly / 12)
                   : plan.priceMonthly;
+              const isSelected = selectedPlanId === plan.id;
 
               return (
                 <div
                   key={plan.id}
                   id={`plans-page-card-${plan.id}`}
-                  className={`relative bg-neutral-900/90 rounded-3xl border p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 shadow-2xl ${
-                    plan.popular
-                      ? `${theme.glowClass} border-amber-400/80 bg-gradient-to-b from-neutral-900 via-neutral-900 to-neutral-950`
-                      : 'border-neutral-800/90 hover:border-neutral-700'
+                  onClick={() => setSelectedPlanId(plan.id)}
+                  className={`relative rounded-3xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 cursor-pointer shadow-2xl ${
+                    isSelected
+                      ? 'bg-gradient-to-b from-neutral-900 via-neutral-900 to-neutral-950 border border-yellow-400/70 shadow-[0_0_15px_rgba(250,204,21,0.15)] scale-[1.01] z-10'
+                      : plan.popular
+                      ? `${theme.glowClass} border-amber-400/80 bg-gradient-to-b from-neutral-900 via-neutral-900 to-neutral-950 hover:-translate-y-1.5`
+                      : 'bg-neutral-900/90 border border-neutral-800/90 hover:border-neutral-700 hover:-translate-y-1.5'
                   }`}
                 >
+                  {/* Selected Indicator Badge */}
+                  {isSelected && (
+                    <div className="absolute -top-3 right-6 bg-yellow-400/90 text-black px-3 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm flex items-center gap-1 z-20">
+                      <Zap className="w-2.5 h-2.5 fill-black" />
+                      <span>Selected Plan</span>
+                    </div>
+                  )}
+
                   {/* Popular Badge */}
-                  {plan.popular && (
+                  {plan.popular && !isSelected && (
                     <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-amber-400 text-black px-4 py-1 rounded-full text-[11px] font-black uppercase tracking-wider shadow-lg flex items-center gap-1 whitespace-nowrap">
                       <Star className="w-3.5 h-3.5 fill-black" />
                       <span>{plan.badge || 'Most Popular Choice'}</span>
@@ -145,7 +158,11 @@ export const PlansPricingPage: React.FC = () => {
                         {plan.name}
                       </h3>
                       {plan.duration && (
-                        <span className="px-2.5 py-1 rounded-lg bg-neutral-800 text-[11px] font-bold text-neutral-300 border border-neutral-700">
+                        <span className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border ${
+                          isSelected 
+                            ? 'bg-yellow-400/20 text-yellow-300 border-yellow-400/40' 
+                            : 'bg-neutral-800 text-neutral-300 border-neutral-700'
+                        }`}>
                           {plan.duration}
                         </span>
                       )}
@@ -158,19 +175,10 @@ export const PlansPricingPage: React.FC = () => {
                     {/* Price Tag */}
                     <div className="mt-6 pb-6 border-b border-neutral-800/80">
                       <div className="flex items-baseline gap-1">
-                        <span className="text-3xl sm:text-5xl font-black text-white font-mono">
+                        <span className={`text-3xl sm:text-5xl font-black font-mono ${isSelected ? 'text-yellow-400' : 'text-white'}`}>
                           {currency}{displayPrice.toLocaleString('en-IN')}
                         </span>
-                        <span className="text-xs sm:text-sm text-neutral-400 font-bold uppercase">
-                          / month
-                        </span>
                       </div>
-
-                      {billingCycle === 'yearly' && plan.priceYearly && (
-                        <div className="text-xs text-emerald-400 font-bold mt-1.5">
-                          Billed annually ({currency}{plan.priceYearly.toLocaleString('en-IN')} / yr)
-                        </div>
-                      )}
                     </div>
 
                     {/* Features Included */}
@@ -180,8 +188,10 @@ export const PlansPricingPage: React.FC = () => {
                       </div>
                       {plan.features.map((feat, idx) => (
                         <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-neutral-200">
-                          <div className="p-0.5 rounded-full bg-emerald-500/20 text-emerald-400 shrink-0 mt-0.5">
-                            <Check className="w-3.5 h-3.5" />
+                          <div className={`p-0.5 rounded-full shrink-0 mt-0.5 ${
+                            isSelected ? 'bg-yellow-400 text-black' : 'bg-emerald-500/20 text-emerald-400'
+                          }`}>
+                            <Check className="w-3.5 h-3.5 stroke-[3]" />
                           </div>
                           <span>{feat}</span>
                         </div>
@@ -205,9 +215,17 @@ export const PlansPricingPage: React.FC = () => {
                   <div className="mt-8 pt-6 border-t border-neutral-800">
                     <button
                       type="button"
-                      onClick={() => setSelectedPlanForModal(plan)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedPlanId(plan.id);
+                        setSelectedPlanForModal(plan);
+                      }}
                       className={`w-full py-3.5 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg min-h-[48px] touch-manipulation active:scale-[0.98] ${
-                        plan.popular ? theme.accentBg : 'bg-neutral-800 hover:bg-neutral-700 text-white'
+                        isSelected
+                          ? 'bg-yellow-400 hover:bg-yellow-300 text-black shadow-md'
+                          : plan.popular 
+                          ? theme.accentBg 
+                          : 'bg-neutral-800 hover:bg-neutral-700 text-white'
                       }`}
                     >
                       <span>{plan.ctaText || 'Get Started Now'}</span>
@@ -271,7 +289,7 @@ export const PlansPricingPage: React.FC = () => {
                     </div>
                     <div className="text-right">
                       <span className="text-[10px] uppercase text-neutral-500 block font-bold">Non-Member</span>
-                      <span className="text-xs font-bold text-neutral-400 line-through font-mono">
+                      <span className="text-xl font-black text-white font-mono">
                         {currency}{(spa.nonMemberPrice ?? 0).toLocaleString('en-IN')}
                       </span>
                     </div>
