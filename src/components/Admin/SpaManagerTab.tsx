@@ -158,14 +158,8 @@ export const SpaManagerTab: React.FC<SpaManagerTabProps> = ({ onNotify }) => {
   };
 
   const handleResetDefaults = () => {
-    if (
-      window.confirm(
-        'Reset all massage & steam table rows to the default 9 standard services?'
-      )
-    ) {
-      resetSpaServices();
-      onNotify('Restored default 9-row Massage & Steam table matrix.');
-    }
+    resetSpaServices();
+    onNotify('Restored default 9-row Massage & Steam table matrix.');
   };
 
   // Filtered rows

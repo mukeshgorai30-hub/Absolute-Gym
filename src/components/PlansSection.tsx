@@ -20,6 +20,7 @@ import {
   Users,
   Calendar,
   Layers,
+  Building2,
 } from 'lucide-react';
 import { defaultSpaServices } from '../data/defaultGymData';
 
@@ -360,7 +361,7 @@ export const PlansSection: React.FC = () => {
                                 : 'bg-neutral-800 hover:bg-neutral-700 text-white border border-neutral-700'
                             }`}
                           >
-                            <span>{plan.ctaText || `Choose ${planDuration}`}</span>
+                            <span>{plan.ctaText || 'Pay at Gym Desk'}</span>
                             <ArrowRight className="w-4 h-4" />
                           </button>
                         </div>

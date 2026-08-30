@@ -331,34 +331,6 @@ export const ClassTimingsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Schedule Summary Banner */}
-        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 rounded-2xl bg-neutral-900/60 border border-neutral-800 text-xs">
-          <div className="flex items-center gap-2 text-neutral-300">
-            <Calendar className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>
-              Showing <strong className="text-white">{filteredClasses.length} sessions</strong> for{' '}
-              <strong className="text-amber-400">{activeDay}</strong> •{' '}
-              <span className="text-neutral-400">
-                {selectedClassType === 'yoga' ? 'Yoga Sessions' : selectedClassType === 'zumba' ? 'Zumba Sessions' : 'All Studio Sessions'} •{' '}
-                {timeFilter === 'morning' ? 'Morning Only' : timeFilter === 'evening' ? 'Evening Only' : 'All Day Slots'}
-              </span>
-            </span>
-          </div>
-
-          {(selectedClassType !== 'all' || timeFilter !== 'all' || searchQuery) && (
-            <button
-              onClick={() => {
-                setSelectedClassType('all');
-                setTimeFilter('all');
-                setSearchQuery('');
-              }}
-              className="text-amber-400 hover:text-amber-300 font-bold underline text-[11px]"
-            >
-              Reset All Filters
-            </button>
-          )}
-        </div>
-
         {/* Classes Grid */}
         {filteredClasses.length === 0 ? (
           <div className="text-center py-20 px-4 rounded-3xl bg-neutral-900/40 border border-neutral-800">

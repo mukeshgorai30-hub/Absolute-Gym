@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   ExternalLink,
   Navigation,
+  Instagram,
 } from 'lucide-react';
 
 export const ContactSection: React.FC = () => {
@@ -292,6 +293,26 @@ export const ContactSection: React.FC = () => {
                       className="text-sm font-semibold text-emerald-400 hover:underline block mt-0.5"
                     >
                       Chat with Membership Team →
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {(config.instagram || 'https://www.instagram.com/absolute_gym_jsr/') && (
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-pink-950/50 border border-pink-500/30 text-pink-400 shrink-0">
+                    <Instagram className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold uppercase tracking-wider text-neutral-400">Instagram Handle</div>
+                    <a
+                      href={config.instagram || 'https://www.instagram.com/absolute_gym_jsr/'}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm font-semibold text-pink-400 hover:text-pink-300 hover:underline inline-flex items-center gap-1.5 mt-0.5"
+                    >
+                      <span>@absolute_gym_jsr</span>
+                      <ExternalLink className="w-3 h-3 opacity-70" />
                     </a>
                   </div>
                 </div>

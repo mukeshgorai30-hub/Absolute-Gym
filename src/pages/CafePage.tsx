@@ -50,7 +50,7 @@ export const CafePage: React.FC = () => {
     name: 'Absolute Gym Cafe',
     tagline: 'Precision Macro Meals, Whey Shakes & Performance Nutrition',
     description:
-      'Fuel your workout before and refuel your muscles immediately after with our certified organic smoothies, whey isolate blends, pre-workout shots, and chef-curated macro bowls.',
+      'Get the nutrition you need before and after your workout with high-protein shakes, energy boosters, and healthy meals.',
     hours: '6:00 AM – 10:30 PM (Daily)',
     items: [],
   };
@@ -311,44 +311,7 @@ export const CafePage: React.FC = () => {
           </div>
         )}
 
-        {/* Cafe Quality Guarantee Strip */}
-        <div className="mt-16 p-8 rounded-3xl bg-neutral-900 border border-neutral-800 grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
-          <div className="flex items-start gap-3.5">
-            <div className="p-3 rounded-xl bg-neutral-950 border border-neutral-800 text-amber-400 shrink-0">
-              <Zap className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="text-sm font-black uppercase text-white mb-1">Ultra-Filtered Whey Isolate</h4>
-              <p className="text-neutral-400 leading-relaxed">
-                Zero chalky fillers. We exclusively blend micro-filtered, 100% grass-fed whey isolate and plant proteins for instant bioavailability.
-              </p>
-            </div>
-          </div>
 
-          <div className="flex items-start gap-3.5">
-            <div className="p-3 rounded-xl bg-neutral-950 border border-neutral-800 text-emerald-400 shrink-0">
-              <Apple className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="text-sm font-black uppercase text-white mb-1">Organic Whole Foods</h4>
-              <p className="text-neutral-400 leading-relaxed">
-                Farm-fresh spinach, Hass avocados, raw oats, cold-pressed almond milk, and antioxidant berries delivered fresh daily.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3.5">
-            <div className="p-3 rounded-xl bg-neutral-950 border border-neutral-800 text-blue-400 shrink-0">
-              <Clock className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="text-sm font-black uppercase text-white mb-1">Post-Workout Ready on Exit</h4>
-              <p className="text-neutral-400 leading-relaxed">
-                Pre-order before your workout, and your chilled shake or warm macro bowl will be waiting for you at the front desk counter.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Interactive Cafe Order Modal */}

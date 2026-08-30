@@ -7,6 +7,7 @@ import {
   GymAmenity,
   GalleryItem,
   Testimonial,
+  VideoReview,
   MemberLead,
   FAQ,
   ThemeColor,
@@ -105,6 +106,11 @@ interface GymContextType {
   updateTestimonial: (testimonial: Testimonial) => void;
   deleteTestimonial: (id: string) => void;
 
+  // Video Reviews operations
+  addVideoReview: (videoReview: VideoReview) => void;
+  updateVideoReview: (videoReview: VideoReview) => void;
+  deleteVideoReview: (id: string) => void;
+
   // FAQs operations
   addFAQ: (faq: FAQ) => void;
   updateFAQ: (faq: FAQ) => void;
@@ -166,6 +172,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           email: gymEmail,
           googleMapsEmbedUrl: parsed.googleMapsEmbedUrl && !parsed.googleMapsEmbedUrl.includes('New+York') ? parsed.googleMapsEmbedUrl : defaultGymConfig.googleMapsEmbedUrl,
           testimonials: isLegacyTestimonials ? defaultGymConfig.testimonials : parsed.testimonials,
+          videoReviews: (parsed.videoReviews && parsed.videoReviews.length > 0) ? parsed.videoReviews : defaultGymConfig.videoReviews,
           spaServices: parsed.spaServices && parsed.spaServices.length > 0 ? parsed.spaServices : defaultSpaServices,
           cafe: {
             ...defaultGymConfig.cafe,
@@ -175,6 +182,12 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           },
           currencySymbol: parsed.currencySymbol || '₹',
           currencyCode: parsed.currencyCode || 'INR',
+          plans: (parsed.plans || defaultGymConfig.plans).map((p: any) => ({
+            ...p,
+            ctaText: p.ctaText && !p.ctaText.startsWith('Get ') && !p.ctaText.startsWith('Start ') && !p.ctaText.startsWith('Join ') && !p.ctaText.startsWith('Claim ') && !p.ctaText.startsWith('Experience ') && !p.ctaText.startsWith('Choose ') && p.ctaText !== 'Pay at Gym desk on Arrival'
+              ? p.ctaText
+              : 'Pay at Gym Desk'
+          })),
         };
       }
     } catch (e) {
@@ -413,6 +426,9 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                   email: gymEmail,
                   googleMapsEmbedUrl: cloudData.googleMapsEmbedUrl && !cloudData.googleMapsEmbedUrl.includes('New+York') ? cloudData.googleMapsEmbedUrl : defaultGymConfig.googleMapsEmbedUrl,
                   testimonials: isCloudLegacyTestimonials ? defaultGymConfig.testimonials : (cloudData.testimonials || defaultGymConfig.testimonials),
+                  videoReviews: cloudData.videoReviews && cloudData.videoReviews.length > 0
+                    ? cloudData.videoReviews
+                    : (prev.videoReviews || defaultGymConfig.videoReviews),
                   spaServices: cloudData.spaServices && cloudData.spaServices.length > 0
                     ? cloudData.spaServices
                     : (prev.spaServices || defaultSpaServices),
@@ -561,44 +577,42 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     // Debounced write to Firestore & Supabase only for real local edits
-    if (isInitialCloudLoadDone.current) {
-      isLocalUpdate.current = true;
-      setCloudSyncStatus('saving');
-      const timer = setTimeout(async () => {
-        let supabaseSuccess = false;
-        let firestoreSuccess = false;
+    isLocalUpdate.current = true;
+    setCloudSyncStatus('saving');
+    const timer = setTimeout(async () => {
+      let supabaseSuccess = false;
+      let firestoreSuccess = false;
 
-        // Save to Supabase if enabled
-        if (isSupabaseActive) {
-          try {
-            const res = await saveSupabaseConfig(config);
-            if (res.success) supabaseSuccess = true;
-          } catch (e) {
-            console.warn('Supabase auto-save warning:', e);
-          }
-        }
-
-        // Save to Firestore
+      // Save to Supabase if enabled
+      if (isSupabaseActive) {
         try {
-          const configDocRef = doc(db, 'gym_config', FIRESTORE_CONFIG_DOC);
-          await setDoc(configDocRef, { ...config, updatedAt: new Date().toISOString() }, { merge: true });
-          firestoreSuccess = true;
-        } catch (error) {
-          console.warn('Firestore auto-save warning:', error);
+          const res = await saveSupabaseConfig(config);
+          if (res.success) supabaseSuccess = true;
+        } catch (e) {
+          console.warn('Supabase auto-save warning:', e);
         }
+      }
 
-        if (supabaseSuccess || firestoreSuccess || !isSupabaseActive) {
-          setIsCloudSynced(true);
-          setCloudSyncStatus('synced');
-        } else {
-          setCloudSyncStatus('offline');
-        }
+      // Save to Firestore
+      try {
+        const configDocRef = doc(db, 'gym_config', FIRESTORE_CONFIG_DOC);
+        await setDoc(configDocRef, { ...config, updatedAt: new Date().toISOString() }, { merge: true });
+        firestoreSuccess = true;
+      } catch (error) {
+        console.warn('Firestore auto-save warning:', error);
+      }
 
-        isLocalUpdate.current = false;
-      }, 500);
+      if (supabaseSuccess || firestoreSuccess || !isSupabaseActive) {
+        setIsCloudSynced(true);
+        setCloudSyncStatus('synced');
+      } else {
+        setCloudSyncStatus('offline');
+      }
 
-      return () => clearTimeout(timer);
-    }
+      isLocalUpdate.current = false;
+    }, 400);
+
+    return () => clearTimeout(timer);
   }, [config, isSupabaseActive]);
 
   // 4. Save leads to local storage
@@ -720,9 +734,14 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
 
-  const updateConfig = (updater: Partial<GymConfig> | ((prev: GymConfig) => GymConfig)) => {
+  // Helper to mark a local edit timestamp
+  const markLocalEdit = () => {
     lastLocalEditTimestamp.current = Date.now();
     isLocalUpdate.current = true;
+  };
+
+  const updateConfig = (updater: Partial<GymConfig> | ((prev: GymConfig) => GymConfig)) => {
+    markLocalEdit();
     if (typeof updater === 'function') {
       setConfigState((prev) => updater(prev));
     } else {
@@ -736,6 +755,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Plan Management
   const addPlan = (newPlan: SubscriptionPlan) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       plans: [...prev.plans, newPlan],
@@ -743,6 +763,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updatePlan = (updatedPlan: SubscriptionPlan) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       plans: prev.plans.map((p) => (p.id === updatedPlan.id ? updatedPlan : p)),
@@ -750,6 +771,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deletePlan = (id: string) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       plans: prev.plans.filter((p) => p.id !== id),
@@ -758,6 +780,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Trainer Management
   const addTrainer = (newTrainer: Trainer) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       trainers: [...prev.trainers, newTrainer],
@@ -765,6 +788,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateTrainer = (updatedTrainer: Trainer) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       trainers: prev.trainers.map((t) => (t.id === updatedTrainer.id ? updatedTrainer : t)),
@@ -772,6 +796,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteTrainer = (id: string) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       trainers: prev.trainers.filter((t) => t.id !== id),
@@ -780,6 +805,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Classes Management
   const addClass = (newClass: GymClass) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       classes: [...prev.classes, newClass],
@@ -787,6 +813,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateClass = (updatedClass: GymClass) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       classes: prev.classes.map((c) => (c.id === updatedClass.id ? updatedClass : c)),
@@ -794,6 +821,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteClass = (id: string) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       classes: prev.classes.filter((c) => c.id !== id),
@@ -802,6 +830,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const reserveClassSpot = (id: string): boolean => {
     let success = false;
+    markLocalEdit();
     setConfigState((prev) => {
       const cls = prev.classes.find((c) => c.id === id);
       if (cls && cls.reservedCount < cls.capacity) {
@@ -820,6 +849,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Amenities Management
   const addAmenity = (newAmenity: GymAmenity) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       amenities: [...prev.amenities, newAmenity],
@@ -827,6 +857,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateAmenity = (updatedAmenity: GymAmenity) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       amenities: prev.amenities.map((a) => (a.id === updatedAmenity.id ? updatedAmenity : a)),
@@ -834,6 +865,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteAmenity = (id: string) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       amenities: prev.amenities.filter((a) => a.id !== id),
@@ -842,6 +874,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Gallery Management
   const addGalleryItem = (newItem: GalleryItem) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       gallery: [...prev.gallery, newItem],
@@ -849,6 +882,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateGalleryItem = (updatedItem: GalleryItem) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       gallery: prev.gallery.map((g) => (g.id === updatedItem.id ? updatedItem : g)),
@@ -856,6 +890,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteGalleryItem = (id: string) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       gallery: prev.gallery.filter((g) => g.id !== id),
@@ -864,6 +899,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Testimonial Management
   const addTestimonial = (newTestimonial: Testimonial) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       testimonials: [...prev.testimonials, newTestimonial],
@@ -871,6 +907,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateTestimonial = (updatedTestimonial: Testimonial) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       testimonials: prev.testimonials.map((t) => (t.id === updatedTestimonial.id ? updatedTestimonial : t)),
@@ -878,14 +915,43 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteTestimonial = (id: string) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       testimonials: prev.testimonials.filter((t) => t.id !== id),
     }));
   };
 
+  // Video Reviews Management
+  const addVideoReview = (newVideoReview: VideoReview) => {
+    markLocalEdit();
+    setConfigState((prev) => ({
+      ...prev,
+      videoReviews: [...(prev.videoReviews || []), newVideoReview],
+    }));
+  };
+
+  const updateVideoReview = (updatedVideoReview: VideoReview) => {
+    markLocalEdit();
+    setConfigState((prev) => ({
+      ...prev,
+      videoReviews: (prev.videoReviews || defaultGymConfig.videoReviews || []).map((v) =>
+        v.id === updatedVideoReview.id ? updatedVideoReview : v
+      ),
+    }));
+  };
+
+  const deleteVideoReview = (id: string) => {
+    markLocalEdit();
+    setConfigState((prev) => ({
+      ...prev,
+      videoReviews: (prev.videoReviews || defaultGymConfig.videoReviews || []).filter((v) => v.id !== id),
+    }));
+  };
+
   // FAQ Management
   const addFAQ = (newFaq: FAQ) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       faqs: [...prev.faqs, newFaq],
@@ -893,6 +959,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateFAQ = (updatedFaq: FAQ) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       faqs: prev.faqs.map((f) => (f.id === updatedFaq.id ? updatedFaq : f)),
@@ -900,6 +967,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteFAQ = (id: string) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       faqs: prev.faqs.filter((f) => f.id !== id),
@@ -908,6 +976,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Cafe Management
   const addCafeItem = (newItem: CafeItem) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       cafe: {
@@ -918,6 +987,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateCafeItem = (updatedItem: CafeItem) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       cafe: {
@@ -930,6 +1000,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteCafeItem = (id: string) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       cafe: {
@@ -940,6 +1011,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateCafeConfig = (cafeConfig: Partial<CafeConfig>) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       cafe: {
@@ -951,6 +1023,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Spa & Steam Management
   const addSpaService = (newItem: SpaServiceItem) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       spaServices: [...(prev.spaServices || defaultSpaServices), newItem],
@@ -958,6 +1031,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateSpaService = (updatedItem: SpaServiceItem) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       spaServices: (prev.spaServices || defaultSpaServices).map((item) =>
@@ -967,6 +1041,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteSpaService = (id: string) => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       spaServices: (prev.spaServices || defaultSpaServices).filter((item) => item.id !== id),
@@ -974,6 +1049,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const resetSpaServices = () => {
+    markLocalEdit();
     setConfigState((prev) => ({
       ...prev,
       spaServices: defaultSpaServices,
@@ -1107,6 +1183,9 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addTestimonial,
         updateTestimonial,
         deleteTestimonial,
+        addVideoReview,
+        updateVideoReview,
+        deleteVideoReview,
         addFAQ,
         updateFAQ,
         deleteFAQ,

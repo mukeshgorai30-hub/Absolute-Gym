@@ -16,10 +16,12 @@ import {
   Star,
   Users,
   ChevronDown,
+  X,
+  Building2,
 } from 'lucide-react';
 
 export const PlansPricingPage: React.FC = () => {
-  const { config, themeColor, setSelectedPlanForModal, setIsTrialModalOpen } = useGym();
+  const { config, themeColor, setIsTrialModalOpen, setSelectedPlanForModal } = useGym();
   const theme = themeStyles[themeColor];
   const currency = config.currencySymbol || '₹';
 
@@ -80,7 +82,7 @@ export const PlansPricingPage: React.FC = () => {
           </h1>
 
           <p className="mt-4 text-base sm:text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed">
-            Invest in your strength, longevity, and physical peak. Flexible commitments from short-term passes to full VIP annual access with zero hidden fees.
+            Choose the plan that fits your fitness goals. Flexible options from short-term passes to yearly VIP memberships with zero hidden charges
           </p>          {/* Category Switcher Tabs: Packages vs Massage & Steam */}
           <div className="mt-8 flex items-center justify-center">
             <div className="inline-flex items-center p-1.5 rounded-2xl bg-neutral-900 border border-neutral-800 shadow-xl">
@@ -127,7 +129,10 @@ export const PlansPricingPage: React.FC = () => {
                 <div
                   key={plan.id}
                   id={`plans-page-card-${plan.id}`}
-                  onClick={() => setSelectedPlanId(plan.id)}
+                  onClick={() => {
+                    setSelectedPlanId(plan.id);
+                    setSelectedPlanForModal(plan);
+                  }}
                   className={`relative rounded-3xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 cursor-pointer shadow-2xl ${
                     isSelected
                       ? 'bg-gradient-to-b from-neutral-900 via-neutral-900 to-neutral-950 border border-yellow-400/70 shadow-[0_0_15px_rgba(250,204,21,0.15)] scale-[1.01] z-10'
@@ -228,7 +233,7 @@ export const PlansPricingPage: React.FC = () => {
                           : 'bg-neutral-800 hover:bg-neutral-700 text-white'
                       }`}
                     >
-                      <span>{plan.ctaText || 'Get Started Now'}</span>
+                      <span>{plan.ctaText || 'Pay at Gym Desk'}</span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>

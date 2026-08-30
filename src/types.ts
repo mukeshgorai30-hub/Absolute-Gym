@@ -155,6 +155,21 @@ export interface Testimonial {
   reviewDate?: string;
 }
 
+export interface VideoReview {
+  id: string;
+  title: string;
+  member: string;
+  membership: string;
+  avatar?: string;
+  videoUrl: string;
+  thumbnail: string;
+  duration?: string;
+  rating: number;
+  tag: string;
+  summary: string;
+  date?: string;
+}
+
 export interface MemberLead {
   id: string;
   name: string;
@@ -216,6 +231,8 @@ export interface GymConfig {
   email: string;
   address: string;
   whatsapp: string;
+  instagram?: string;
+  gstin?: string;
   googleMapsEmbedUrl: string;
   heroBadge: string;
   heroHeadline: string;
@@ -233,6 +250,7 @@ export interface GymConfig {
   bmiBgImage?: string;
   galleryBgImage?: string;
   testimonialsBgImage?: string;
+  videoReviewsBgImage?: string;
   contactBgImage?: string;
   faqBgImage?: string;
   cafeBgImage?: string;
@@ -255,6 +273,7 @@ export interface GymConfig {
   amenities: GymAmenity[];
   gallery: GalleryItem[];
   testimonials: Testimonial[];
+  videoReviews?: VideoReview[];
   faqs: FAQ[];
   cafe: CafeConfig;
   adminPin: string;

@@ -167,11 +167,9 @@ export const FaqManagerTab: React.FC<FaqManagerTabProps> = ({ onNotify }) => {
     setIsModalOpen(false);
   };
 
-  const handleDeleteFaq = (id: string, question: string) => {
-    if (confirm(`Are you sure you want to delete this FAQ?\n\n"${question}"`)) {
-      deleteFAQ(id);
-      onNotify('FAQ deleted successfully.');
-    }
+  const handleDeleteFaq = (id: string, _question: string) => {
+    deleteFAQ(id);
+    onNotify('FAQ deleted successfully.');
   };
 
   const handleAddPreset = (preset: Omit<FAQ, 'id'>) => {

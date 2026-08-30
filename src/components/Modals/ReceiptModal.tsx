@@ -42,6 +42,7 @@ export interface ReceiptData {
   totalAmount: number;
   notes?: string;
   trainerName?: string;
+  gstin?: string;
 }
 
 interface ReceiptModalProps {
@@ -94,6 +95,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
       totalAmount: rawTotal,
       notes: initialData?.notes || 'Thank you for choosing Absolute Gym! Access granted to all gym zones and locker facilities.',
       trainerName: initialData?.trainerName || '',
+      gstin: initialData?.gstin || config.gstin || '20AABCA1234F1Z8',
     };
   });
 
@@ -123,9 +125,10 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
         totalAmount: rawTotal,
         notes: initialData.notes || 'Full gym facility access & digital locker access activated.',
         trainerName: initialData.trainerName || '',
+        gstin: initialData.gstin || config.gstin || '20AABCA1234F1Z8',
       });
     }
-  }, [initialData]);
+  }, [initialData, config.gstin]);
 
   if (!isOpen) return null;
 
@@ -147,6 +150,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
       taxAmount: formData.taxAmount,
       discountAmount: formData.discountAmount,
       totalAmount: formData.totalAmount,
+      gstin: formData.gstin || config.gstin || '20AABCA1234F1Z8',
     };
     downloadReceiptAsPDF(formatted, config);
   };
@@ -169,6 +173,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
       taxAmount: formData.taxAmount,
       discountAmount: formData.discountAmount,
       totalAmount: formData.totalAmount,
+      gstin: formData.gstin || config.gstin || '20AABCA1234F1Z8',
     };
     downloadReceiptAsText(formatted, config);
   };
@@ -294,6 +299,19 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                     value={formData.receiptNumber}
                     onChange={(e) => setFormData({ ...formData, receiptNumber: e.target.value })}
                     className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-white font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-neutral-400 uppercase mb-1">
+                    GSTIN / Tax Reg No.
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.gstin || ''}
+                    onChange={(e) => setFormData({ ...formData, gstin: e.target.value })}
+                    placeholder="e.g. 20AABCA1234F1Z8"
+                    className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-amber-400 font-mono uppercase focus:border-amber-400 focus:outline-none"
                   />
                 </div>
 
@@ -470,7 +488,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                     {config.address || '108 Olympic Way, Fitness Plaza, Level 2'} • Tel: {config.phone || '+91 98765 43210'}
                   </p>
                   <p className="text-[10px] text-neutral-500 font-mono">
-                    GSTIN / Reg: 27AABCA1234F1Z8 • Email: {config.email || 'memberships@absolutegym.fit'}
+                    GSTIN / Reg: {formData.gstin || config.gstin || '20AABCA1234F1Z8'} • Email: {config.email || 'memberships@absolutegym.fit'}
                   </p>
                 </div>
               </div>
@@ -629,7 +647,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               </div>
               <div className="flex items-center gap-1 font-mono">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Authorized Digital Gateway Transaction</span>
+                <span>Verified Member Registration & Pass</span>
               </div>
             </div>
           </div>

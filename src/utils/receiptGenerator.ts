@@ -19,6 +19,7 @@ export interface FormattedReceipt {
   discountAmount?: number;
   totalAmount: number;
   notes?: string;
+  gstin?: string;
 }
 
 /**
@@ -40,6 +41,7 @@ export const downloadReceiptAsPDF = (
   const gymAddress = config.address || '108 Olympic Way, Fitness Plaza, Level 2';
   const gymPhone = config.phone || '+91 98765 43210';
   const gymEmail = config.email || 'memberships@absolutegym.fit';
+  const gymGstin = receipt.gstin || config.gstin || '20AABCA1234F1Z8';
 
   // --- TOP ACCENT BAR ---
   doc.setFillColor(20, 20, 20); // Dark neutral
@@ -62,7 +64,7 @@ export const downloadReceiptAsPDF = (
   doc.setFontSize(8);
   doc.setTextColor(80, 80, 80);
   doc.text(`${gymAddress} | Tel: ${gymPhone}`, 14, 34);
-  doc.text(`GSTIN / Reg: 27AABCA1234F1Z8 | Email: ${gymEmail}`, 14, 38);
+  doc.text(`GSTIN / Reg: ${gymGstin} | Email: ${gymEmail}`, 14, 38);
 
   // --- INVOICE BADGE & META (RIGHT ALIGNED) ---
   doc.setFillColor(245, 158, 11);
@@ -221,10 +223,10 @@ export const downloadReceiptAsPDF = (
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(70, 70, 70);
-  doc.text('Gateway Status:', 18, paymentSectionY + 27);
+  doc.text('Membership Status:', 18, paymentSectionY + 27);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(16, 140, 70);
-  doc.text('CONFIRMED / SETTLED (RBI Tokenized)', 50, paymentSectionY + 27);
+  doc.text('CONFIRMED / ACTIVE', 50, paymentSectionY + 27);
 
   doc.setFont('helvetica', 'italic');
   doc.setFontSize(7);
@@ -312,7 +314,7 @@ export const downloadReceiptAsPDF = (
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
   doc.setTextColor(140, 140, 140);
-  doc.text('Secure Electronic Payment Receipt • RBI & ISO 27001 Certified Gateway', 105, 284, { align: 'center' });
+  doc.text('Official Gym Membership Pass & Tax Document • Verified Registration', 105, 284, { align: 'center' });
 
   // Save / Trigger Download
   const filename = `${config.name.replace(/[^a-zA-Z0-9]/g, '_')}_Receipt_${receipt.receiptNumber}.pdf`;
@@ -327,6 +329,7 @@ export const downloadReceiptAsText = (
   config: GymConfig
 ): void => {
   const currency = config.currencySymbol || 'INR ';
+  const gymGstin = receipt.gstin || config.gstin || '20AABCA1234F1Z8';
   const divider = '='.repeat(60);
   const thinDivider = '-'.repeat(60);
 
@@ -337,7 +340,7 @@ ${divider}
 ${divider}
 Address: ${config.address || '108 Olympic Way, Level 2'}
 Contact: ${config.phone || '+91 98765 43210'} | Email: ${config.email || 'memberships@absolutegym.fit'}
-GSTIN / Reg: 27AABCA1234F1Z8
+GSTIN / Reg: ${gymGstin}
 ${divider}
                 OFFICIAL PAYMENT RECEIPT & INVOICE
 ${divider}

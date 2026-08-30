@@ -504,7 +504,7 @@ export const CustomerReceiptPortalModal: React.FC = () => {
                         {config.address || '108 Olympic Way, Fitness Plaza, Level 2'} • Tel: {config.phone || '+91 98765 43210'}
                       </p>
                       <p className="text-[10px] text-neutral-500 font-mono">
-                        GSTIN: 27AABCA1234F1Z8 • Email: {config.email || 'memberships@absolutegym.fit'}
+                        GSTIN: {config.gstin || '20AABCA1234F1Z8'} • Email: {config.email || 'memberships@absolutegym.fit'}
                       </p>
                     </div>
                   </div>
@@ -655,7 +655,7 @@ export const CustomerReceiptPortalModal: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-1 font-mono">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Authorized Digital Gateway Transaction</span>
+                    <span>Verified Gym Registration & Pass</span>
                   </div>
                 </div>
               </div>

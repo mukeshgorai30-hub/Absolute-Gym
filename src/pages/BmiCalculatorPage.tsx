@@ -194,28 +194,28 @@ export const BmiCalculatorPage: React.FC = () => {
               className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-4 ${theme.accentBadge}`}
             >
               <Calculator className="w-3.5 h-3.5" />
-              <span>Biometric Matrix Analytics</span>
+              <span>Accurate Fitness Tools</span>
             </div>
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight text-white">
               BMI & Nutrition <span className={theme.accentText}>Target Calculator</span>
             </h1>
             <p className="mt-4 text-base sm:text-lg text-neutral-300 leading-relaxed">
-              Calculate your precise Body Mass Index, Total Daily Energy Expenditure (TDEE), and optimal macro distribution to fine-tune your training and meal planning.
+              Calculate your BMI, daily calorie needs, and ideal protein, carb, and fat targets to match your workout and diet goals
             </p>
           </div>
 
           {/* Quick Stats Strip */}
           <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="p-4 rounded-2xl bg-neutral-900/80 border border-neutral-800 backdrop-blur-sm">
-              <div className="text-amber-400 font-black text-2xl sm:text-3xl">Mifflin-St Jeor</div>
+              <div className="text-amber-400 font-black text-2xl sm:text-3xl">Accurate Formulas</div>
               <div className="text-xs text-neutral-400 font-semibold uppercase tracking-wider mt-1">
-                Gold-Standard Formula
+                Proven Calculation Methods
               </div>
             </div>
             <div className="p-4 rounded-2xl bg-neutral-900/80 border border-neutral-800 backdrop-blur-sm">
               <div className="text-amber-400 font-black text-2xl sm:text-3xl">TDEE & BMR</div>
               <div className="text-xs text-neutral-400 font-semibold uppercase tracking-wider mt-1">
-                Metabolic Output
+                Total Calories Burned
               </div>
             </div>
             <div className="p-4 rounded-2xl bg-neutral-900/80 border border-neutral-800 backdrop-blur-sm">
@@ -617,41 +617,6 @@ export const BmiCalculatorPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Free Consultation & 1-Day Pass Bottom CTA Banner */}
-        <div className="mt-16 p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-neutral-900 via-neutral-900 to-amber-950/30 border border-neutral-800 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="max-w-xl">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-amber-400 bg-amber-400/10 border border-amber-400/20 mb-3">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Certified Trainer Assessment</span>
-            </div>
-            <h3 className="text-2xl sm:text-3xl font-black uppercase text-white">
-              Want a 1-on-1 Body Composition InBody Scan?
-            </h3>
-            <p className="text-sm text-neutral-400 mt-2">
-              Book a complimentary fitness orientation with an Absolute Gym performance coach to measure visceral body fat, skeletal muscle mass, and baseline strength.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-4 shrink-0">
-            <button
-              type="button"
-              onClick={() => {
-                setCurrentPage('coaches');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="px-6 py-3.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-xs sm:text-sm font-bold uppercase tracking-wider text-white transition"
-            >
-              Meet Performance Coaches
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsTrialModalOpen(true)}
-              className={`px-8 py-3.5 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider shadow-lg ${theme.accentBg}`}
-            >
-              Submit Inquiry / Consult Coach
-            </button>
-          </div>
-        </div>
       </section>
     </div>
   );

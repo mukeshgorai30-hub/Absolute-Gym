@@ -26,7 +26,7 @@ export const TestimonialsSection: React.FC = () => {
         {/* Section Header */}
         <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-10">
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight uppercase">
-            Real Reviews From Clients
+            Testimonials
           </h2>
         </div>
 

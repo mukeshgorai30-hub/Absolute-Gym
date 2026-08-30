@@ -45,7 +45,7 @@ export const CafeSection: React.FC = () => {
     name: 'Absolute Gym Cafe',
     tagline: 'Precision Macro Meals, Whey Shakes & Performance Nutrition',
     description:
-      'Fuel your workout before and refuel your muscles immediately after with our certified organic smoothies, whey isolate blends, pre-workout shots, and chef-curated macro bowls.',
+      'Get the nutrition you need before and after your workout with high-protein shakes, energy boosters, and healthy meals.',
     hours: '6:00 AM – 10:30 PM (Daily)',
     items: [],
   };

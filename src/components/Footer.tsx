@@ -7,7 +7,6 @@ import {
   Mail,
   MapPin,
   Clock,
-  Instagram,
   ShieldCheck,
   Flame,
   ArrowUp,

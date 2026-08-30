@@ -5,6 +5,7 @@ import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { ExplorePagesCards } from './components/ExplorePagesCards';
 import { TestimonialsSection } from './components/TestimonialsSection';
+import { VideoReviewsSection } from './components/VideoReviewsSection';
 import { ContactSection } from './components/ContactSection';
 import { FaqSection } from './components/FaqSection';
 import { Footer } from './components/Footer';
@@ -21,7 +22,7 @@ const CafePage = lazy(() => import('./pages/CafePage').then(m => ({ default: m.C
 const BmiCalculatorPage = lazy(() => import('./pages/BmiCalculatorPage').then(m => ({ default: m.BmiCalculatorPage })));
 
 // Code-split Lazy Loaded Modals & Admin
-const PlanBookingModal = lazy(() => import('./components/Modals/PlanBookingModal').then(m => ({ default: m.PlanBookingModal })));
+const PayAtDeskModal = lazy(() => import('./components/Modals/PayAtDeskModal').then(m => ({ default: m.PayAtDeskModal })));
 const TrainerBookingModal = lazy(() => import('./components/Modals/TrainerBookingModal').then(m => ({ default: m.TrainerBookingModal })));
 const TrialPassModal = lazy(() => import('./components/Modals/TrialPassModal').then(m => ({ default: m.TrialPassModal })));
 const AiCoachModal = lazy(() => import('./components/Modals/AiCoachModal').then(m => ({ default: m.AiCoachModal })));
@@ -190,6 +191,9 @@ export const GymAppContent: React.FC = () => {
             {/* Verified Member Testimonials */}
             <TestimonialsSection />
 
+            {/* Member Video Reviews & Transformation Stories */}
+            <VideoReviewsSection />
+
             {/* Facility Details, Hours & Pass Capture */}
             <ContactSection />
 
@@ -231,7 +235,7 @@ export const GymAppContent: React.FC = () => {
 
       {/* Interactive Modals (Loaded on demand to preserve bandwidth and initial render speed) */}
       <Suspense fallback={null}>
-        {selectedPlanForModal && <PlanBookingModal />}
+        {selectedPlanForModal && <PayAtDeskModal />}
         {selectedTrainerForModal && <TrainerBookingModal />}
         {isTrialModalOpen && <TrialPassModal />}
         {isAIModalOpen && <AiCoachModal />}

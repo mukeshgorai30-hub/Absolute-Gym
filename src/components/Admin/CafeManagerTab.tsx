@@ -96,7 +96,7 @@ export const CafeManagerTab: React.FC<CafeManagerTabProps> = ({ onNotify }) => {
     name: 'Absolute Fuel Bar & Clean Cafe',
     tagline: 'Precision Macro Meals, Whey Shakes & Performance Nutrition',
     description:
-      'Fuel your workout before and refuel your muscles immediately after with our certified organic smoothies, whey isolate blends, pre-workout shots, and chef-curated macro bowls.',
+      'Get the nutrition you need before and after your workout with high-protein shakes, energy boosters, and healthy meals.',
     hours: '6:00 AM – 10:30 PM (Daily)',
     items: [],
   };
@@ -233,10 +233,8 @@ export const CafeManagerTab: React.FC<CafeManagerTabProps> = ({ onNotify }) => {
   };
 
   const handleDeleteItem = (id: string, name: string) => {
-    if (confirm(`Are you sure you want to remove "${name}" from the Cafe menu?`)) {
-      deleteCafeItem(id);
-      onNotify(`Removed "${name}" from Cafe!`);
-    }
+    deleteCafeItem(id);
+    onNotify(`Removed "${name}" from Cafe!`);
   };
 
   const handleSaveGeneralSettings = (e: React.FormEvent) => {

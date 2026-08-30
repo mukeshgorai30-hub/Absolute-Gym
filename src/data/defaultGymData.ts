@@ -115,6 +115,8 @@ export const defaultGymConfig: GymConfig = {
   email: 'membership@absolutegym.com',
   address: '3rd Floor, Bindal Mall, Marine Drive Road, Ashiana Gardens, Sonari, Jamshedpur, Jharkhand 831011',
   whatsapp: '+15558392739',
+  instagram: 'https://www.instagram.com/absolute_gym_jsr/',
+  gstin: '20AABCA1234F1Z8',
   googleMapsEmbedUrl: 'https://maps.app.goo.gl/bpiN5hRb6Dd2VKig6',
   heroBadge: '⚡ #1 RATED HIGH-PERFORMANCE FACILITY 2025-2026',
   heroHeadline: 'UNLEASH YOUR HIGHEST POTENTIAL',
@@ -187,7 +189,7 @@ export const defaultGymConfig: GymConfig = {
         'Personal training session',
         'Recurring member discounts',
       ],
-      ctaText: 'Get 1-Day Pass',
+      ctaText: 'Pay at Gym Desk',
     },
     {
       id: 'plan_3days',
@@ -206,7 +208,7 @@ export const defaultGymConfig: GymConfig = {
       notIncluded: [
         'Personal training 1-on-1 session',
       ],
-      ctaText: 'Start 3-Day Trial',
+      ctaText: 'Pay at Gym Desk',
     },
     {
       id: 'plan_7days',
@@ -225,7 +227,7 @@ export const defaultGymConfig: GymConfig = {
       notIncluded: [
         'Permanent VIP locker',
       ],
-      ctaText: 'Get 7-Day Pass',
+      ctaText: 'Pay at Gym Desk',
     },
     {
       id: 'plan_15days',
@@ -244,7 +246,7 @@ export const defaultGymConfig: GymConfig = {
       notIncluded: [
         'VIP guest passes',
       ],
-      ctaText: 'Start 15-Day Sprint',
+      ctaText: 'Pay at Gym Desk',
     },
     {
       id: 'plan_1month',
@@ -264,7 +266,7 @@ export const defaultGymConfig: GymConfig = {
       notIncluded: [
         'Dedicated VIP locker',
       ],
-      ctaText: 'Join 1 Month',
+      ctaText: 'Pay at Gym Desk',
     },
     {
       id: 'plan_2months',
@@ -284,7 +286,7 @@ export const defaultGymConfig: GymConfig = {
       notIncluded: [
         'Unlimited guest privileges',
       ],
-      ctaText: 'Start 2 Months',
+      ctaText: 'Pay at Gym Desk',
     },
     {
       id: 'plan_3months',
@@ -302,7 +304,7 @@ export const defaultGymConfig: GymConfig = {
         '2 Free guest day passes every month',
         '15% Off fuel bar smoothies and massage services',
       ],
-      ctaText: 'Claim 3-Months Package',
+      ctaText: 'Pay at Gym Desk',
     },
     {
       id: 'plan_6months',
@@ -320,7 +322,7 @@ export const defaultGymConfig: GymConfig = {
         'Free biometric locker assignment & towel service',
         'Free monthly guest passes & InBody progress analytics',
       ],
-      ctaText: 'Join 6-Months Plan',
+      ctaText: 'Pay at Gym Desk',
     },
     {
       id: 'plan_1year',
@@ -338,7 +340,7 @@ export const defaultGymConfig: GymConfig = {
         'Unlimited guest privileges (bring 1 friend anytime)',
         '25% Discount on all Massage, Steam & Fuel Bar orders',
       ],
-      ctaText: 'Experience 1-Year VIP',
+      ctaText: 'Pay at Gym Desk',
     },
     {
       id: 'plan_2years',
@@ -356,7 +358,7 @@ export const defaultGymConfig: GymConfig = {
         'Dedicated personalized VIP locker with custom nameplate',
         'Guaranteed price-lock with zero renewal rate increases',
       ],
-      ctaText: 'Join 2-Years Club',
+      ctaText: 'Pay at Gym Desk',
     },
   ],
   spaServices: defaultSpaServices,
@@ -1014,18 +1016,6 @@ export const defaultGymConfig: GymConfig = {
       reviewDate: 'Google Maps Review',
     },
     {
-      id: 'g_review_5',
-      name: 'Vikramaditya Roy',
-      membership: 'Local Guide • 64 Reviews',
-      quote: 'World-class training setup right on Marine Drive in Sonari. High-grade dumbbells, pristine cardio deck, spotless locker rooms, and great steam room. Management is extremely professional. Best gym experience in Jamshedpur!',
-      rating: 5,
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
-      achievement: 'Google Verified Review • 5.0 ★',
-      isGoogleReview: true,
-      googleReviewUrl: 'https://maps.app.goo.gl/bpiN5hRb6Dd2VKig6',
-      reviewDate: 'Google Maps Review',
-    },
-    {
       id: 'g_review_6',
       name: 'Ankit Verma',
       membership: 'Google Reviewer • 27 Reviews',
@@ -1036,6 +1026,64 @@ export const defaultGymConfig: GymConfig = {
       isGoogleReview: true,
       googleReviewUrl: 'https://maps.app.goo.gl/bpiN5hRb6Dd2VKig6',
       reviewDate: 'Google Maps Review',
+    },
+  ],
+  videoReviews: [
+    {
+      id: 'vid_rev_1',
+      title: 'Lost 16kg & Built Lean Muscle in 5 Months',
+      member: 'Aman Deep',
+      membership: 'VIP Member',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
+      videoUrl: 'https://www.youtube.com/watch?v=eaRQF-7hhmo',
+      thumbnail: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80',
+      duration: '1:45',
+      rating: 5,
+      tag: 'Transformation',
+      summary: 'Aman shares his incredible 16kg weight loss journey with our head strength coach and customized nutrition plan.',
+      date: 'Recent Story',
+    },
+    {
+      id: 'vid_rev_2',
+      title: 'Why I Chose Absolute Gym: Tour & Experience',
+      member: 'Rhea Sen',
+      membership: 'Fitness Member',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      videoUrl: 'https://www.youtube.com/watch?v=Z1BCujX3pw8',
+      thumbnail: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
+      duration: '2:10',
+      rating: 5,
+      tag: 'Women Fitness',
+      summary: 'Rhea discusses the empowering women-friendly environment, Zumba & Yoga classes, and luxury steam spa.',
+      date: 'Member Review',
+    },
+    {
+      id: 'vid_rev_3',
+      title: 'From 60kg Bench Press to 140kg Competition PR',
+      member: 'Kunal Singhania',
+      membership: 'Athlete',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+      videoUrl: 'https://www.youtube.com/watch?v=kIXj8_G4bBw',
+      thumbnail: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
+      duration: '1:20',
+      rating: 5,
+      tag: 'Strength & PRs',
+      summary: 'Kunal breaks down how Olympic lifting platforms, imported calibrated plates, and coach guidance amplified his lifts.',
+      date: 'Athlete Story',
+    },
+    {
+      id: 'vid_rev_4',
+      title: 'Post-Injury Rehab & Full Core Mobility Recovery',
+      member: 'Dr. Sameer Banerjee',
+      membership: 'PT Client',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80',
+      videoUrl: 'https://www.youtube.com/watch?v=0Uls6KjT1hE',
+      thumbnail: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80',
+      duration: '2:40',
+      rating: 5,
+      tag: 'Rehab & Health',
+      summary: 'How guided corrective exercise and floor coaching resolved chronic lower back pain and restored athletic stamina.',
+      date: 'Client Review',
     },
   ],
   faqs: [
@@ -1074,7 +1122,7 @@ export const defaultGymConfig: GymConfig = {
     enabled: true,
     name: 'Absolute Gym Cafe',
     tagline: 'Precision Macro Meals, Whey Shakes & Performance Nutrition',
-    description: 'Fuel your workout before and refuel your muscles immediately after with our certified organic smoothies, whey isolate blends, pre-workout shots, and chef-curated macro bowls.',
+    description: 'Get the nutrition you need before and after your workout with high-protein shakes, energy boosters, and healthy meals.',
     hours: '6:00 AM – 10:30 PM (Daily)',
     items: [
       {

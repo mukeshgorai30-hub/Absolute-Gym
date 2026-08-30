@@ -8,6 +8,7 @@ import {
   GymClass,
   GymAmenity,
   Testimonial,
+  VideoReview,
   GalleryItem,
   MemberLead,
   LogoIconType,
@@ -17,9 +18,9 @@ import { ReceiptModal, ReceiptData } from '../Modals/ReceiptModal';
 import { CafeManagerTab } from './CafeManagerTab';
 import { FaqManagerTab } from './FaqManagerTab';
 import { SpaManagerTab } from './SpaManagerTab';
-import { SupabaseManagerTab } from './SupabaseManagerTab';
 import { FirebaseManagerTab } from './FirebaseManagerTab';
 import { ImageUploadField } from './ImageUploadField';
+import { VideoUploadField } from './VideoUploadField';
 import { defaultSpaServices, defaultGymConfig } from '../../data/defaultGymData';
 import { signOutSupabaseAuth } from '../../supabase';
 import {
@@ -84,6 +85,8 @@ import {
   Database,
   Sun,
   Moon,
+  Video,
+  Play,
 } from 'lucide-react';
 
 export const AdminModal: React.FC = () => {
@@ -113,17 +116,20 @@ export const AdminModal: React.FC = () => {
     updateAmenity,
     deleteAmenity,
     addGalleryItem,
+    updateGalleryItem,
     deleteGalleryItem,
     addTestimonial,
     updateTestimonial,
     deleteTestimonial,
+    addVideoReview,
+    updateVideoReview,
+    deleteVideoReview,
     resetToDefaults,
     exportConfigJson,
     importConfigJson,
     isCloudSynced,
     cloudSyncStatus,
     syncToCloudNow,
-    isSupabaseActive,
   } = useGym();
 
   const [isManualSyncing, setIsManualSyncing] = useState(false);
@@ -155,6 +161,11 @@ export const AdminModal: React.FC = () => {
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [isAddingTestimonial, setIsAddingTestimonial] = useState(false);
 
+  const [editingVideoReview, setEditingVideoReview] = useState<VideoReview | null>(null);
+  const [isAddingVideoReview, setIsAddingVideoReview] = useState(false);
+
+  const [editingGalleryItem, setEditingGalleryItem] = useState<GalleryItem | null>(null);
+  const [isAddingGalleryItem, setIsAddingGalleryItem] = useState(false);
   const [newGalleryTitle, setNewGalleryTitle] = useState('');
   const [newGalleryCategory, setNewGalleryCategory] = useState<'Gym Floor' | 'Recovery & Spa' | 'Classes & Studio' | 'Equipment'>('Gym Floor');
   const [newGalleryImage, setNewGalleryImage] = useState('');
@@ -354,13 +365,12 @@ export const AdminModal: React.FC = () => {
             { id: 'cafe', label: 'Fuel Bar & Cafe Menu', icon: <Coffee className="w-4 h-4 text-amber-400" />, badge: `${config.cafe?.items?.length || 0} Items` },
             { id: 'trainers', label: 'Trainers & Coaches', icon: <Users className="w-4 h-4" />, badge: `${config.trainers.length}` },
             { id: 'classes', label: 'Class Schedule', icon: <Calendar className="w-4 h-4" />, badge: `${config.classes.length}` },
-            { id: 'amenities', label: 'Amenities & Facilities', icon: <Sparkles className="w-4 h-4" /> },
             { id: 'leads', label: 'Leads & Enquiries', icon: <Inbox className="w-4 h-4" />, badge: `${leads.filter((l) => l.status === 'new').length} New`, badgeColor: 'bg-red-500 text-white' },
             { id: 'faqs', label: 'Frequently Asked Questions', icon: <HelpCircle className="w-4 h-4 text-emerald-400" />, badge: `${config.faqs?.length || 0} FAQs` },
             { id: 'testimonials', label: 'Reviews & Testimonials', icon: <MessageSquare className="w-4 h-4" /> },
-            { id: 'gallery', label: 'Photo Gallery', icon: <Image className="w-4 h-4" /> },
+            { id: 'videoReviews', label: 'Video Reviews & Stories', icon: <Video className="w-4 h-4 text-amber-400" />, badge: `${config.videoReviews?.length || 0} Videos` },
+            { id: 'gallery', label: 'Photo Gallery & Showcase', icon: <Image className="w-4 h-4 text-amber-400" />, badge: `${config.gallery?.length || 0} Photos` },
             { id: 'firebase', label: 'Firebase Cloud Backend', icon: <Database className="w-4 h-4 text-amber-400" />, badge: cloudSyncStatus === 'synced' ? 'Live' : 'Connected', badgeColor: 'bg-emerald-500/20 text-emerald-300' },
-            { id: 'supabase', label: 'Supabase Sync (Optional)', icon: <Globe className="w-4 h-4 text-neutral-400" />, badge: isSupabaseActive ? 'Live' : 'Connect', badgeColor: isSupabaseActive ? 'bg-emerald-500/20 text-emerald-300' : 'bg-neutral-800 text-neutral-400' },
             { id: 'backup', label: 'Data & Factory Reset', icon: <Settings className="w-4 h-4" /> },
           ].map((tab) => (
             <button
@@ -395,7 +405,7 @@ export const AdminModal: React.FC = () => {
         <div className="md:hidden bg-neutral-950 border-b border-neutral-800 p-2 flex overflow-x-auto gap-1 shrink-0">
           {[
             { id: 'overview', label: 'Overview' },
-            { id: 'supabase', label: '⚡ Supabase Sync' },
+            { id: 'firebase', label: '☁️ Firebase Cloud' },
             { id: 'logo', label: 'Brand Logo' },
             { id: 'visuals', label: 'Themes & Colors' },
             { id: 'backgrounds', label: 'Background Images' },
@@ -405,10 +415,10 @@ export const AdminModal: React.FC = () => {
             { id: 'cafe', label: 'Cafe Menu' },
             { id: 'trainers', label: 'Trainers' },
             { id: 'classes', label: 'Schedule' },
-            { id: 'amenities', label: 'Amenities' },
             { id: 'leads', label: 'Leads' },
             { id: 'faqs', label: 'FAQs' },
             { id: 'testimonials', label: 'Reviews' },
+            { id: 'videoReviews', label: 'Video Reviews' },
             { id: 'gallery', label: 'Gallery' },
             { id: 'backup', label: 'Backup' },
           ].map((tab) => (
@@ -1316,7 +1326,7 @@ export const AdminModal: React.FC = () => {
                   },
                   {
                     id: 'testimonialsBgImage',
-                    title: '9. Member Reviews & Transformations',
+                    title: '9. Member Reviews & Testimonials',
                     desc: 'Backdrop for member success testimonials, 5-star ratings, and reviews.',
                     currentValue: config.testimonialsBgImage,
                     defaultValue: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1800&q=80',
@@ -1328,8 +1338,21 @@ export const AdminModal: React.FC = () => {
                     ],
                   },
                   {
+                    id: 'videoReviewsBgImage',
+                    title: '10. Video Reviews & Transformation Stories',
+                    desc: 'Atmospheric backdrop behind the member video reviews and story player carousel.',
+                    currentValue: config.videoReviewsBgImage,
+                    defaultValue: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1800&q=80',
+                    color: 'text-red-400',
+                    presets: [
+                      { title: 'Cinematic Gym', url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1800&q=80' },
+                      { title: 'Strength Stage', url: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=1800&q=80' },
+                      { title: 'Studio Energy', url: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1800&q=80' },
+                    ],
+                  },
+                  {
                     id: 'contactBgImage',
-                    title: '10. Facility Location & Contact Section',
+                    title: '11. Facility Location & Contact Section',
                     desc: 'Backdrop for the contact form, VIP pass claim, hours, and interactive map.',
                     currentValue: config.contactBgImage,
                     defaultValue: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1800&q=80',
@@ -1722,8 +1745,8 @@ export const AdminModal: React.FC = () => {
                   />
                 </div>
 
-                {/* Contacts */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-neutral-800">
+                {/* Contacts, Instagram & GSTIN */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 pt-4 border-t border-neutral-800">
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-neutral-400 mb-1.5">
                       Phone Number:
@@ -1755,6 +1778,30 @@ export const AdminModal: React.FC = () => {
                       value={config.whatsapp}
                       onChange={(e) => updateConfig({ whatsapp: e.target.value })}
                       className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-400 mb-1.5">
+                      Instagram URL / Handle:
+                    </label>
+                    <input
+                      type="text"
+                      value={config.instagram || ''}
+                      placeholder="https://www.instagram.com/absolute_gym_jsr/"
+                      onChange={(e) => updateConfig({ instagram: e.target.value })}
+                      className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-2.5 text-sm text-pink-400 focus:outline-none focus:border-pink-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-400 mb-1.5">
+                      GSTIN / Tax ID:
+                    </label>
+                    <input
+                      type="text"
+                      value={config.gstin || ''}
+                      placeholder="e.g. 20AABCA1234F1Z8"
+                      onChange={(e) => updateConfig({ gstin: e.target.value })}
+                      className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-2.5 text-sm text-amber-400 font-mono focus:outline-none focus:border-amber-400"
                     />
                   </div>
                 </div>
@@ -2118,7 +2165,7 @@ export const AdminModal: React.FC = () => {
                         badge: 'NEW',
                         features: ['Full Gym Floor Access', 'Locker & Shower Included', 'Free WiFi & Parking'],
                         notIncluded: ['VIP Recovery Spa'],
-                        ctaText: 'Choose Plan',
+                        ctaText: 'Pay at Gym Desk',
                       });
                       setIsAddingPlan(true);
                     }}
@@ -2163,7 +2210,7 @@ export const AdminModal: React.FC = () => {
                             badge: tpl.duration === '1 Year' ? 'BEST VALUE' : tpl.duration === '1 Day' ? 'DROP-IN' : undefined,
                             features: ['Full Gym Floor Access', 'Locker & Shower Included', 'Trainer Guidance On Floor'],
                             notIncluded: tpl.duration.includes('Day') ? ['Free Guest Passes', 'Personal Lockers'] : undefined,
-                            ctaText: `Choose ${tpl.duration}`,
+                            ctaText: 'Pay at Gym Desk',
                           });
                         }}
                         className="px-3 py-1.5 rounded-xl bg-neutral-950 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 hover:text-white text-xs font-bold transition flex items-center gap-1.5"
@@ -2450,10 +2497,8 @@ export const AdminModal: React.FC = () => {
                       </button>
                       <button
                         onClick={() => {
-                          if (confirm(`Delete package ${plan.name}?`)) {
-                            deletePlan(plan.id);
-                            triggerSaveNotification(`Deleted package: ${plan.name}`);
-                          }
+                          deletePlan(plan.id);
+                          triggerSaveNotification(`Deleted package: ${plan.name}`);
                         }}
                         className="p-2 rounded-xl bg-red-950/60 hover:bg-red-900/80 text-red-400 border border-red-900/60"
                         title="Delete Plan"
@@ -2713,10 +2758,8 @@ export const AdminModal: React.FC = () => {
                       </button>
                       <button
                         onClick={() => {
-                          if (confirm(`Delete trainer ${trainer.name}?`)) {
-                            deleteTrainer(trainer.id);
-                            triggerSaveNotification(`Deleted trainer: ${trainer.name}`);
-                          }
+                          deleteTrainer(trainer.id);
+                          triggerSaveNotification(`Deleted trainer: ${trainer.name}`);
                         }}
                         className="p-2 rounded-xl bg-red-950/60 hover:bg-red-900/80 text-red-400 border border-red-900/60"
                         title="Delete Trainer"
@@ -3448,10 +3491,8 @@ export const AdminModal: React.FC = () => {
                                     {/* Delete Button */}
                                     <button
                                       onClick={() => {
-                                        if (confirm(`Delete class "${cls.title}" on ${cls.dayOfWeek}?`)) {
-                                          deleteClass(cls.id);
-                                          triggerSaveNotification(`Deleted class: ${cls.title}`);
-                                        }
+                                        deleteClass(cls.id);
+                                        triggerSaveNotification(`Deleted class: ${cls.title}`);
                                       }}
                                       className="p-1.5 rounded-lg bg-red-950/80 hover:bg-red-900 text-red-400 transition"
                                       title="Delete Class"
@@ -3511,10 +3552,8 @@ export const AdminModal: React.FC = () => {
                   </button>
                   <button
                     onClick={() => {
-                      if (confirm('Clear all leads history?')) {
-                        clearAllLeads();
-                        triggerSaveNotification('All leads cleared.');
-                      }
+                      clearAllLeads();
+                      triggerSaveNotification('All leads cleared.');
                     }}
                     className="px-3 py-2 rounded-xl bg-red-950/60 hover:bg-red-900 text-red-400 text-xs font-bold"
                   >
@@ -3672,165 +3711,6 @@ export const AdminModal: React.FC = () => {
                     </tbody>
                   </table>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 7: AMENITIES CMS */}
-          {adminTab === 'amenities' && (
-            <div className="space-y-6 max-w-5xl mx-auto">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-2xl font-black uppercase text-white">
-                    Facilities & Amenities Management
-                  </h3>
-                  <p className="text-xs text-neutral-400">
-                    Showcase gym equipment, recovery suites, sauna, and locker amenities.
-                  </p>
-                </div>
-                <button
-                  onClick={() => {
-                    const newId = `amenity_${Date.now()}`;
-                    setEditingAmenity({
-                      id: newId,
-                      title: 'Olympic Lifting Bay',
-                      description: 'Calibrated competition plates and Olympic barbells.',
-                      icon: 'Dumbbell',
-                      image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
-                      featured: true,
-                    });
-                    setIsAddingAmenity(true);
-                  }}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${theme.accentBg}`}
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Add Facility</span>
-                </button>
-              </div>
-
-              {/* Edit Amenity Drawer */}
-              {(editingAmenity || isAddingAmenity) && (
-                <div className="bg-neutral-950 border-2 border-amber-500/50 rounded-2xl p-6 shadow-2xl space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
-                    <h4 className="text-lg font-black uppercase text-amber-400">
-                      {isAddingAmenity ? 'Add Facility Amenity' : `Edit Amenity: ${editingAmenity?.title}`}
-                    </h4>
-                    <button
-                      onClick={() => {
-                        setEditingAmenity(null);
-                        setIsAddingAmenity(false);
-                      }}
-                      className="p-1 rounded bg-neutral-800 text-neutral-400 hover:text-white"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {editingAmenity && (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-bold text-neutral-400 uppercase mb-1">
-                            Amenity Title:
-                          </label>
-                          <input
-                            type="text"
-                            value={editingAmenity.title}
-                            onChange={(e) => setEditingAmenity({ ...editingAmenity, title: e.target.value })}
-                            className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-sm text-white"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <ImageUploadField
-                          label="Amenity / Facility Photo"
-                          value={editingAmenity.image}
-                          onChange={(val) => setEditingAmenity({ ...editingAmenity, image: val })}
-                          aspectRatio="video"
-                          helperText="Upload a photo of the facility, equipment zone, sauna, or studio."
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-neutral-400 uppercase mb-1">
-                          Description:
-                        </label>
-                        <textarea
-                          rows={2}
-                          value={editingAmenity.description}
-                          onChange={(e) => setEditingAmenity({ ...editingAmenity, description: e.target.value })}
-                          className="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-xs text-white"
-                        />
-                      </div>
-
-                      <div className="flex justify-end gap-3 pt-3">
-                        <button
-                          onClick={() => {
-                            setEditingAmenity(null);
-                            setIsAddingAmenity(false);
-                          }}
-                          className="px-4 py-2 rounded-xl bg-neutral-800 text-neutral-300 text-xs font-bold"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (isAddingAmenity) {
-                              addAmenity(editingAmenity);
-                              triggerSaveNotification(`Added amenity: ${editingAmenity.title}`);
-                            } else {
-                              updateAmenity(editingAmenity);
-                              triggerSaveNotification(`Updated amenity: ${editingAmenity.title}`);
-                            }
-                            setEditingAmenity(null);
-                            setIsAddingAmenity(false);
-                          }}
-                          className={`px-5 py-2 rounded-xl text-xs font-black uppercase ${theme.accentBg}`}
-                        >
-                          Save Amenity
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {config.amenities.map((amenity) => (
-                  <div key={amenity.id} className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5 flex flex-col justify-between">
-                    <div>
-                      <div className="h-36 rounded-xl overflow-hidden mb-3">
-                        <img src={amenity.image} alt={amenity.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                      </div>
-                      <h4 className="text-base font-black text-white uppercase">{amenity.title}</h4>
-                      <p className="text-xs text-neutral-400 mt-1 line-clamp-2">{amenity.description}</p>
-                    </div>
-                    <div className="flex items-center gap-2 mt-4 pt-3 border-t border-neutral-800">
-                      <button
-                        onClick={() => {
-                          setEditingAmenity({ ...amenity });
-                          setIsAddingAmenity(false);
-                        }}
-                        className="flex-1 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white text-xs font-bold"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => {
-                          if (confirm(`Delete amenity ${amenity.title}?`)) {
-                            deleteAmenity(amenity.id);
-                            triggerSaveNotification(`Deleted amenity: ${amenity.title}`);
-                          }
-                        }}
-                        className="p-1.5 rounded-lg bg-red-950/60 text-red-400 hover:bg-red-900"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
           )}
@@ -4187,6 +4067,495 @@ export const AdminModal: React.FC = () => {
             </div>
           )}
 
+          {/* TAB: VIDEO REVIEWS & TRANSFORMATION STORIES CMS */}
+          {adminTab === 'videoReviews' && (
+            <div className="space-y-6 max-w-5xl mx-auto">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-2xl font-black uppercase text-white flex items-center gap-2">
+                    <Video className="w-6 h-6 text-amber-400" />
+                    <span>Video Reviews & Transformation Stories</span>
+                  </h3>
+                  <p className="text-xs text-neutral-400">
+                    Manage real member video transformation reviews, YouTube/Vimeo embeds, durations, ratings, and video quotes.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      updateConfig({
+                        videoReviews: defaultGymConfig.videoReviews,
+                      });
+                      triggerSaveNotification('Reset video reviews to defaults.');
+                    }}
+                    className="px-3 py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-xs font-bold text-neutral-300"
+                  >
+                    Reset Defaults
+                  </button>
+                  <button
+                    onClick={() => {
+                      const newId = `vid_rev_${Date.now()}`;
+                      setEditingVideoReview({
+                        id: newId,
+                        title: '',
+                        member: '',
+                        membership: 'Gym Member',
+                        avatar: '',
+                        videoUrl: '',
+                        thumbnail: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80',
+                        duration: '2:00',
+                        rating: 5,
+                        tag: 'Transformation',
+                        summary: '',
+                        date: 'Recent Story',
+                      });
+                      setIsAddingVideoReview(true);
+                    }}
+                    className={`px-4 py-2 rounded-xl text-xs font-black uppercase flex items-center gap-1.5 shadow-lg ${theme.accentBg}`}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Video Review</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Edit/Add Video Review Form Modal */}
+              {(isAddingVideoReview || editingVideoReview) && editingVideoReview && (
+                <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-4 shadow-xl animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
+                    <h4 className="text-sm font-black uppercase text-white flex items-center gap-2">
+                      <Video className="w-4 h-4 text-amber-400" />
+                      <span>{isAddingVideoReview ? 'Add New Video Review' : 'Edit Video Review'}</span>
+                    </h4>
+                    <button
+                      onClick={() => {
+                        setEditingVideoReview(null);
+                        setIsAddingVideoReview(false);
+                      }}
+                      className="p-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-400"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-neutral-400 mb-1 uppercase tracking-wider">
+                        Video Story Title *
+                      </label>
+                      <input
+                        type="text"
+                        value={editingVideoReview.title}
+                        onChange={(e) => setEditingVideoReview({ ...editingVideoReview, title: e.target.value })}
+                        placeholder="e.g. Lost 16kg & Built Lean Muscle in 5 Months"
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-neutral-400 mb-1 uppercase tracking-wider">
+                        Member Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={editingVideoReview.member}
+                        onChange={(e) => setEditingVideoReview({ ...editingVideoReview, member: e.target.value })}
+                        placeholder="e.g. Aman Deep"
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-neutral-400 mb-1 uppercase tracking-wider">
+                        Membership / Plan Tier
+                      </label>
+                      <input
+                        type="text"
+                        value={editingVideoReview.membership}
+                        onChange={(e) => setEditingVideoReview({ ...editingVideoReview, membership: e.target.value })}
+                        placeholder="e.g. 1-Year VIP Elite Member"
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-neutral-400 mb-1 uppercase tracking-wider">
+                        Category Tag
+                      </label>
+                      <input
+                        type="text"
+                        value={editingVideoReview.tag}
+                        onChange={(e) => setEditingVideoReview({ ...editingVideoReview, tag: e.target.value })}
+                        placeholder="e.g. Transformation / Women Fitness / Strength & PRs"
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <VideoUploadField
+                        label="Member Video Source (Local Upload or Web URL) *"
+                        value={editingVideoReview.videoUrl}
+                        onChange={(url) => setEditingVideoReview({ ...editingVideoReview, videoUrl: url })}
+                        onThumbnailGenerated={(thumbUrl) => {
+                          // Auto-fill thumbnail if empty or user selects from video
+                          if (!editingVideoReview.thumbnail || editingVideoReview.thumbnail.includes('unsplash')) {
+                            setEditingVideoReview((prev) => prev ? { ...prev, thumbnail: thumbUrl } : null);
+                          }
+                        }}
+                        onDurationDetected={(durationStr) => {
+                          setEditingVideoReview((prev) => prev ? { ...prev, duration: durationStr } : null);
+                        }}
+                        helperText="Upload local video file (.mp4, .mov, .webm) or paste YouTube, Shorts, Vimeo, or direct video URL."
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <ImageUploadField
+                        label="Video Cover / Thumbnail Image *"
+                        value={editingVideoReview.thumbnail}
+                        onChange={(url) => setEditingVideoReview({ ...editingVideoReview, thumbnail: url })}
+                        folder="video_reviews"
+                      />
+                    </div>
+
+
+                    <div>
+                      <label className="block text-xs font-bold text-neutral-400 mb-1 uppercase tracking-wider">
+                        Video Duration
+                      </label>
+                      <input
+                        type="text"
+                        value={editingVideoReview.duration || '1:30'}
+                        onChange={(e) => setEditingVideoReview({ ...editingVideoReview, duration: e.target.value })}
+                        placeholder="e.g. 1:45"
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-neutral-400 mb-1 uppercase tracking-wider">
+                        Star Rating (1-5)
+                      </label>
+                      <select
+                        value={editingVideoReview.rating}
+                        onChange={(e) => setEditingVideoReview({ ...editingVideoReview, rating: Number(e.target.value) })}
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+                      >
+                        <option value={5}>★★★★★ (5 Stars)</option>
+                        <option value={4}>★★★★☆ (4 Stars)</option>
+                        <option value={3}>★★★☆☆ (3 Stars)</option>
+                      </select>
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-bold text-neutral-400 mb-1 uppercase tracking-wider">
+                        Story / Review Summary Quote *
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={editingVideoReview.summary}
+                        onChange={(e) => setEditingVideoReview({ ...editingVideoReview, summary: e.target.value })}
+                        placeholder="Key takeaway from the video quote..."
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-4 border-t border-neutral-800">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingVideoReview(null);
+                        setIsAddingVideoReview(false);
+                      }}
+                      className="px-4 py-2 rounded-xl bg-neutral-800 text-xs font-bold text-neutral-300"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!editingVideoReview.title || !editingVideoReview.member) {
+                          alert('Please enter a story title and member name.');
+                          return;
+                        }
+                        if (isAddingVideoReview) {
+                          addVideoReview(editingVideoReview);
+                          triggerSaveNotification('New video review added successfully!');
+                        } else {
+                          updateVideoReview(editingVideoReview);
+                          triggerSaveNotification('Video review updated successfully!');
+                        }
+                        setEditingVideoReview(null);
+                        setIsAddingVideoReview(false);
+                      }}
+                      className={`px-5 py-2 rounded-xl text-xs font-black uppercase ${theme.accentBg}`}
+                    >
+                      {isAddingVideoReview ? 'Save Video Review' : 'Update Video Review'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* List of Video Reviews */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {(config.videoReviews || []).map((video) => (
+                  <div key={video.id} className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+                    <div>
+                      <div className="relative aspect-video rounded-xl overflow-hidden bg-neutral-950 mb-3 border border-neutral-800">
+                        <img
+                          src={video.thumbnail}
+                          alt={video.title}
+                          className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                        <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/80 text-[10px] font-bold text-amber-400">
+                          {video.tag}
+                        </div>
+                        {video.duration && (
+                          <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/80 text-[10px] font-mono text-neutral-300">
+                            {video.duration}
+                          </div>
+                        )}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-full bg-amber-400 text-black flex items-center justify-center shadow-lg">
+                            <Play className="w-4 h-4 fill-current translate-x-0.5" />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <h4 className="font-extrabold text-white text-sm line-clamp-1">{video.title}</h4>
+                        <span className="text-xs text-amber-400 shrink-0">{'★'.repeat(video.rating || 5)}</span>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-xs text-neutral-400 mb-2">
+                        <span className="font-bold text-neutral-300">{video.member}</span>
+                        <span>•</span>
+                        <span>{video.membership}</span>
+                      </div>
+
+                      <p className="text-xs text-neutral-400 italic line-clamp-2">
+                        "{video.summary}"
+                      </p>
+                    </div>
+
+                    <div className="flex justify-end gap-2 pt-4 mt-3 border-t border-neutral-800">
+                      <button
+                        onClick={() => {
+                          setEditingVideoReview(video);
+                          setIsAddingVideoReview(false);
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-xs text-white font-bold flex items-center gap-1"
+                      >
+                        <Edit2 className="w-3 h-3" />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          deleteVideoReview(video.id);
+                          triggerSaveNotification('Video review deleted.');
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs text-red-400 flex items-center gap-1"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB: PHOTO GALLERY CMS */}
+          {adminTab === 'gallery' && (
+            <div className="space-y-6 max-w-5xl mx-auto">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-2xl font-black uppercase text-white flex items-center gap-2">
+                    <Image className="w-6 h-6 text-amber-400" />
+                    <span>Photo Gallery & Facility Showcase</span>
+                  </h3>
+                  <p className="text-xs text-neutral-400">
+                    Upload, replace, and edit high-definition facility photos, power racks, steam spa, and studio zones.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    const newId = `gal_${Date.now()}`;
+                    setEditingGalleryItem({
+                      id: newId,
+                      title: '',
+                      category: 'Gym Floor',
+                      image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80',
+                    });
+                    setIsAddingGalleryItem(true);
+                  }}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${theme.accentBg}`}
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add New Photo</span>
+                </button>
+              </div>
+
+              {/* Add / Edit Drawer */}
+              {(editingGalleryItem || isAddingGalleryItem) && editingGalleryItem && (
+                <div className="bg-neutral-950 border-2 border-amber-500/50 rounded-2xl p-6 shadow-2xl space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
+                    <h4 className="text-lg font-black uppercase text-amber-400">
+                      {isAddingGalleryItem ? 'Add Facility Photo' : `Edit Photo: ${editingGalleryItem.title || 'Facility Picture'}`}
+                    </h4>
+                    <button
+                      onClick={() => {
+                        setEditingGalleryItem(null);
+                        setIsAddingGalleryItem(false);
+                      }}
+                      className="p-1 rounded bg-neutral-800 text-neutral-400 hover:text-white"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-neutral-400 uppercase mb-1">
+                          Photo Title / Caption:
+                        </label>
+                        <input
+                          type="text"
+                          value={editingGalleryItem.title}
+                          onChange={(e) => setEditingGalleryItem({ ...editingGalleryItem, title: e.target.value })}
+                          placeholder="e.g. Olympic Powerlifting & Squat Racks"
+                          className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-neutral-400 uppercase mb-1">
+                          Category:
+                        </label>
+                        <select
+                          value={editingGalleryItem.category}
+                          onChange={(e) => setEditingGalleryItem({ ...editingGalleryItem, category: e.target.value as any })}
+                          className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400"
+                        >
+                          <option value="Gym Floor">Gym Floor</option>
+                          <option value="Recovery & Spa">Recovery & Spa</option>
+                          <option value="Classes & Studio">Classes & Studio</option>
+                          <option value="Equipment">Equipment</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <ImageUploadField
+                        label="Facility Photo File / URL"
+                        value={editingGalleryItem.image}
+                        onChange={(val) => setEditingGalleryItem({ ...editingGalleryItem, image: val })}
+                        aspectRatio="video"
+                        presets={[
+                          { title: 'Olympic Iron Stage', url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80' },
+                          { title: 'Dumbbell Matrix', url: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=1200&q=80' },
+                          { title: 'Cardio Deck View', url: 'https://images.unsplash.com/photo-1576678927484-cc907957088c?auto=format&fit=crop&w=1200&q=80' },
+                          { title: 'Eucalyptus Steam Spa', url: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=1200&q=80' },
+                          { title: 'Neon Spin Studio', url: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=80' },
+                          { title: 'Functional Rig', url: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=1200&q=80' },
+                        ]}
+                        helperText="Upload gym photo from your device or select an HD preset."
+                      />
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-3 border-t border-neutral-800">
+                      <button
+                        onClick={() => {
+                          setEditingGalleryItem(null);
+                          setIsAddingGalleryItem(false);
+                        }}
+                        className="px-4 py-2 rounded-xl bg-neutral-900 text-xs font-bold text-neutral-400 hover:text-white"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (!editingGalleryItem.title.trim()) {
+                            alert('Please provide a caption or title for the image.');
+                            return;
+                          }
+                          if (isAddingGalleryItem) {
+                            addGalleryItem(editingGalleryItem);
+                            triggerSaveNotification('New photo added to gallery!');
+                          } else {
+                            updateGalleryItem(editingGalleryItem);
+                            triggerSaveNotification('Gallery photo updated!');
+                          }
+                          setEditingGalleryItem(null);
+                          setIsAddingGalleryItem(false);
+                        }}
+                        className={`px-5 py-2 rounded-xl text-xs font-black uppercase ${theme.accentBg}`}
+                      >
+                        {isAddingGalleryItem ? 'Save Photo' : 'Update Photo'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Gallery Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {(config.gallery || []).map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden shadow-xl flex flex-col justify-between group"
+                  >
+                    <div className="relative aspect-video bg-neutral-950 overflow-hidden">
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className="absolute top-3 right-3 px-2 py-1 rounded bg-black/70 backdrop-blur-md text-[10px] font-black uppercase tracking-wider text-amber-400 border border-neutral-700">
+                        {item.category}
+                      </div>
+                    </div>
+
+                    <div className="p-4 flex-1 flex flex-col justify-between">
+                      <div>
+                        <h4 className="text-sm font-black uppercase text-white truncate" title={item.title}>
+                          {item.title}
+                        </h4>
+                      </div>
+
+                      <div className="flex items-center gap-2 mt-4 pt-3 border-t border-neutral-800">
+                        <button
+                          onClick={() => {
+                            setEditingGalleryItem(item);
+                            setIsAddingGalleryItem(false);
+                          }}
+                          className="flex-1 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-xs font-bold text-white flex items-center justify-center gap-1.5 transition"
+                        >
+                          <Edit2 className="w-3 h-3 text-amber-400" />
+                          <span>Edit Image</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            deleteGalleryItem(item.id);
+                            triggerSaveNotification('Photo removed from gallery.');
+                          }}
+                          className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 transition"
+                          title="Delete Photo"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* TAB: MASSAGE & STEAM SPA PRICING TABLE CMS */}
           {adminTab === 'spa' && (
             <SpaManagerTab onNotify={triggerSaveNotification} />
@@ -4205,11 +4574,6 @@ export const AdminModal: React.FC = () => {
           {/* TAB: FIREBASE CLOUD BACKEND */}
           {adminTab === 'firebase' && (
             <FirebaseManagerTab />
-          )}
-
-          {/* TAB: SUPABASE & CLOUD REALTIME SYNC */}
-          {adminTab === 'supabase' && (
-            <SupabaseManagerTab onNotify={triggerSaveNotification} />
           )}
 
           {/* TAB 10: BACKUP & FACTORY RESET */}
@@ -4298,10 +4662,8 @@ export const AdminModal: React.FC = () => {
                   </p>
                   <button
                     onClick={() => {
-                      if (confirm('Are you sure you want to reset all customizations to factory default?')) {
-                        resetToDefaults();
-                        triggerSaveNotification('Gym reset to factory defaults!');
-                      }
+                      resetToDefaults();
+                      triggerSaveNotification('Gym reset to factory defaults!');
                     }}
                     className="w-full py-3 rounded-xl bg-red-950 border border-red-800 text-red-400 hover:bg-red-900 text-xs font-extrabold uppercase tracking-wider transition"
                   >

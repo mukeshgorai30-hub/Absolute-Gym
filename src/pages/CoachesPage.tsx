@@ -68,31 +68,22 @@ export const CoachesPage: React.FC = () => {
             <span>Master Coaches & Certified Trainers</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tight text-white">
-            Performance Coaches & Trainers
+          <h1 id="coaches-page-main-heading" className="text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight text-white">
+            Certified Coaches & <span className={`bg-gradient-to-r ${theme.gradientText} bg-clip-text text-transparent`}>Trainers</span>
           </h1>
 
           <p className="mt-4 text-base sm:text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed">
-            Train 1-on-1 with elite strength specialists, IFBB athletes, Olympic lifting coaches, and clinical physiotherapists committed to your physical evolution.
+            Train one-on-one with expert coaches, bodybuilders, lifting specialists, and physiotherapists dedicated to helping you reach your fitness goals.
           </p>
 
-          {/* Quick CTA strip */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <button
-              onClick={() => setIsTrialModalOpen(true)}
-              className={`px-6 py-3.5 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider flex items-center gap-2 shadow-xl ${theme.accentBg}`}
-            >
-              <Flame className="w-4 h-4" />
-              <span>Book 1-on-1 Fitness Assessment</span>
-            </button>
-          </div>
+
         </div>
       </div>
 
       {/* Main Content Area */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Search & Specialty Filter Controls */}
-        <div className="bg-neutral-900/80 border border-neutral-800 rounded-2xl p-5 mb-10 space-y-4 shadow-xl">
+        {/* Search Control */}
+        <div className="bg-neutral-900/80 border border-neutral-800 rounded-2xl p-5 mb-10 shadow-xl">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Search Input */}
             <div className="relative w-full md:w-96">
@@ -118,27 +109,6 @@ export const CoachesPage: React.FC = () => {
               <span className="text-white font-black">{filteredTrainers.length}</span>
               <span>coaches available for booking</span>
             </div>
-          </div>
-
-          {/* Specialty Filter Chips */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-            <span className="text-[11px] font-bold text-neutral-500 uppercase mr-1 whitespace-nowrap flex items-center gap-1">
-              <Filter className="w-3 h-3" /> Filter:
-            </span>
-            {allSpecialties.map((spec) => (
-              <button
-                key={spec}
-                id={`coaches-page-filter-${spec.toLowerCase()}`}
-                onClick={() => setSelectedSpecialty(spec)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all touch-manipulation active:scale-95 ${
-                  selectedSpecialty === spec
-                    ? `${theme.accentBg} shadow-md`
-                    : 'bg-neutral-950 hover:bg-neutral-800 text-neutral-300 border border-neutral-800'
-                }`}
-              >
-                {spec}
-              </button>
-            ))}
           </div>
         </div>
 
@@ -233,21 +203,6 @@ export const CoachesPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Booking CTA Button */}
-                <div className="p-6 pt-0">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedTrainerForModal(trainer);
-                    }}
-                    className={`w-full py-3.5 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg min-h-[48px] touch-manipulation active:scale-[0.98] ${theme.accentBg}`}
-                  >
-                    <Calendar className="w-4 h-4" />
-                    <span>Book 1-on-1 Consultation</span>
-                  </button>
-                </div>
               </div>
             ))}
           </div>
@@ -269,45 +224,6 @@ export const CoachesPage: React.FC = () => {
             </button>
           </div>
         )}
-
-        {/* Training Methodology Strip */}
-        <div className="mt-16 p-8 rounded-3xl bg-neutral-900 border border-neutral-800 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-          <div className="flex items-start gap-4">
-            <div className={`p-3 rounded-2xl bg-neutral-950 border border-neutral-800 shrink-0 ${theme.accentText}`}>
-              <Award className="w-6 h-6" />
-            </div>
-            <div>
-              <h4 className="text-sm font-black uppercase text-white mb-1">Scientific Periodization</h4>
-              <p className="text-xs text-neutral-400 leading-relaxed">
-                Structured progressive overload, volume cycling, and RPE autoregulation tailored to your biomechanics.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-4">
-            <div className={`p-3 rounded-2xl bg-neutral-950 border border-neutral-800 shrink-0 ${theme.accentText}`}>
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <div>
-              <h4 className="text-sm font-black uppercase text-white mb-1">Movement Screen & Safety</h4>
-              <p className="text-xs text-neutral-400 leading-relaxed">
-                Comprehensive posture, joint mobility, and movement screening before loading heavy compounds.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-4">
-            <div className={`p-3 rounded-2xl bg-neutral-950 border border-neutral-800 shrink-0 ${theme.accentText}`}>
-              <Sparkles className="w-6 h-6" />
-            </div>
-            <div>
-              <h4 className="text-sm font-black uppercase text-white mb-1">Macro & Nutrition Coaching</h4>
-              <p className="text-xs text-neutral-400 leading-relaxed">
-                Personalized daily caloric intake, macro breakdowns, and fuel timing synced with our Fuel Bar Cafe.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

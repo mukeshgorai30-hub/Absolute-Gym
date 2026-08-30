@@ -44,6 +44,30 @@ export const GalleryPage: React.FC = () => {
       ? filteredGallery[selectedPhotoIndex]
       : null;
 
+  // Keyboard navigation for photo lightbox
+  React.useEffect(() => {
+    if (selectedPhotoIndex === null) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedPhotoIndex(null);
+      } else if (e.key === 'ArrowLeft') {
+        if (selectedPhotoIndex > 0) {
+          setSelectedPhotoIndex(selectedPhotoIndex - 1);
+        } else {
+          setSelectedPhotoIndex(filteredGallery.length - 1);
+        }
+      } else if (e.key === 'ArrowRight') {
+        if (selectedPhotoIndex < filteredGallery.length - 1) {
+          setSelectedPhotoIndex(selectedPhotoIndex + 1);
+        } else {
+          setSelectedPhotoIndex(0);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedPhotoIndex, filteredGallery.length]);
+
   const handlePrevPhoto = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (selectedPhotoIndex !== null && selectedPhotoIndex > 0) {
@@ -103,13 +127,13 @@ export const GalleryPage: React.FC = () => {
               className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-4 ${theme.accentBadge}`}
             >
               <ImageIcon className="w-3.5 h-3.5" />
-              <span>Virtual Facility Showcase</span>
+              <span>Explore our Gym</span>
             </div>
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight text-white">
               Inside <span className={theme.accentText}>{config.name || 'Absolute Gym'}</span>
             </h1>
             <p className="mt-4 text-base sm:text-lg text-neutral-300 leading-relaxed">
-              Explore our world-class training grounds, olympic lifting platforms, restorative Eucalyptus Steam Spa suites, and dedicated high-energy fitness studios.
+              Check out our workout areas, weightlifting zones, relaxing steam rooms, and group fitness studios.
             </p>
           </div>
 
@@ -122,7 +146,7 @@ export const GalleryPage: React.FC = () => {
               </div>
             </div>
             <div className="p-4 rounded-2xl bg-neutral-900/80 border border-neutral-800 backdrop-blur-sm">
-              <div className="text-amber-400 font-black text-2xl sm:text-3xl">Rogue & Eleiko</div>
+              <div className="text-amber-400 font-black text-2xl sm:text-3xl">Pro Equipment</div>
               <div className="text-xs text-neutral-400 font-semibold uppercase tracking-wider mt-1">
                 Competition Platforms
               </div>
@@ -134,7 +158,7 @@ export const GalleryPage: React.FC = () => {
               </div>
             </div>
             <div className="p-4 rounded-2xl bg-neutral-900/80 border border-neutral-800 backdrop-blur-sm">
-              <div className="text-amber-400 font-black text-2xl sm:text-3xl">Fuel Bar</div>
+              <div className="text-amber-400 font-black text-2xl sm:text-3xl">Cafe area</div>
               <div className="text-xs text-neutral-400 font-semibold uppercase tracking-wider mt-1">
                 Clean Nutrition Cafe
               </div>
