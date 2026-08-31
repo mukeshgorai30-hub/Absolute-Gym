@@ -19,6 +19,7 @@ import { CafeManagerTab } from './CafeManagerTab';
 import { FaqManagerTab } from './FaqManagerTab';
 import { SpaManagerTab } from './SpaManagerTab';
 import { FirebaseManagerTab } from './FirebaseManagerTab';
+import { HostingerManagerTab } from './HostingerManagerTab';
 import { ImageUploadField } from './ImageUploadField';
 import { VideoUploadField } from './VideoUploadField';
 import { defaultSpaServices, defaultGymConfig } from '../../data/defaultGymData';
@@ -58,6 +59,7 @@ import {
   Dumbbell,
   Clock,
   Trophy,
+  HardDrive,
   Zap,
   Shield,
   Crown,
@@ -130,6 +132,7 @@ export const AdminModal: React.FC = () => {
     isCloudSynced,
     cloudSyncStatus,
     syncToCloudNow,
+    isHostingerActive,
   } = useGym();
 
   const [isManualSyncing, setIsManualSyncing] = useState(false);
@@ -370,6 +373,7 @@ export const AdminModal: React.FC = () => {
             { id: 'testimonials', label: 'Reviews & Testimonials', icon: <MessageSquare className="w-4 h-4" /> },
             { id: 'videoReviews', label: 'Video Reviews & Stories', icon: <Video className="w-4 h-4 text-amber-400" />, badge: `${config.videoReviews?.length || 0} Videos` },
             { id: 'gallery', label: 'Photo Gallery & Showcase', icon: <Image className="w-4 h-4 text-amber-400" />, badge: `${config.gallery?.length || 0} Photos` },
+            { id: 'hostinger', label: 'Hostinger MySQL DB', icon: <HardDrive className="w-4 h-4 text-indigo-400" />, badge: isHostingerActive ? 'Active' : 'Setup', badgeColor: isHostingerActive ? 'bg-emerald-500/20 text-emerald-300' : 'bg-indigo-500/20 text-indigo-300' },
             { id: 'firebase', label: 'Firebase Cloud Backend', icon: <Database className="w-4 h-4 text-amber-400" />, badge: cloudSyncStatus === 'synced' ? 'Live' : 'Connected', badgeColor: 'bg-emerald-500/20 text-emerald-300' },
             { id: 'backup', label: 'Data & Factory Reset', icon: <Settings className="w-4 h-4" /> },
           ].map((tab) => (
@@ -405,6 +409,7 @@ export const AdminModal: React.FC = () => {
         <div className="md:hidden bg-neutral-950 border-b border-neutral-800 p-2 flex overflow-x-auto gap-1 shrink-0">
           {[
             { id: 'overview', label: 'Overview' },
+            { id: 'hostinger', label: '🐬 Hostinger MySQL' },
             { id: 'firebase', label: '☁️ Firebase Cloud' },
             { id: 'logo', label: 'Brand Logo' },
             { id: 'visuals', label: 'Themes & Colors' },
@@ -4569,6 +4574,11 @@ export const AdminModal: React.FC = () => {
           {/* TAB: FREQUENTLY ASKED QUESTIONS (FAQ) */}
           {adminTab === 'faqs' && (
             <FaqManagerTab onNotify={triggerSaveNotification} />
+          )}
+
+          {/* TAB: HOSTINGER MYSQL DATABASE */}
+          {adminTab === 'hostinger' && (
+            <HostingerManagerTab onNotify={triggerSaveNotification} />
           )}
 
           {/* TAB: FIREBASE CLOUD BACKEND */}

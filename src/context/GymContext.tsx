@@ -29,6 +29,16 @@ import {
   testSupabaseConnection,
   SupabaseConfigSettings,
 } from '../supabase';
+import {
+  getStoredHostingerCredentials,
+  saveStoredHostingerCredentials,
+  testHostingerConnection,
+  fetchHostingerConfig,
+  saveHostingerConfig,
+  saveHostingerLead,
+  fetchHostingerLeads,
+  HostingerDbConfig,
+} from '../hostingerDb';
 
 interface GymContextType {
   config: GymConfig;
@@ -37,6 +47,12 @@ interface GymContextType {
   isCloudSynced: boolean;
   cloudSyncStatus: 'synced' | 'saving' | 'offline';
   
+  // Hostinger MySQL Database Management
+  hostingerConfig: HostingerDbConfig;
+  updateHostingerCredentials: (creds: Partial<HostingerDbConfig>) => void;
+  testHostingerDb: () => Promise<{ success: boolean; message: string; tableExists: boolean; version?: string }>;
+  isHostingerActive: boolean;
+
   // Supabase Backend Management
   supabaseConfig: SupabaseConfigSettings;
   updateSupabaseCredentials: (creds: Partial<SupabaseConfigSettings>) => void;
@@ -212,6 +228,8 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [cloudSyncStatus, setCloudSyncStatus] = useState<'synced' | 'saving' | 'offline'>('synced');
   const [supabaseConfig, setSupabaseConfig] = useState<SupabaseConfigSettings>(() => getStoredSupabaseCredentials());
   const [isSupabaseActive, setIsSupabaseActive] = useState<boolean>(() => Boolean(getStoredSupabaseCredentials().isEnabled && getStoredSupabaseCredentials().url));
+  const [hostingerConfig, setHostingerConfig] = useState<HostingerDbConfig>(() => getStoredHostingerCredentials());
+  const [isHostingerActive, setIsHostingerActive] = useState<boolean>(() => Boolean(getStoredHostingerCredentials().isEnabled));
   const isInitialCloudLoadDone = useRef<boolean>(false);
   const isLocalUpdate = useRef<boolean>(false);
   const isRemoteApplying = useRef<boolean>(false);
@@ -551,6 +569,43 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, []);
 
+  // Hostinger MySQL Initial Fetch Engine
+  useEffect(() => {
+    if (!isHostingerActive) return;
+
+    fetchHostingerConfig().then((cloudCfg) => {
+      if (cloudCfg) {
+        setConfigState((prev) => {
+          const merged: GymConfig = {
+            ...prev,
+            ...cloudCfg,
+            spaServices: cloudCfg.spaServices && cloudCfg.spaServices.length > 0 ? cloudCfg.spaServices : (prev.spaServices || defaultSpaServices),
+            cafe: {
+              ...prev.cafe,
+              ...(cloudCfg.cafe || {}),
+              items: cloudCfg.cafe?.items && cloudCfg.cafe.items.length > 0 ? cloudCfg.cafe.items : prev.cafe?.items || defaultGymConfig.cafe.items,
+            },
+          };
+          const mergedJson = JSON.stringify(merged);
+          if (mergedJson === lastSavedConfigJson.current) {
+            return prev;
+          }
+          isRemoteApplying.current = true;
+          lastSavedConfigJson.current = mergedJson;
+          return merged;
+        });
+        setIsCloudSynced(true);
+        setCloudSyncStatus('synced');
+      }
+    });
+
+    fetchHostingerLeads().then((cloudLeads) => {
+      if (cloudLeads && cloudLeads.length > 0) {
+        setLeads(cloudLeads);
+      }
+    });
+  }, [hostingerConfig.apiUrl, hostingerConfig.apiKey, hostingerConfig.isEnabled]);
+
   // 3. Save config to local storage AND write to Firestore whenever config changes
   useEffect(() => {
     const configStr = JSON.stringify(config);
@@ -576,11 +631,12 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.error('Error saving config to localStorage:', err);
     }
 
-    // Debounced write to Firestore & Supabase only for real local edits
+    // Debounced write to Firestore, Supabase & Hostinger only for real local edits
     isLocalUpdate.current = true;
     setCloudSyncStatus('saving');
     const timer = setTimeout(async () => {
       let supabaseSuccess = false;
+      let hostingerSuccess = false;
       let firestoreSuccess = false;
 
       // Save to Supabase if enabled
@@ -593,6 +649,16 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       }
 
+      // Save to Hostinger MySQL if enabled
+      if (isHostingerActive) {
+        try {
+          const res = await saveHostingerConfig(config);
+          if (res.success) hostingerSuccess = true;
+        } catch (e) {
+          console.warn('Hostinger auto-save warning:', e);
+        }
+      }
+
       // Save to Firestore
       try {
         const configDocRef = doc(db, 'gym_config', FIRESTORE_CONFIG_DOC);
@@ -602,7 +668,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         console.warn('Firestore auto-save warning:', error);
       }
 
-      if (supabaseSuccess || firestoreSuccess || !isSupabaseActive) {
+      if (supabaseSuccess || hostingerSuccess || firestoreSuccess || (!isSupabaseActive && !isHostingerActive)) {
         setIsCloudSynced(true);
         setCloudSyncStatus('synced');
       } else {
@@ -613,7 +679,7 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }, 400);
 
     return () => clearTimeout(timer);
-  }, [config, isSupabaseActive]);
+  }, [config, isSupabaseActive, isHostingerActive]);
 
   // 4. Save leads to local storage
   useEffect(() => {
@@ -628,6 +694,18 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.error('Error saving leads to localStorage:', err);
     }
   }, [leads]);
+
+  const updateHostingerCredentials = (creds: Partial<HostingerDbConfig>) => {
+    const updated = saveStoredHostingerCredentials(creds);
+    if (updated) {
+      setHostingerConfig(updated);
+      setIsHostingerActive(Boolean(updated.isEnabled));
+    }
+  };
+
+  const testHostingerDb = async () => {
+    return await testHostingerConnection();
+  };
 
   const updateSupabaseCredentials = (creds: Partial<SupabaseConfigSettings>) => {
     const updated = saveStoredSupabaseCredentials(creds);
@@ -645,12 +723,15 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     success: boolean;
     message: string;
     supabaseSynced?: boolean;
+    hostingerSynced?: boolean;
     firestoreSynced?: boolean;
     errorDetail?: string;
   }> => {
     setCloudSyncStatus('saving');
     let supabaseSuccess = false;
     let supabaseErrorMsg: string | undefined = undefined;
+    let hostingerSuccess = false;
+    let hostingerErrorMsg: string | undefined = undefined;
     let firestoreSuccess = false;
     let firestoreErrorMsg: string | undefined = undefined;
 
@@ -660,7 +741,6 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const res = await saveSupabaseConfig(config);
         if (res.success) {
           supabaseSuccess = true;
-          // Sync leads to Supabase as well
           for (const lead of leads) {
             await saveSupabaseLead(lead);
           }
@@ -672,7 +752,24 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     }
 
-    // 2. Attempt Firestore
+    // 2. Attempt Hostinger MySQL
+    if (isHostingerActive) {
+      try {
+        const res = await saveHostingerConfig(config);
+        if (res.success) {
+          hostingerSuccess = true;
+          for (const lead of leads) {
+            await saveHostingerLead(lead);
+          }
+        } else {
+          hostingerErrorMsg = res.error;
+        }
+      } catch (e: any) {
+        hostingerErrorMsg = e?.message || 'Hostinger write error';
+      }
+    }
+
+    // 3. Attempt Firestore
     try {
       const configDocRef = doc(db, 'gym_config', FIRESTORE_CONFIG_DOC);
       await setDoc(configDocRef, { ...config, updatedAt: new Date().toISOString() }, { merge: true });
@@ -681,51 +778,27 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       firestoreErrorMsg = e?.message || 'Firestore write error';
     }
 
-    if (supabaseSuccess && firestoreSuccess) {
+    if (supabaseSuccess || hostingerSuccess || firestoreSuccess) {
       setIsCloudSynced(true);
       setCloudSyncStatus('synced');
+      const destinations = [
+        firestoreSuccess ? 'Firestore' : null,
+        supabaseSuccess ? 'Supabase' : null,
+        hostingerSuccess ? 'Hostinger MySQL' : null,
+      ].filter(Boolean).join(' & ');
+
       return {
         success: true,
-        message: 'Live Cloud Synced to Supabase & Firestore successfully!',
-        supabaseSynced: true,
-        firestoreSynced: true,
+        message: `Live Cloud Synced to ${destinations} successfully!`,
+        supabaseSynced: supabaseSuccess,
+        hostingerSynced: hostingerSuccess,
+        firestoreSynced: firestoreSuccess,
       };
     }
 
-    if (supabaseSuccess) {
-      setIsCloudSynced(true);
-      setCloudSyncStatus('synced');
-      return {
-        success: true,
-        message: 'Synced to Supabase successfully! All devices & Netlify visitors will see updates in real-time.',
-        supabaseSynced: true,
-        firestoreSynced: false,
-      };
-    }
-
-    if (firestoreSuccess) {
-      setIsCloudSynced(true);
-      setCloudSyncStatus('synced');
-      if (isSupabaseActive && supabaseErrorMsg) {
-        return {
-          success: true,
-          message: `Synced to Firestore! (Supabase notice: ${supabaseErrorMsg})`,
-          supabaseSynced: false,
-          firestoreSynced: true,
-          errorDetail: supabaseErrorMsg,
-        };
-      }
-      return {
-        success: true,
-        message: 'Live Cloud Synced to Firestore successfully!',
-        supabaseSynced: false,
-        firestoreSynced: true,
-      };
-    }
-
-    // Both failed
+    // All failed
     setCloudSyncStatus('offline');
-    const failureReason = supabaseErrorMsg || firestoreErrorMsg || 'Connection error. Please verify your internet or Supabase credentials.';
+    const failureReason = hostingerErrorMsg || supabaseErrorMsg || firestoreErrorMsg || 'Connection error. Please verify your internet or database credentials.';
     return {
       success: false,
       message: `Cloud sync notice: ${failureReason}`,
@@ -1067,9 +1140,12 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setLeads((prev) => [newLead, ...prev]);
 
-    // Persist to Supabase & Firestore
+    // Persist to Supabase, Hostinger & Firestore
     if (isSupabaseActive) {
       saveSupabaseLead(newLead).catch((err) => console.warn('Supabase lead write notice:', err));
+    }
+    if (isHostingerActive) {
+      saveHostingerLead(newLead).catch((err) => console.warn('Hostinger lead write notice:', err));
     }
     try {
       const leadDocRef = doc(db, 'leads', newId);
@@ -1086,6 +1162,9 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const targetLead = leads.find((l) => l.id === id);
     if (targetLead && isSupabaseActive) {
       saveSupabaseLead({ ...targetLead, status }).catch((err) => console.warn('Supabase updateLead notice:', err));
+    }
+    if (targetLead && isHostingerActive) {
+      saveHostingerLead({ ...targetLead, status }).catch((err) => console.warn('Hostinger updateLead notice:', err));
     }
     try {
       const leadDocRef = doc(db, 'leads', id);
@@ -1207,6 +1286,10 @@ export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isCloudSynced,
         cloudSyncStatus,
         syncToCloudNow,
+        hostingerConfig,
+        updateHostingerCredentials,
+        testHostingerDb,
+        isHostingerActive,
         supabaseConfig,
         updateSupabaseCredentials,
         testSupabase,
